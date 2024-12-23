@@ -1,0 +1,65 @@
+HELP.md
+.mvn
+target/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+# Maven target directory
+/target/
+
+# Maven build logs
+mvn*.log
+
+# Maven wrapper files
+.mvn/wrapper/maven-wrapper.jar
+
+# Dependency caching directories
+/.m2/
+
+# macOS Finder metadata
+.DS_Store
+
+# macOS resource fork
+._*
+
+# macOS QuickLook
+.AppleDouble
+
+# macOS metadata files
+.LSOverride
+
+# macOS file for stored settings
+Icon?
