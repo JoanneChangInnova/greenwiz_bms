@@ -63,3 +63,7 @@ mvn*.log
 
 # macOS file for stored settings
 Icon?
+
+.mvn/wrapper/
+mvnw
+mvnw.cmd
