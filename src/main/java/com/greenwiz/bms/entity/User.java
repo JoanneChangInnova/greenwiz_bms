@@ -79,7 +79,7 @@ public class User extends BaseEntity {
     private String address;
 
     /**
-     * 帳戶狀態: 0:待審, 1:開通, 2:封鎖
+     * 用戶狀態: 0:待審, 1:開通, 2:封鎖
      */
     private Integer state;
 

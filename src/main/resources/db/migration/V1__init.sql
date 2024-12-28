@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `country` VARCHAR(64) NULL COMMENT '使用者的國家',
     `level` TINYINT UNSIGNED NULL COMMENT '平臺等級',
     `address` VARCHAR(1024) NULL COMMENT '使用者的地址',
-    `state` TINYINT UNSIGNED NULL COMMENT '帳戶狀態: 0:待審, 1:開通, 2:封鎖',
+    `state` TINYINT UNSIGNED NULL COMMENT '用戶狀態: 0:待審, 1:開通, 2:封鎖',
     `max_device` SMALLINT UNSIGNED NULL DEFAULT 20 COMMENT '最大設備數量，默認 20',
     `language` VARCHAR(20) NULL COMMENT '語言偏好，例如 CHT 或 ENG',
     `dt_modify` DATETIME NULL COMMENT '最後修改時間',
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
     `control_type` VARCHAR(50) NULL COMMENT '控制類型',
     `statistics_in_ov` BOOLEAN NULL COMMENT '是否為總用電通道，值為 TRUE 或 FALSE',
     `state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:offline, 1:online',
-    `description` VARCHAR(50) DEFAULT NULL COMMENT '描述信息',
+    `description` VARCHAR(50) DEFAULT NULL COMMENT '描述信息   n',
     `dt_modify` DATETIME NULL COMMENT '最後修改時間',
     `dt_create` DATETIME NULL COMMENT '註冊時間',
     `create_user` VARCHAR(20) NULL COMMENT '建立資料的使用者 ID 或 SYSTEM',
@@ -43,3 +43,5 @@ CREATE TABLE IF NOT EXISTS `channel` (
     PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通道表，存儲通道相關信息';
 
+-- ALTER TABLE column_update_time
+--     ADD CONSTRAINT unique_ticket_oid_column_update_time_setting_oid UNIQUE (ticket_oid, column_update_time_setting_oid);

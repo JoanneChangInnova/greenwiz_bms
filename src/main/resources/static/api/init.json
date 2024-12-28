@@ -288,19 +288,19 @@
           ]
         },
         {
-          "title": "帳戶管理",
+          "title": "用戶管理",
           "href": "",
           "icon": "fa fa-home",
           "target": "_self",
           "child": [
             {
-              "title": "帳戶列表",
-              "href": "page/table.html",
+              "title": "用戶列表",
+              "href": "page/admin/user_list.html",
               "icon": "fa fa-file-text",
               "target": "_self"
             },
             {
-              "title": "待審帳戶",
+              "title": "待審用戶",
               "href": "page/table.html",
               "icon": "fa fa-file-text",
               "target": "_self"

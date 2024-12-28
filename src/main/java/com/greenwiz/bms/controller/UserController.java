@@ -1,9 +1,11 @@
 package com.greenwiz.bms.controller;
 
+import com.greenwiz.bms.controller.data.user.ParentData;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,15 +21,20 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/batachSaveForUser")
+    @PostMapping("/save")
     public void batachSaveForUser() {
-        List<User> users = new ArrayList<>();
+        User user = new User();
+        user.setRole(0);
+        userService.save(user);
+    }
 
-        for (int i = 0; i < 1; i++) {
-            User user = new User();
-            user.setRole(0);
-            users.add(user);
-        }
-        userService.saveAll(users);
+    @GetMapping("/listParentIdAndUserName")
+    public List<ParentData> listParentIdAndUserName() {
+        List<ParentData> dataList = new ArrayList<>();
+        dataList.add(new ParentData(1, "管理者A"));
+        dataList.add(new ParentData(2, "管理者B"));
+        dataList.add(new ParentData(3, "管理者C"));
+
+        return dataList;
     }
 }

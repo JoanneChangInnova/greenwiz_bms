@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>新增用戶</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../lib/layui-v2.6.3/css/layui.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+    <div class="layui-form-item">
+        <label class="layui-form-label required">用戶名稱</label>
+        <div class="layui-input-block">
+            <input type="text" name="username" lay-verify="required" placeholder="請輸入用戶名稱" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">角色</label>
+        <div class="layui-input-block">
+            <select name="role" lay-verify="required">
+                <option value="">請選擇角色</option>
+                <option value="1">代理商</option>
+                <option value="2">安裝商</option>
+                <option value="3">一般用戶</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">用戶管理者</label>
+        <div class="layui-input-block">
+            <select name="parentId" lay-verify="required">
+                <option value="">請選擇管理者</option>
+                <!-- 動態載入 API 返回的數據 -->
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">信箱</label>
+        <div class="layui-input-block">
+            <input type="email" name="email" lay-verify="email" placeholder="請輸入電子郵件地址" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">密碼</label>
+        <div class="layui-input-block">
+            <input type="password" name="password" lay-verify="required" placeholder="請輸入密碼" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">確認密碼</label>
+        <div class="layui-input-block">
+            <input type="password" name="confirmPassword" lay-verify="required|confirmPass" placeholder="請再次輸入密碼" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">公司名稱</label>
+        <div class="layui-input-block">
+            <input type="text" name="company" placeholder="請輸入公司名稱" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">公司聯絡人</label>
+        <div class="layui-input-block">
+            <input type="text" name="contact" placeholder="請輸入聯絡人名稱" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">電話國碼</label>
+        <div class="layui-input-block">
+            <input type="text" name="phone_country_code" placeholder="請輸入電話國碼" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">電話號碼</label>
+        <div class="layui-input-block">
+            <input type="text" name="phone_number" placeholder="請輸入電話號碼" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">國家</label>
+        <div class="layui-input-block">
+            <select name="country" lay-verify="required">
+                <option value="">請選擇國家</option>
+                <option value="TW">台灣</option>
+                <option value="MRY">馬來西亞</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">地址</label>
+        <div class="layui-input-block">
+            <input type="text" name="address" placeholder="請輸入地址" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">最大設備數量</label>
+        <div class="layui-input-block">
+            <select name="max_device">
+                <option value="20">20</option>
+                <option value="25">25</option>
+                <option value="30">30</option>
+                <option value="35">35</option>
+                <option value="40">40</option>
+                <option value="45">45</option>
+                <option value="50">50</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">語言偏好</label>
+        <div class="layui-input-block">
+            <select name="language">
+                <option value="CHT">繁體中文</option>
+                <option value="ENG">英文</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">確認保存</button>
+        </div>
+    </div>
+</div>
+
+<script src="../../lib/layui-v2.6.3/layui.js"></script>
+<script>
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form, layer = layui.layer, $ = layui.$;
+
+        // 自定義驗證
+        form.verify({
+            confirmPass: function (value) {
+                var password = $("input[name='password']").val();
+                if (value !== password) {
+                    return '兩次輸入的密碼不一致';
+                }
+            }
+        });
+
+        // 動態載入管理者選單
+        $.get('/api/v1/user/listParentIdAndUserName', function (data) {
+            var select = $("select[name='parentId']");
+            data.forEach(function (item) {
+                select.append(new Option(item.name, item.id));
+            });
+            form.render('select'); // 重新渲染
+        });
+
+        // 監聽表單提交
+        form.on('submit(saveBtn)', function (data) {
+            console.log(data.field);
+            layer.alert('提交成功', {title: '提示'});
+            return false; // 阻止默認提交
+        });
+    });
+</script>
+</body>
+</html>
