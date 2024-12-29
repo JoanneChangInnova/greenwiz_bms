@@ -1,14 +1,16 @@
 package com.greenwiz.bms.controller;
 
+import com.greenwiz.bms.controller.data.user.AddUserReq;
 import com.greenwiz.bms.controller.data.user.ParentData;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,5 +38,14 @@ public class UserController {
         dataList.add(new ParentData(3, "管理者C"));
 
         return dataList;
+    }
+
+    @PostMapping("/addUser")
+    public ResponseEntity<User> addUser(@Validated @RequestBody AddUserReq addUserReq) {
+        System.out.println("新增用戶: " + addUserReq);
+        User user = new User();
+        BeanUtils.copyProperties(addUserReq,user);
+        User addedUser = userService.save(user);
+        return ResponseEntity.status(200).body(addedUser);
     }
 }

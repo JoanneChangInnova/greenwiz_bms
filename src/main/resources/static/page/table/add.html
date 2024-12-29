@@ -63,29 +63,61 @@
 </div>
 <script src="../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
 <script>
-    layui.use(['form'], function () {
-        var form = layui.form,
-            layer = layui.layer,
-            $ = layui.$;
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form, layer = layui.layer, $ = layui.$;
 
-        //监听提交
-        form.on('submit(saveBtn)', function (data) {
-            var index = layer.alert(JSON.stringify(data.field), {
-                title: '最终的提交信息'
-            }, function () {
-
-                // 关闭弹出层
-                layer.close(index);
-
-                var iframeIndex = parent.layer.getFrameIndex(window.name);
-                parent.layer.close(iframeIndex);
-
-            });
-
-            return false;
+        // 自定義驗證
+        form.verify({
+            confirmPass: function (value) {
+                var password = $("input[name='password']").val();
+                if (value !== password) {
+                    return '兩次輸入的密碼不一致';
+                }
+            }
         });
 
+        // 動態載入管理者選單
+        $.get('/api/v1/user/listParentIdAndUserName', function (data) {
+            var select = $("select[name='parentId']");
+            data.forEach(function (item) {
+                select.append(new Option(item.name, item.id));
+            });
+            form.render('select'); // 重新渲染
+        });
+
+        // 監聽表單提交
+        form.on('submit(saveBtn)', function (data) {
+            console.log("提交數據:", data.field);
+
+            // 發送POST請求
+            $.ajax({
+                url: '/api/v1/user/addUser',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data.field), // 將表單數據轉換為JSON格式
+                success: function (response) {
+                    console.log("返回數據:", response);
+
+                    // 根據返回結果進行處理
+                    if (response.code === 200) {
+                        layer.alert('用戶新增成功: ' + response.message, {title: '提示'}, function () {
+                            // 成功後可重定向或清空表單
+                            window.location.reload(); // 刷新當前頁面
+                        });
+                    } else {
+                        layer.alert('用戶新增失敗: ' + response.message, {title: '錯誤'});
+                    }
+                },
+                error: function (xhr) {
+                    console.error("提交失敗:", xhr.responseText);
+                    layer.alert('提交失敗: ' + xhr.responseText, {title: '錯誤'});
+                }
+            });
+
+            return false; // 阻止默認提交行為
+        });
     });
+
 </script>
 </body>
 </html>

@@ -82,14 +82,14 @@
     <div class="layui-form-item">
         <label class="layui-form-label">電話國碼</label>
         <div class="layui-input-block">
-            <input type="text" name="phone_country_code" placeholder="請輸入電話國碼" value="" class="layui-input">
+            <input type="text" name="phoneCountryCode" placeholder="請輸入電話國碼" value="" class="layui-input">
         </div>
     </div>
 
     <div class="layui-form-item">
         <label class="layui-form-label">電話號碼</label>
         <div class="layui-input-block">
-            <input type="text" name="phone_number" placeholder="請輸入電話號碼" value="" class="layui-input">
+            <input type="text" name="phoneNumber" placeholder="請輸入電話號碼" value="" class="layui-input">
         </div>
     </div>
 
@@ -98,8 +98,8 @@
         <div class="layui-input-block">
             <select name="country" lay-verify="required">
                 <option value="">請選擇國家</option>
-                <option value="TW">台灣</option>
-                <option value="MRY">馬來西亞</option>
+                <option value="TWN">台灣</option>
+                <option value="MYS">馬來西亞</option>
             </select>
         </div>
     </div>
@@ -114,7 +114,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">最大設備數量</label>
         <div class="layui-input-block">
-            <select name="max_device">
+            <select name="maxDevice">
                 <option value="20">20</option>
                 <option value="25">25</option>
                 <option value="30">30</option>
@@ -169,11 +169,34 @@
 
         // 監聽表單提交
         form.on('submit(saveBtn)', function (data) {
-            console.log(data.field);
-            layer.alert('提交成功', {title: '提示'});
-            return false; // 阻止默認提交
+            console.log("提交數據:", data.field);
+
+            $.ajax({
+                url: '/api/v1/user/addUser',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data.field),
+                success: function (response, textStatus, xhr) {
+                    console.log("返回數據:", response);
+                    if (xhr.status === 200) {
+                        layer.alert('用戶新增成功', {title: '提示'}, function () {
+                            // 成功後跳轉到用戶列表頁面
+                            window.location.href = '/page/admin/user_list.html';
+                        });
+                    } else {
+                        layer.alert('用戶新增失敗', {title: '錯誤'});
+                    }
+                },
+                error: function (xhr) {
+                    console.error("提交失敗:", xhr.responseText);
+                    layer.alert('提交失敗: ' + xhr.responseText, {title: '錯誤'});
+                }
+            });
+
+            return false; // 阻止默認提交行為
         });
     });
+
 </script>
 </body>
 </html>
