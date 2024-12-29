@@ -1,4 +1,4 @@
-package com.greenwiz.bms.controller.data.user.base;
+package com.greenwiz.bms.controller.data.base;
 
 import com.greenwiz.bms.entity.BaseEntity;
 import lombok.Data;

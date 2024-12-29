@@ -1,4 +1,4 @@
-package com.greenwiz.bms.controller.data.user.base;
+package com.greenwiz.bms.controller.data.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;

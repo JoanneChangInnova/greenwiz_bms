@@ -172,7 +172,7 @@
             console.log("提交數據:", data.field);
 
             $.ajax({
-                url: '/api/v1/user/addUser',
+                url: '/api/v1/user/add',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data.field),
