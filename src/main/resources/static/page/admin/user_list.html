@@ -8,6 +8,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="/lib/layui-v2.6.3/css/layui.css" media="all">
     <link rel="stylesheet" href="/css/public.css" media="all">
+
+    <!-- 自定義樣式 -->
+    <style>
+        /* 滑動到行時變色 */
+        .layui-table-body .layui-table tr:hover {
+            color: blue; /* 設置字體顏色為藍色 */
+            text-decoration: underline; /* 設置字體底線 */
+        }
+    </style>
 </head>
 <body>
 <div class="layuimini-container">
@@ -23,6 +32,12 @@
                             <label class="layui-form-label">用戶名稱</label>
                             <div class="layui-input-inline">
                                 <input type="text" name="username" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">電子郵件</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="email" autocomplete="off" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-inline">
@@ -49,6 +64,16 @@
                             </div>
                         </div>
                         <div class="layui-inline">
+                            <label class="layui-form-label">國家</label>
+                            <div class="layui-input-inline">
+                                <select name="country">
+                                    <option value="">請選擇國家</option>
+                                    <option value="TWN">台灣</option>
+                                    <option value="MYS">馬來西亞</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
                             <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 尋</button>
                         </div>
                     </div>
@@ -60,38 +85,30 @@
         <script type="text/html" id="toolbarDemo">
             <div class="layui-btn-container">
                 <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 新增 </button>
-                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 刪除 </button>
             </div>
         </script>
 
         <!-- 數據表格 -->
         <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
 
-        <!-- 表格操作欄 -->
-        <script type="text/html" id="currentTableBar">
-            <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">編輯</a>
-            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">刪除</a>
-        </script>
+        <!-- 分頁條容器 -->
+        <div id="pagination" style="text-align: center; margin-top: 20px;"></div>
 
     </div>
 </div>
 <script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
 <script>
-    layui.use(['form', 'table'], function () {
+    layui.use(['form', 'table', 'laypage'], function () {
         var $ = layui.jquery,
                 form = layui.form,
-                table = layui.table;
+                table = layui.table,
+                laypage = layui.laypage;
 
         // 初始化表格
         table.render({
             elem: '#currentTableId',
-            url: '/api/v1/user/list', // 後端 API
-            method: 'POST',
-            contentType: 'application/json',
-            toolbar: '#toolbarDemo',
-            defaultToolbar: ['filter', 'exports', 'print'],
-            cols: [[
-                {type: "checkbox", width: 50},
+            id: 'currentTableId', // 設置表格實例 ID
+            cols: [[   {type: "checkbox", width: 50},
                 {field: 'id', width: 80, title: 'ID', sort: true},
                 {field: 'username', width: 120, title: '用戶名稱'},
                 {field: 'email', width: 180, title: '電子郵件'},
@@ -103,99 +120,116 @@
                         var states = {0: '待審', 1: '開通', 2: '封鎖'};
                         return states[d.state] || '未知';
                     }},
-                {field: 'maxDevice', width: 120, title: '最大設備數量'},
-                {field: 'language', width: 100, title: '語言偏好'},
-                {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
-            ]],
+                {field: 'parentUserName', width: 120, title: '管理者'},
+                {field: 'factory_list', width: 180, title: '工廠'},
+                {field: 'maxDevice', width: 80, title: '最大設備數量'},
+                {field: 'company', width: 180, title: '公司名稱'},
+                {field: 'country', width: 100, title: '國家', templet: function (d) {
+                        var countries = {
+                            'TWN': '台灣',
+                            'MYS': '馬來西亞',
+                        };
+                        return countries[d.country] || '未知';
+                    }},
+                {field: 'language', width: 100, title: '語言偏好', templet: function (d) {
+                        var languages = {
+                            'CHT': '繁體中文',
+                            'ENG': '英文'
+                        };
+                        return languages[d.language] || '未知';
+                    }},
+                {field: 'phoneCountryCode', width: 100, title: '電話國碼'},
+                {field: 'phoneNumber', width: 150, title: '電話號碼'},
+                {field: 'dtModify', width: 180, title: '修改時間', templet: function (d) {
+                        return d.dtModify ? new Date(d.dtModify).toLocaleString() : '未知'; // 格式化為當地時間
+                    }},
+                {field: 'dtCreate', width: 180, title: '建立時間', templet: function (d) {
+                        return d.dtCreate ? new Date(d.dtCreate).toLocaleString() : '未知'; // 格式化為當地時間
+                    }},
+                {field: 'modifyUser', width: 100, title: '修改者'},
+                {field: 'createUser', width: 100, title: '建立者'}, 
 
-            limits: [10, 20, 50, 100],
-            limit: 10,
-            page: true,
-            parseData: function (res) {            // 自定義解析返回數據
-                return {
-                    "code": res.code,              // layui 規定的 code
-                    "msg": res.msg,                // layui 規定的 msg
-                    "count": res.count,            // 總數據量
-                    "data": res.data               // 數據內容
-                };
-            },
-            skin: 'line', // 表格風格
-            where: {
-                page: 0,
-                size: 10,
-                sortBy: 'id',
-                direction: 'asc'
-            }
+            ]],
+            toolbar: '#toolbarDemo', // 工具欄模板綁定
+            defaultToolbar: ['filter', 'exports', 'print'], // 保留部分內置工具
+            data: [], // 初始為空數據，稍後加載
+            page: false // 關閉內置分頁
         });
 
-        // 監聽搜尋操作
-        form.on('submit(data-search-btn)', function (data) {
-            // 重載表格
-            table.reload('currentTableId', {
-                page: {
-                    curr: 1 // 從第一頁開始
-                },
-                where: data.field // 傳遞搜尋表單字段
+        // 加載數據函數
+        function loadTableData(page, size) {
+            $.ajax({
+                url: '/api/v1/user/list',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    page: page , // LayUI 分頁從 1 開始，後端從 0 開始
+                    size: size
+                }),
+                success: function (res) {
+                    // 更新表格數據
+                    table.reload('currentTableId', {
+                        data: res.data
+                    });
+
+                    // 更新分頁
+                    laypage.render({
+                        elem: 'pagination',
+                        count: res.count,
+                        limit: size,
+                        curr: page,
+                        layout: ['prev', 'page', 'next', 'count', 'limit'],
+                        limits: [10, 20, 50],
+                        jump: function (obj, first) {
+                            if (!first) {
+                                loadTableData(obj.curr, obj.limit);
+                            }
+                        }
+                    });
+                }
             });
+        }
+
+        // 首次加載數據
+        loadTableData(1, 10);
+
+
+        // 搜索功能
+        form.on('submit(data-search-btn)', function (data) {
+            loadTableData(1, 10);
             return false;
         });
 
-        /**
-         * toolbar监听事件
-         */
+        // 監聽整行點擊事件
+        table.on('row(currentTableFilter)', function (obj) {
+            var target = event.target;
+            if ($(target).parents('.layui-form-checkbox').length > 0) {
+                return; // 點擊複選框時不跳轉
+            }
+            var data = obj.data;
+            var userId = data.id;
+            var editUrl = '/page/table/edit.html?id=' + userId;
+            window.location.href = editUrl;
+        });
+
+        // 監聽新增按鈕
         table.on('toolbar(currentTableFilter)', function (obj) {
-            if (obj.event === 'add') {  // 监听添加操作
+            if (obj.event === 'add') {
                 var index = layer.open({
                     title: '添加用户',
                     type: 2,
                     shade: 0.2,
-                    maxmin:true,
+                    maxmin: true,
                     shadeClose: true,
                     area: ['100%', '100%'],
-                    content: '/page/table/user_add.html',
+                    content: '/page/table/user_add.html'
                 });
                 $(window).on("resize", function () {
                     layer.full(index);
                 });
-            } else if (obj.event === 'delete') {  // 监听删除操作
-                var checkStatus = table.checkStatus('currentTableId')
-                    , data = checkStatus.data;
-                layer.alert(JSON.stringify(data));
             }
         });
-
-        //监听表格复选框选择
-        table.on('checkbox(currentTableFilter)', function (obj) {
-            console.log(obj)
-        });
-
-        table.on('tool(currentTableFilter)', function (obj) {
-            var data = obj.data;
-            if (obj.event === 'edit') {
-
-                var index = layer.open({
-                    title: '编辑用户',
-                    type: 2,
-                    shade: 0.2,
-                    maxmin:true,
-                    shadeClose: true,
-                    area: ['100%', '100%'],
-                    content: '/page/table/edit.html',
-                });
-                $(window).on("resize", function () {
-                    layer.full(index);
-                });
-                return false;
-            } else if (obj.event === 'delete') {
-                layer.confirm('真的删除行么', function (index) {
-                    obj.del();
-                    layer.close(index);
-                });
-            }
-        });
-
     });
 </script>
-
 </body>
 </html>

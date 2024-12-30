@@ -54,7 +54,7 @@ public class User extends BaseEntity {
     private String contact;
 
     /**
-     * 電話的國家區號
+     * 電話國碼
      */
     private String phoneCountryCode;
 

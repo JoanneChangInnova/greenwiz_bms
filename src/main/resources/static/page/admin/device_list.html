@@ -1,307 +1,183 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
-    <title>layui</title>
+    <title>用戶管理</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="/lib/layui-v2.6.3/css/layui.css" media="all">
     <link rel="stylesheet" href="/css/public.css" media="all">
+
+    <!-- 自定義樣式 -->
+    <style>
+        /* 滑動到行時變色 */
+        .layui-table-body .layui-table tr:hover {
+            color: blue; /* 設置字體顏色為藍色 */
+            text-decoration: underline; /* 設置字體底線 */
+        }
+    </style>
+
 </head>
-
 <body>
-    <div class="layuimini-container">
-        <div class="layuimini-main">
+<div class="layuimini-container">
+    <div class="layuimini-main">
 
-            <fieldset class="table-search-fieldset">
-                <legend>搜索信息</legend>
-                <div style="margin: 10px 10px 10px 10px">
-                    <form class="layui-form layui-form-pane" action="">
-                        <div class="layui-form-item">
-                            <div class="layui-inline">
-                                <label class="layui-form-label">設備名稱</label>
-                                <div class="layui-input-inline">
-                                    <input type="text" name="username" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-inline">
-                                <label class="layui-form-label">客戶性別</label>
-                                <div class="layui-input-inline">
-                                    <input type="text" name="sex" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-inline">
-                                <label class="layui-form-label">客戶城市</label>
-                                <div class="layui-input-inline">
-                                    <input type="text" name="city" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-inline">
-                                <label class="layui-form-label">客戶類型</label>
-                                <div class="layui-input-inline">
-                                    <input type="text" name="classify" autocomplete="off" class="layui-input">
-                                </div>
-                            </div>
-                            <div class="layui-inline">
-                                <button type="submit" class="layui-btn layui-btn-primary" lay-submit
-                                    lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+        <!-- 搜尋表單 -->
+        <fieldset class="table-search-fieldset">
+            <legend>搜尋用戶</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" id="searchForm">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用戶名稱</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="username" autocomplete="off" class="layui-input">
                             </div>
                         </div>
-                    </form>
-                </div>
-            </fieldset>
-
-            <script type="text/html" id="toolbarDemo">
-            <div class="layui-btn-container">
-                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 添加 </button>
-                <button class="layui-btn layui-btn-warm layui-btn-sm data-assign-btn" lay-event="assign"> 派發 </button>
-                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 删除 </button>
-            </div>
-        </script>
-
-            <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
-
-            <script type="text/html" id="currentTableBar">
-            <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">編輯</a>
-            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">刪除</a>
-        </script>
-
-        </div>
-    </div>
-    <script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
-    <script>
-        layui.use(['form', 'table'], function () {
-            var $ = layui.jquery,
-                form = layui.form,
-                table = layui.table;
-
-            table.render({
-                elem: '#currentTableId',
-                url: '/api/table.json',
-                toolbar: '#toolbarDemo',
-                defaultToolbar: ['filter', 'exports', 'print', {
-                    title: '提示',
-                    layEvent: 'LAYTABLE_TIPS',
-                    icon: 'layui-icon-tips'
-                }],
-                cols: [[
-                    { type: "checkbox", width: 50 },
-                    { field: 'id', width: 80, title: 'ID', sort: true },
-                    { field: 'username', width: 80, title: '客戶名稱' },
-                    { field: 'sex', width: 80, title: '性别', sort: true },
-                    { field: 'city', width: 80, title: '城市' },
-                    { field: 'sign', title: '欄位1', minWidth: 150 },
-                    { field: 'experience', width: 80, title: '欄位2', sort: true },
-                    { field: 'score', width: 80, title: '欄位3', sort: true },
-                    { field: 'classify', width: 80, title: '角色' },
-                    { field: 'wealth', width: 135, title: '欄位5', sort: true },
-                    { title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center" }
-                ]],
-                limits: [10, 15, 20, 25, 50, 100],
-                limit: 15,
-                page: {
-                    layout: ['prev', 'page', 'next'], // 分頁顯示元素
-                    groups: 5,
-                    limit: 15,
-                    prev: '上一頁',
-                    next: '下一頁',
-                    first: '首頁',
-                    last: '尾頁'
-                },
-                skin: 'line'
-            });
-
-            // 监听搜索操作
-            form.on('submit(data-search-btn)', function (data) {
-                var result = JSON.stringify(data.field);
-                layer.alert(result, {
-                    title: '最终的搜索信息'
-                });
-
-                //执行搜索重载
-                table.reload('currentTableId', {
-                    page: {
-                        curr: 1
-                    }
-                    , where: {
-                        searchParams: result
-                    }
-                }, 'data');
-
-                return false;
-            });
-
-            /**
-             * toolbar监听事件
-             */
-            //     table.on('toolbar(currentTableFilter)', function (obj) {
-            //         var checkStatus = table.checkStatus('currentTableId'); // 獲取選取的項目
-            // var data = checkStatus.data; // 選中的資料行
-            //         if (obj.event === 'add') {  // 监听添加操作
-            //             var index = layer.open({
-            //                 title: '添加用户',
-            //                 type: 2,
-            //                 shade: 0.2,
-            //                 maxmin:true,
-            //                 shadeClose: true,
-            //                 area: ['100%', '100%'],
-            //                 content: '/page/table/add.html',
-            //             });
-            //             $(window).on("resize", function () {
-            //                 layer.full(index);
-            //             });
-            //         } else if (obj.event === 'delete') {  // 监听删除操作
-            //             var checkStatus = table.checkStatus('currentTableId')
-            //                 , data = checkStatus.data;
-            //             layer.alert(JSON.stringify(data));
-            //         } else if(obj.event === 'assign'){
-            //             if (data.length === 0) {
-            //             layer.msg('請選擇要派發的項目');
-            //             return;
-            //         }
-            //         }
-            //     });
-            table.on('toolbar(currentTableFilter)', function (obj) {
-                var checkStatus = table.checkStatus('currentTableId'); // 獲取選取的項目
-                var data = checkStatus.data; // 選中的資料行
-
-                switch (obj.event) {
-                    case 'add': // 新增操作
-                        var index = layer.open({
-                            title: '添加用户',
-                            type: 2,
-                            area: ['100%', '100%'],
-                            content: '/page/table/add.html'
-                        });
-                        break;
-
-                    case 'delete': // 刪除操作
-                        if (data.length === 0) {
-                            layer.msg('請選擇要刪除的項目');
-                        } else {
-                            layer.alert(JSON.stringify(data));
-                        }
-                        break;
-
-                    case 'assign': // 派發操作
-                        if (data.length === 0) {
-                            layer.msg('請選擇要派發的項目');
-                            return;
-                        }
-
-                        // 彈出派發表單
-                        var assignFormHtml = `
-                <form class="layui-form" style="margin:20px;">
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">Product State</label>
-                        <div class="layui-input-block">
-                            <input type="text" name="productState" required  lay-verify="required" placeholder="請輸入Product State" class="layui-input">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">電子郵件</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="email" autocomplete="off" class="layui-input">
+                            </div>
                         </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">Owner ID</label>
-                        <div class="layui-input-block">
-                            <input type="text" name="ownerId" required lay-verify="required" placeholder="請輸入Owner ID" class="layui-input">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">角色</label>
+                            <div class="layui-input-inline">
+                                <select name="role">
+                                    <option value="">請選擇角色</option>
+                                    <option value="0">管理員</option>
+                                    <option value="1">代理商</option>
+                                    <option value="2">安裝商</option>
+                                    <option value="3">客戶</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">Owner Type</label>
-                        <div class="layui-input-block">
-                            <input type="text" name="ownerType" required lay-verify="required" placeholder="請輸入Owner Type" class="layui-input">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <div class="layui-input-block">
-                            <button type="submit" class="layui-btn" lay-submit lay-filter="confirm-assign">確認</button>
-                            <button type="button" class="layui-btn layui-btn-primary" id="cancelAssign">取消</button>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 尋</button>
                         </div>
                     </div>
                 </form>
-            `;
+            </div>
+        </fieldset>
 
-                        var index = layer.open({
-                            type: 1,
-                            title: '派發資訊',
-                            area: ['500px', '400px'],
-                            content: assignFormHtml,
-                            success: function (layero, index) {
-                                // 監聽取消按鈕
-                                $('#cancelAssign').on('click', function () {
-                                    layer.close(index);
-                                });
+        <!-- 表格操作按鈕 -->
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 新增 </button>
+            </div>
+        </script>
 
-                                // 監聽確認提交按鈕
-                                form.on('submit(confirm-assign)', function (formData) {
-                                    var formValues = formData.field; // 表單輸入的值
+        <!-- 數據表格 -->
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
 
-                                    // 組合派發資料
-                                    var assignData = {
-                                        selectedIds: data.map(item => item.id), // 被選取的項目ID
-                                        productState: formValues.productState,
-                                        ownerId: formValues.ownerId,
-                                        ownerType: formValues.ownerType
-                                    };
+        <!-- 分頁容器 -->
+        <div id="pagination" style="text-align: center; margin-top: 20px;"></div>
 
-                                    // 發送POST請求到API
-                                    $.ajax({
-                                        url: '/paifa/',
-                                        type: 'POST',
-                                        contentType: 'application/json',
-                                        data: JSON.stringify(assignData),
-                                        success: function (res) {
-                                            layer.msg('派發成功！');
-                                            layer.close(index);
-                                            table.reload('currentTableId'); // 重新加載表格
-                                        },
-                                        error: function () {
-                                            layer.msg('派發失敗，請稍後再試。');
-                                        }
-                                    });
+    </div>
+</div>
+<script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'table', 'laypage'], function () {
+        var $ = layui.jquery,
+                form = layui.form,
+                table = layui.table,
+                laypage = layui.laypage;
 
-                                    return false; // 防止表單跳轉
-                                });
-                            }
-                        });
-                        break;
+        // 定義全局變量
+        var totalCount = 0; // 總記錄數
+        var allData = []; // 全部數據緩存
+        var pageLimit = 10; // 每頁顯示數量
+        var currPage = 1; // 當前頁碼
+
+        // 模擬後端返回數據
+        function mockFetchData() {
+            var mockData = [];
+            for (var i = 1; i <= 100; i++) {
+                mockData.push({
+                    id: i,
+                    username: '用戶' + i,
+                    email: 'user' + i + '@example.com',
+                    role: i % 4,
+                    state: i % 3,
+                    parentUserName: '管理者' + (i % 5),
+                    factory_list: '工廠' + (i % 10),
+                    maxDevice: 10 + i,
+                    company: '公司' + i,
+                    country: i % 2 === 0 ? 'TWN' : 'MYS',
+                    language: i % 2 === 0 ? 'CHT' : 'ENG',
+                    phoneCountryCode: '+886',
+                    phoneNumber: '0912-' + ('00000' + i).slice(-5),
+                    dtModify: new Date().toISOString(),
+                    dtCreate: new Date().toISOString(),
+                    modifyUser: '修改者' + (i % 3),
+                    createUser: '建立者' + (i % 4),
+                });
+            }
+            totalCount = mockData.length; // 獲取總數據條數
+            allData = mockData; // 緩存所有數據
+        }
+
+        // 初始化表格
+        function renderTable(data) {
+            table.render({
+                elem: '#currentTableId',
+                data: data, // 傳入當前頁面的數據
+                cols: [[
+                    {type: "checkbox", width: 50},
+                    {field: 'id', width: 80, title: 'ID', sort: true},
+                    {field: 'username', width: 120, title: '用戶名稱'},
+                    {field: 'email', width: 180, title: '電子郵件'},
+                    {field: 'role', width: 100, title: '角色', templet: function (d) {
+                            var roles = {0: '管理員', 1: '代理商', 2: '安裝商', 3: '客戶'};
+                            return roles[d.role] || '未知';
+                        }},
+                    {field: 'state', width: 100, title: '狀態', templet: function (d) {
+                            var states = {0: '待審', 1: '開通', 2: '封鎖'};
+                            return states[d.state] || '未知';
+                        }},
+                    {field: 'parentUserName', width: 120, title: '管理者'},
+                    {field: 'factory_list', width: 180, title: '工廠'},
+                    {field: 'maxDevice', width: 80, title: '最大設備數量'},
+                    {field: 'company', width: 180, title: '公司名稱'},
+                    {field: 'country', width: 100, title: '國家'},
+                    {field: 'language', width: 100, title: '語言偏好'},
+                    {field: 'phoneCountryCode', width: 100, title: '電話國碼'},
+                    {field: 'phoneNumber', width: 150, title: '電話號碼'},
+                    {field: 'dtModify', width: 180, title: '修改時間'},
+                    {field: 'dtCreate', width: 180, title: '建立時間'},
+                    {field: 'modifyUser', width: 100, title: '修改者'},
+                    {field: 'createUser', width: 100, title: '建立者'}
+                ]],
+                page: false // 關閉內置分頁
+            });
+        }
+
+        // 渲染分頁
+        function renderPagination() {
+            laypage.render({
+                elem: 'pagination', // 分頁容器的 DOM ID
+                count: totalCount, // 總數據量
+                limit: pageLimit, // 每頁數據量
+                curr: currPage, // 當前頁碼
+                layout: ['prev', 'page', 'next'], // 分頁樣式
+                jump: function (obj, first) {
+                    if (!first) { // 點擊分頁才執行
+                        currPage = obj.curr; // 更新當前頁碼
+                        var start = (currPage - 1) * pageLimit;
+                        var end = currPage * pageLimit;
+                        renderTable(allData.slice(start, end)); // 渲染當前頁面的數據
+                    }
                 }
             });
+        }
 
-
-            //监听表格复选框选择
-            table.on('checkbox(currentTableFilter)', function (obj) {
-                console.log(obj)
-            });
-
-            table.on('tool(currentTableFilter)', function (obj) {
-                var data = obj.data;
-                if (obj.event === 'edit') {
-
-                    var index = layer.open({
-                        title: '编辑用户',
-                        type: 2,
-                        shade: 0.2,
-                        maxmin: true,
-                        shadeClose: true,
-                        area: ['100%', '100%'],
-                        content: '/page/table/edit.html',
-                    });
-                    $(window).on("resize", function () {
-                        layer.full(index);
-                    });
-                    return false;
-                } else if (obj.event === 'delete') {
-                    layer.confirm('真的删除行么', function (index) {
-                        obj.del();
-                        layer.close(index);
-                    });
-                }
-            });
-
-        });
-    </script>
+        // 初始化
+        mockFetchData(); // 模擬獲取數據
+        renderTable(allData.slice(0, pageLimit)); // 渲染第1頁數據
+        renderPagination(); // 初始化分頁
+    });
+</script>
 
 </body>
-
 </html>
