@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用戶管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/css/public.css" media="all">
+
+    <!-- 自定義樣式 -->
+    <style>
+        /* 滑動到行時變色 */
+        .layui-table-body .layui-table tr:hover {
+            color: blue; /* 設置字體顏色為藍色 */
+            text-decoration: underline; /* 設置字體底線 */
+        }
+    </style>
+
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+        <!-- 搜尋表單 -->
+        <fieldset class="table-search-fieldset">
+            <legend>搜尋用戶</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" id="searchForm">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用戶名稱</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="username" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">電子郵件</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="email" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">角色</label>
+                            <div class="layui-input-inline">
+                                <select name="role">
+                                    <option value="">請選擇角色</option>
+                                    <option value="0">管理員</option>
+                                    <option value="1">代理商</option>
+                                    <option value="2">安裝商</option>
+                                    <option value="3">客戶</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 尋</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+
+        <!-- 表格操作按鈕 -->
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 新增 </button>
+            </div>
+        </script>
+
+        <!-- 數據表格 -->
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+        <!-- 分頁容器 -->
+        <div id="pagination" style="text-align: center; margin-top: 20px;"></div>
+
+    </div>
+</div>
+<script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'table', 'laypage'], function () {
+        var $ = layui.jquery,
+                form = layui.form,
+                table = layui.table,
+                laypage = layui.laypage;
+
+        // 定義全局變量
+        var totalCount = 0; // 總記錄數
+        var allData = []; // 全部數據緩存
+        var pageLimit = 10; // 每頁顯示數量
+        var currPage = 1; // 當前頁碼
+
+        // 模擬後端返回數據
+        function mockFetchData() {
+            var mockData = [];
+            for (var i = 1; i <= 100; i++) {
+                mockData.push({
+                    id: i,
+                    username: '用戶' + i,
+                    email: 'user' + i + '@example.com',
+                    role: i % 4,
+                    state: i % 3,
+                    parentUserName: '管理者' + (i % 5),
+                    factory_list: '工廠' + (i % 10),
+                    maxDevice: 10 + i,
+                    company: '公司' + i,
+                    country: i % 2 === 0 ? 'TWN' : 'MYS',
+                    language: i % 2 === 0 ? 'CHT' : 'ENG',
+                    phoneCountryCode: '+886',
+                    phoneNumber: '0912-' + ('00000' + i).slice(-5),
+                    dtModify: new Date().toISOString(),
+                    dtCreate: new Date().toISOString(),
+                    modifyUser: '修改者' + (i % 3),
+                    createUser: '建立者' + (i % 4),
+                });
+            }
+            totalCount = mockData.length; // 獲取總數據條數
+            allData = mockData; // 緩存所有數據
+        }
+
+        // 初始化表格
+        function renderTable(data) {
+            table.render({
+                elem: '#currentTableId',
+                data: data, // 傳入當前頁面的數據
+                cols: [[
+                    {type: "checkbox", width: 50},
+                    {field: 'id', width: 80, title: 'ID', sort: true},
+                    {field: 'username', width: 120, title: '用戶名稱'},
+                    {field: 'email', width: 180, title: '電子郵件'},
+                    {field: 'role', width: 100, title: '角色', templet: function (d) {
+                            var roles = {0: '管理員', 1: '代理商', 2: '安裝商', 3: '客戶'};
+                            return roles[d.role] || '未知';
+                        }},
+                    {field: 'state', width: 100, title: '狀態', templet: function (d) {
+                            var states = {0: '待審', 1: '開通', 2: '封鎖'};
+                            return states[d.state] || '未知';
+                        }},
+                    {field: 'parentUserName', width: 120, title: '管理者'},
+                    {field: 'factory_list', width: 180, title: '工廠'},
+                    {field: 'maxDevice', width: 80, title: '最大設備數量'},
+                    {field: 'company', width: 180, title: '公司名稱'},
+                    {field: 'country', width: 100, title: '國家'},
+                    {field: 'language', width: 100, title: '語言偏好'},
+                    {field: 'phoneCountryCode', width: 100, title: '電話國碼'},
+                    {field: 'phoneNumber', width: 150, title: '電話號碼'},
+                    {field: 'dtModify', width: 180, title: '修改時間'},
+                    {field: 'dtCreate', width: 180, title: '建立時間'},
+                    {field: 'modifyUser', width: 100, title: '修改者'},
+                    {field: 'createUser', width: 100, title: '建立者'}
+                ]],
+                page: false // 關閉內置分頁
+            });
+        }
+
+        // 渲染分頁
+        function renderPagination() {
+            laypage.render({
+                elem: 'pagination', // 分頁容器的 DOM ID
+                count: totalCount, // 總數據量
+                limit: pageLimit, // 每頁數據量
+                curr: currPage, // 當前頁碼
+                layout: ['prev', 'page', 'next'], // 分頁樣式
+                jump: function (obj, first) {
+                    if (!first) { // 點擊分頁才執行
+                        currPage = obj.curr; // 更新當前頁碼
+                        var start = (currPage - 1) * pageLimit;
+                        var end = currPage * pageLimit;
+                        renderTable(allData.slice(start, end)); // 渲染當前頁面的數據
+                    }
+                }
+            });
+        }
+
+        // 初始化
+        mockFetchData(); // 模擬獲取數據
+        renderTable(allData.slice(0, pageLimit)); // 渲染第1頁數據
+        renderPagination(); // 初始化分頁
+    });
+</script>
+
+</body>
+</html>

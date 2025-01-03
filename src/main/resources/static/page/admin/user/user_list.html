@@ -97,6 +97,8 @@
     </div>
 </div>
 <script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+
+<!-- 數據表格 -->
 <script>
     layui.use(['form', 'table', 'laypage'], function () {
         var $ = layui.jquery,
@@ -113,8 +115,9 @@
                 {field: 'username', width: 120, title: '用戶名稱'},
                 {field: 'email', width: 180, title: '電子郵件'},
                 {field: 'role', width: 100, title: '角色', templet: function (d) {
+                        console.log(d);
                         var roles = {0: '管理員', 1: '代理商', 2: '安裝商', 3: '客戶'};
-                        return roles[d.role] || '未知';
+                        return roles[parseInt(d.role)] || '未知';
                     }},
                 {field: 'state', width: 100, title: '狀態', templet: function (d) {
                         var states = {0: '待審', 1: '開通', 2: '封鎖'};
@@ -125,6 +128,7 @@
                 {field: 'maxDevice', width: 80, title: '最大設備數量'},
                 {field: 'company', width: 180, title: '公司名稱'},
                 {field: 'country', width: 100, title: '國家', templet: function (d) {
+                        console.log(d);
                         var countries = {
                             'TWN': '台灣',
                             'MYS': '馬來西亞',
@@ -147,7 +151,7 @@
                         return d.dtCreate ? new Date(d.dtCreate).toLocaleString() : '未知'; // 格式化為當地時間
                     }},
                 {field: 'modifyUser', width: 100, title: '修改者'},
-                {field: 'createUser', width: 100, title: '建立者'}, 
+                {field: 'createUser', width: 100, title: '建立者'},
 
             ]],
             toolbar: '#toolbarDemo', // 工具欄模板綁定
@@ -163,7 +167,7 @@
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    page: page , // LayUI 分頁從 1 開始，後端從 0 開始
+                    page: page ,
                     size: size
                 }),
                 success: function (res) {
@@ -178,8 +182,10 @@
                         count: res.count,
                         limit: size,
                         curr: page,
-                        layout: ['prev', 'page', 'next', 'count', 'limit'],
-                        limits: [10, 20, 50],
+                        layout: ['prev', 'page', 'next', 'count'],
+                        // limits: [10, 20, 50],
+                        prev: '上一頁', // 自定義首頁文字
+                        next: '下一頁', // 自定義尾頁文字
                         jump: function (obj, first) {
                             if (!first) {
                                 loadTableData(obj.curr, obj.limit);
@@ -208,7 +214,7 @@
             }
             var data = obj.data;
             var userId = data.id;
-            var editUrl = '/page/table/edit.html?id=' + userId;
+            var editUrl = '/page/admin/user/user_edit.html?id=' + userId;
             window.location.href = editUrl;
         });
 
@@ -222,7 +228,7 @@
                     maxmin: true,
                     shadeClose: true,
                     area: ['100%', '100%'],
-                    content: '/page/table/user_add.html'
+                    content: '/page/admin/user/user_add.html'
                 });
                 $(window).on("resize", function () {
                     layer.full(index);

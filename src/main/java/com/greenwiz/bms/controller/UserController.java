@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -56,5 +57,27 @@ public class UserController {
     public LayuiTableResp<User> listUser(@RequestBody PageReq pageReq) {
         Page<User> users = userService.listUser(pageReq);
         return LayuiTableResp.success(users.getTotalElements(), users.getContent());
+    }
+
+
+    // 編輯用戶
+    @PostMapping("/update")
+    public ResponseEntity<String> updateUser(@RequestBody User user) {
+        try {
+            userService.save(user);
+            return ResponseEntity.ok("用戶資料更新成功");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("更新失敗");
+        }
+    }
+
+    // 根據 ID 獲取用戶資料
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = userService.findByPk(id);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(user);
     }
 }
