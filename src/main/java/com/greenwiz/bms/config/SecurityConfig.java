@@ -37,11 +37,18 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/agent/**").hasRole("AGENT")
-                        .requestMatchers("/installer/**").hasRole("INSTALLER")
-                        .requestMatchers("/merchant/**").hasRole("MERCHANT")
-                        .anyRequest().authenticated());
+                        // 允許所有人訪問靜態資源
+                        .requestMatchers("/index.html", "/page/index.html", "/css/**", "/js/**", "/images/**", "/lib/**", "/api/**").permitAll()
+                        .requestMatchers("/page/**").permitAll()  // Dev
+
+//                        .requestMatchers("/page/admin/**").hasRole("ADMIN") // Prod
+                        .anyRequest().authenticated())
+                // 允許同源的 iframe 嵌套
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("frame-ancestors 'self'")
+                        )
+                );
 
         return http.build();
     }
