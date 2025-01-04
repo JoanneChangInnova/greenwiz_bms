@@ -5,6 +5,7 @@ import com.greenwiz.bms.controller.data.base.PageReq;
 import com.greenwiz.bms.controller.data.base.RestApiReq;
 import com.greenwiz.bms.controller.data.user.AddUserReq;
 import com.greenwiz.bms.controller.data.user.ParentData;
+import com.greenwiz.bms.controller.data.user.UpdateUserReq;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -62,9 +63,11 @@ public class UserController {
 
     // 編輯用戶
     @PostMapping("/update")
-    public ResponseEntity<String> updateUser(@RequestBody User user) {
+    public ResponseEntity<String> updateUser(@RequestBody UpdateUserReq updateUserReq) {
         try {
-            userService.save(user);
+            User user = userService.findByPk(updateUserReq.getId());
+            BeanUtils.copyProperties(updateUserReq, user);
+            User saved = userService.save(user);
             return ResponseEntity.ok("用戶資料更新成功");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("更新失敗");

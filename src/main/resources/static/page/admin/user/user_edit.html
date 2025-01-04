@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>新增用戶</title>
+    <title>編輯用戶</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -16,6 +16,15 @@
 <body>
 <div class="layui-form layuimini-form">
     <div class="layui-form-item">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">用戶ID</label>
+            <div class="layui-input-block">
+                <input type="text" name="id" lay-verify="required" class="layui-input"
+                       id="id" readonly>
+            </div>
+        </div>
+
         <div class="layui-form-item">
             <label class="layui-form-label required">用戶名稱</label>
             <div class="layui-input-block">
@@ -134,6 +143,15 @@
     </div>
 
     <div class="layui-form-item">
+        <label class="layui-form-label">用戶狀態</label>
+        <div class="layui-input-block">
+            <input type="radio" name="state" value=0 title="待審">
+            <input type="radio" name="state" value=1 title="開通">
+            <input type="radio" name="state" value=2 title="封鎖">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
         <div class="layui-input-block">
             <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">確認保存</button>
         </div>
@@ -149,6 +167,7 @@
         // 從後端 API 獲取用戶資料
         $.get('/api/v1/user/' + userId, function (data) {
             // 這裡假設後端返回的是用戶的詳細資料
+            $("#id").val(data.id);
             $("#username").val(data.username);
             $("#role").val(data.role); // 假設角色是 1、2 或 3
 	        $("#parentId").val(data.parentId); // 假設是存在的
@@ -162,7 +181,7 @@
 	        $("#factoryId").val(data.factoryId);
 	        $("#maxDevice").val(data.maxDevice);
 	        $("#language").val(data.language);
-
+            $("#state").val(data.state);
 
 	        form.render(); // 渲染表單
         });
