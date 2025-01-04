@@ -144,7 +144,7 @@
 
     <div class="layui-form-item">
         <label class="layui-form-label">用戶狀態</label>
-        <div class="layui-input-block">
+        <div class="layui-input-block" id="state">
             <input type="radio" name="state" value=0 title="待審">
             <input type="radio" name="state" value=1 title="開通">
             <input type="radio" name="state" value=2 title="封鎖">
@@ -181,7 +181,7 @@
 	        $("#factoryId").val(data.factoryId);
 	        $("#maxDevice").val(data.maxDevice);
 	        $("#language").val(data.language);
-            $("#state").val(data.state);
+            $("#state input[value='" + data.state + "']").prop("checked", true);
 
 	        form.render(); // 渲染表單
         });
