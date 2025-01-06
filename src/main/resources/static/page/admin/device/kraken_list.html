@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>用戶管理</title>
+    <title>設備管理</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -25,31 +25,29 @@
 
         <!-- 搜尋表單 -->
         <fieldset class="table-search-fieldset">
-            <legend>搜尋用戶</legend>
+            <legend>搜尋設備</legend>
             <div style="margin: 10px 10px 10px 10px">
                 <form class="layui-form layui-form-pane" id="searchForm">
                     <div class="layui-form-item">
                         <div class="layui-inline">
-                            <label class="layui-form-label">用戶名稱</label>
+                            <label class="layui-form-label">設備名稱</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="username" autocomplete="off" class="layui-input">
+                                <input type="text" name="name" autocomplete="off" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-inline">
-                            <label class="layui-form-label">電子郵件</label>
+                            <label class="layui-form-label">工廠 ID</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="email" autocomplete="off" class="layui-input">
+                                <input type="text" name="factory_id" autocomplete="off" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-inline">
-                            <label class="layui-form-label">角色</label>
+                            <label class="layui-form-label">設備狀態</label>
                             <div class="layui-input-inline">
-                                <select name="role">
-                                    <option value="">請選擇角色</option>
-                                    <option value="0">管理員</option>
-                                    <option value="1">代理商</option>
-                                    <option value="2">安裝商</option>
-                                    <option value="3">客戶</option>
+                                <select name="state">
+                                    <option value="">請選擇狀態</option>
+                                    <option value="0">離線</option>
+                                    <option value="1">在線</option>
                                 </select>
                             </div>
                         </div>
@@ -96,22 +94,18 @@
             for (var i = 1; i <= 100; i++) {
                 mockData.push({
                     id: i,
-                    username: '用戶' + i,
-                    email: 'user' + i + '@example.com',
-                    role: i % 4,
-                    state: i % 3,
-                    parentUserName: '管理者' + (i % 5),
-                    factory_list: '工廠' + (i % 10),
-                    maxDevice: 10 + i,
-                    company: '公司' + i,
-                    country: i % 2 === 0 ? 'TWN' : 'MYS',
-                    language: i % 2 === 0 ? 'CHT' : 'ENG',
-                    phoneCountryCode: '+886',
-                    phoneNumber: '0912-' + ('00000' + i).slice(-5),
-                    dtModify: new Date().toISOString(),
-                    dtCreate: new Date().toISOString(),
-                    modifyUser: '修改者' + (i % 3),
-                    createUser: '建立者' + (i % 4),
+                    factory_id: i,
+                    user_id: i + 10,
+                    kraken_model: '型號' + (i % 3),
+                    factory_iot_serial: 100000 + i,
+                    name: '設備名稱' + i,
+                    state: i % 2,  // 假設狀態值
+                    fw_ver: 'V1.0.' + (i % 5),
+                    dt_install: new Date().toISOString(),
+                    dt_modify: new Date().toISOString(),
+                    dt_create: new Date().toISOString(),
+                    create_user: '建立者' + (i % 4),
+                    modify_user: '修改者' + (i % 3),
                 });
             }
             totalCount = mockData.length; // 獲取總數據條數
@@ -126,28 +120,21 @@
                 cols: [[
                     {type: "checkbox", width: 50},
                     {field: 'id', width: 80, title: 'ID', sort: true},
-                    {field: 'username', width: 120, title: '用戶名稱'},
-                    {field: 'email', width: 180, title: '電子郵件'},
-                    {field: 'role', width: 100, title: '角色', templet: function (d) {
-                            var roles = {0: '管理員', 1: '代理商', 2: '安裝商', 3: '客戶'};
-                            return roles[d.role] || '未知';
-                        }},
-                    {field: 'state', width: 100, title: '狀態', templet: function (d) {
-                            var states = {0: '待審', 1: '開通', 2: '封鎖'};
+                    {field: 'factory_id', width: 120, title: '工廠 ID'},
+                    {field: 'user_id', width: 120, title: '用戶 ID'},
+                    {field: 'kraken_model', width: 180, title: '型號別'},
+                    {field: 'factory_iot_serial', width: 150, title: '產品序號'},
+                    {field: 'name', width: 180, title: '設備名稱'},
+                    {field: 'state', width: 100, title: '設備狀態', templet: function (d) {
+                            var states = {0: '離線', 1: '在線'};
                             return states[d.state] || '未知';
                         }},
-                    {field: 'parentUserName', width: 120, title: '管理者'},
-                    {field: 'factory_list', width: 180, title: '工廠'},
-                    {field: 'maxDevice', width: 80, title: '最大設備數量'},
-                    {field: 'company', width: 180, title: '公司名稱'},
-                    {field: 'country', width: 100, title: '國家'},
-                    {field: 'language', width: 100, title: '語言偏好'},
-                    {field: 'phoneCountryCode', width: 100, title: '電話國碼'},
-                    {field: 'phoneNumber', width: 150, title: '電話號碼'},
-                    {field: 'dtModify', width: 180, title: '修改時間'},
-                    {field: 'dtCreate', width: 180, title: '建立時間'},
-                    {field: 'modifyUser', width: 100, title: '修改者'},
-                    {field: 'createUser', width: 100, title: '建立者'}
+                    {field: 'fw_ver', width: 120, title: '韌體版本'},
+                    {field: 'dt_install', width: 180, title: '設備安裝時間'},
+                    {field: 'dt_modify', width: 180, title: '最後修改時間'},
+                    {field: 'dt_create', width: 180, title: '創建時間'},
+                    {field: 'create_user', width: 120, title: '建立者'},
+                    {field: 'modify_user', width: 120, title: '修改者'}
                 ]],
                 page: false // 關閉內置分頁
             });
@@ -161,6 +148,8 @@
                 limit: pageLimit, // 每頁數據量
                 curr: currPage, // 當前頁碼
                 layout: ['prev', 'page', 'next'], // 分頁樣式
+                prev: '上一頁', // 自定義首頁文字
+                next: '下一頁', // 自定義尾頁文字
                 jump: function (obj, first) {
                     if (!first) { // 點擊分頁才執行
                         currPage = obj.curr; // 更新當前頁碼

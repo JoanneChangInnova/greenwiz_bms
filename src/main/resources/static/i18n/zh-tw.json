@@ -1,0 +1,48 @@
+{
+  "user": {
+    "username": "用戶名稱",
+    "email": "電子郵件",
+    "role": "角色",
+    "roles": {
+      "admin": "管理員",
+      "agent": "代理商",
+      "installer": "安裝商",
+      "customer": "客戶",
+      "unknown": "未知"
+    },
+    "state": "狀態",
+    "states": {
+      "pending": "待審",
+      "active": "開通",
+      "blocked": "封鎖",
+      "unknown": "未知"
+    },
+    "manager": "管理者",
+    "factory": "工廠",
+    "max_device": "最大設備數量",
+    "company": "公司名稱",
+    "country": "國家",
+    "countries": {
+      "taiwan": "台灣",
+      "malaysia": "馬來西亞",
+      "unknown": "未知"
+    },
+    "language_preference": "語言偏好",
+    "languages": {
+      "traditional_chinese": "繁體中文",
+      "english": "英文",
+      "unknown": "未知"
+    },
+    "phone_country_code": "電話國碼",
+    "phone_number": "電話號碼",
+    "modified_at": "修改時間",
+    "created_at": "建立時間",
+    "modified_by": "修改者",
+    "created_by": "建立者",
+    "unknown": "未知"
+  },
+  "pagination": {
+    "prev": "上一頁",
+    "next": "下一頁"
+  }
+}

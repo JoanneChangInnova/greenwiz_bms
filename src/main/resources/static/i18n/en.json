@@ -1,0 +1,48 @@
+{
+    "user": {
+        "username": "Username",
+        "email": "E-mail",
+        "role": "Role",
+        "roles": {
+            "admin": "Admin",
+            "agent": "Agent",
+            "installer": "Installer",
+            "customer": "Customer",
+            "unknown": "Unknown"
+        },
+        "state": "State",
+        "states": {
+            "pending": "Pending",
+            "active": "Active",
+            "blocked": "Blocked",
+            "unknown": "Unknown"
+        },
+        "manager": "Manager",
+        "factory": "Factory",
+        "max_device": "Max Device",
+        "company": "Company",
+        "country": "Country",
+        "countries": {
+            "taiwan": "Taiwan",
+            "malaysia": "Malaysia",
+            "unknown": "Unknown"
+        },
+        "language_preference": "Language Preference",
+        "languages": {
+            "traditional_chinese": "Traditional Chinese",
+            "english": "English",
+            "unknown": "Unknown"
+        },
+        "phone_country_code": "Phone Country Code",
+        "phone_number": "Phone Number",
+        "modified_at": "Modified At",
+        "created_at": "Created At",
+        "modified_by": "Modified By",
+        "created_by": "Created By",
+        "unknown": "Unknown"
+    },
+    "pagination": {
+        "prev": "Previous",
+        "next": "Next"
+    }
+}
