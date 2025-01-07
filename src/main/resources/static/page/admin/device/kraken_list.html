@@ -2,22 +2,19 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>用戶管理</title>
+    <title>Kraken 設備管理</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="/lib/layui-v2.6.3/css/layui.css" media="all">
     <link rel="stylesheet" href="/css/public.css" media="all">
 
-    <!-- 自定義樣式 -->
     <style>
-        /* 滑動到行時變色 */
         .layui-table-body .layui-table tr:hover {
-            color: blue; /* 設置字體顏色為藍色 */
-            text-decoration: underline; /* 設置字體底線 */
+            color: blue;
+            text-decoration: underline;
         }
     </style>
-
 </head>
 <body>
 <div class="layuimini-container">
@@ -25,159 +22,217 @@
 
         <!-- 搜尋表單 -->
         <fieldset class="table-search-fieldset">
-            <legend>搜尋用戶</legend>
-            <div style="margin: 10px 10px 10px 10px">
-                <form class="layui-form layui-form-pane" id="searchForm">
-                    <div class="layui-form-item">
-                        <div class="layui-inline">
-                            <label class="layui-form-label">用戶名稱</label>
-                            <div class="layui-input-inline">
-                                <input type="text" name="username" autocomplete="off" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-inline">
-                            <label class="layui-form-label">電子郵件</label>
-                            <div class="layui-input-inline">
-                                <input type="text" name="email" autocomplete="off" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-inline">
-                            <label class="layui-form-label">角色</label>
-                            <div class="layui-input-inline">
-                                <select name="role">
-                                    <option value="">請選擇角色</option>
-                                    <option value="0">管理員</option>
-                                    <option value="1">代理商</option>
-                                    <option value="2">安裝商</option>
-                                    <option value="3">客戶</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="layui-inline">
-                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 尋</button>
+            <legend>搜尋 Kraken 設備</legend>
+            <form class="layui-form layui-form-pane" id="searchForm">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">設備名稱</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="name" autocomplete="off" class="layui-input" placeholder="請輸入設備名稱">
                         </div>
                     </div>
-                </form>
-            </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">狀態</label>
+                        <div class="layui-input-inline">
+                            <select name="state">
+                                <option value="">請選擇狀態</option>
+                                <option value="1">上線</option>
+                                <option value="0">下線</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">型號別</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="krakenModel" autocomplete="off" class="layui-input" placeholder="請輸入型號別">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">產品序號</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="factoryIotSerial" autocomplete="off" class="layui-input" placeholder="請輸入產品序號">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">韌體版本</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="fwVer" autocomplete="off" class="layui-input" placeholder="請輸入韌體版本">
+                        </div>
+                    </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">安裝時間</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="dtInstall" class="layui-input" placeholder="yyyy-MM-dd" id="ID-laydate">
+                            </div>
+                        </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">建立者</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="createUser" autocomplete="off" class="layui-input" placeholder="請輸入建立者">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">修改者</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="modifyUser" autocomplete="off" class="layui-input" placeholder="請輸入修改者">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
+                            <i class="layui-icon"></i> 搜 尋
+                        </button>
+                    </div>
+                    <div class="layui-inline">
+                        <button type="button" class="layui-btn layui-btn-primary" id="clear-btn">
+                            清空
+                        </button>
+                    </div>
+                </div>
+            </form>
         </fieldset>
 
         <!-- 表格操作按鈕 -->
         <script type="text/html" id="toolbarDemo">
             <div class="layui-btn-container">
-                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 新增 </button>
+                <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="add"> 新增設備 </button>
             </div>
         </script>
 
         <!-- 數據表格 -->
-        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+        <table class="layui-hide" id="krakenTableId" lay-filter="krakenTableFilter"></table>
 
-        <!-- 分頁容器 -->
+        <!-- 分頁條容器 -->
         <div id="pagination" style="text-align: center; margin-top: 20px;"></div>
 
     </div>
 </div>
 <script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+
 <script>
-    layui.use(['form', 'table', 'laypage'], function () {
+    layui.use(['form', 'table', 'laypage', 'laydate'], function () {
         var $ = layui.jquery,
                 form = layui.form,
                 table = layui.table,
-                laypage = layui.laypage;
-
-        // 定義全局變量
-        var totalCount = 0; // 總記錄數
-        var allData = []; // 全部數據緩存
-        var pageLimit = 10; // 每頁顯示數量
-        var currPage = 1; // 當前頁碼
-
-        // 模擬後端返回數據
-        function mockFetchData() {
-            var mockData = [];
-            for (var i = 1; i <= 100; i++) {
-                mockData.push({
-                    id: i,
-                    username: '用戶' + i,
-                    email: 'user' + i + '@example.com',
-                    role: i % 4,
-                    state: i % 3,
-                    parentUserName: '管理者' + (i % 5),
-                    factory_list: '工廠' + (i % 10),
-                    maxDevice: 10 + i,
-                    company: '公司' + i,
-                    country: i % 2 === 0 ? 'TWN' : 'MYS',
-                    language: i % 2 === 0 ? 'CHT' : 'ENG',
-                    phoneCountryCode: '+886',
-                    phoneNumber: '0912-' + ('00000' + i).slice(-5),
-                    dtModify: new Date().toISOString(),
-                    dtCreate: new Date().toISOString(),
-                    modifyUser: '修改者' + (i % 3),
-                    createUser: '建立者' + (i % 4),
-                });
-            }
-            totalCount = mockData.length; // 獲取總數據條數
-            allData = mockData; // 緩存所有數據
-        }
+                laypage = layui.laypage,
+                laydate = layui.laydate;
 
         // 初始化表格
-        function renderTable(data) {
-            table.render({
-                elem: '#currentTableId',
-                data: data, // 傳入當前頁面的數據
-                cols: [[
-                    {type: "checkbox", width: 50},
-                    {field: 'id', width: 80, title: 'ID', sort: true},
-                    {field: 'username', width: 120, title: '用戶名稱'},
-                    {field: 'email', width: 180, title: '電子郵件'},
-                    {field: 'role', width: 100, title: '角色', templet: function (d) {
-                            var roles = {0: '管理員', 1: '代理商', 2: '安裝商', 3: '客戶'};
-                            return roles[d.role] || '未知';
-                        }},
-                    {field: 'state', width: 100, title: '狀態', templet: function (d) {
-                            var states = {0: '待審', 1: '開通', 2: '封鎖'};
-                            return states[d.state] || '未知';
-                        }},
-                    {field: 'parentUserName', width: 120, title: '管理者'},
-                    {field: 'factory_list', width: 180, title: '工廠'},
-                    {field: 'maxDevice', width: 80, title: '最大設備數量'},
-                    {field: 'company', width: 180, title: '公司名稱'},
-                    {field: 'country', width: 100, title: '國家'},
-                    {field: 'language', width: 100, title: '語言偏好'},
-                    {field: 'phoneCountryCode', width: 100, title: '電話國碼'},
-                    {field: 'phoneNumber', width: 150, title: '電話號碼'},
-                    {field: 'dtModify', width: 180, title: '修改時間'},
-                    {field: 'dtCreate', width: 180, title: '建立時間'},
-                    {field: 'modifyUser', width: 100, title: '修改者'},
-                    {field: 'createUser', width: 100, title: '建立者'}
-                ]],
-                page: false // 關閉內置分頁
-            });
-        }
+        table.render({
+            elem: '#krakenTableId',
+            id: 'krakenTableId',
+            cols: [[
+                {type: "checkbox", width: 50},
+                {field: 'id', width: 80, title: 'ID', sort: true},
+                {field: 'name', width: 150, title: '設備名稱'},
+                {field: 'krakenModel', width: 120, title: '型號別'},
+                {field: 'factoryIotSerial', width: 150, title: '產品序號'},
+                {field: 'state', width: 100, title: '狀態', templet: function (d) {
+                        return d.state === 1 ? '上線' : '下線';
+                    }},
+                {field: 'fwVer', width: 120, title: '韌體版本'},
+                {field: 'dtInstall', width: 180, title: '安裝時間'},
+                {field: 'dtModify', width: 180, title: '修改時間'},
+                {field: 'modifyUser', width: 100, title: '修改者'},
+                {field: 'createUser', width: 100, title: '建立者'},
+            ]],
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print'],
+            data: [],
+            page: false
+        });
 
-        // 渲染分頁
-        function renderPagination() {
-            laypage.render({
-                elem: 'pagination', // 分頁容器的 DOM ID
-                count: totalCount, // 總數據量
-                limit: pageLimit, // 每頁數據量
-                curr: currPage, // 當前頁碼
-                layout: ['prev', 'page', 'next'], // 分頁樣式
-                jump: function (obj, first) {
-                    if (!first) { // 點擊分頁才執行
-                        currPage = obj.curr; // 更新當前頁碼
-                        var start = (currPage - 1) * pageLimit;
-                        var end = currPage * pageLimit;
-                        renderTable(allData.slice(start, end)); // 渲染當前頁面的數據
-                    }
+        // 加載數據函數
+        function loadTableData(page, size, filters) {
+            // 構建查詢參數，直接對應 ListKrakenReq 的結構
+            var queryParams = {
+                page: page , // 後端 PageReq 的 page 是從 0 開始的
+                size: size,
+                sortBy: 'id', // 默認排序字段
+                direction: 'asc', // 默認升序
+                id: filters.id || null,
+                factoryId: filters.factoryId || null,
+                userId: filters.userId || null,
+                krakenModel: filters.krakenModel || null,
+                factoryIotSerial: filters.factoryIotSerial || null,
+                name: filters.name || null,
+                state: filters.state || null,
+                fwVer: filters.fwVer || null,
+                dtInstall: filters.dtInstall || null,
+                createUser: filters.createUser || null,
+                modifyUser: filters.modifyUser || null
+            };
+
+            $.ajax({
+                url: '/api/v1/kraken/list',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(queryParams),
+                success: function (res) {
+                    console.log('取回的資料:', res.data);
+                    table.reload('krakenTableId', {
+                        data: res.data // 更新表格數據
+                    });
+
+                    laypage.render({
+                        elem: 'pagination',
+                        count: res.count, // 總數據量
+                        limit: size, // 每頁數據量
+                        curr: page, // 當前頁
+                        layout: ['prev', 'page', 'next', 'count'],
+                        prev: '上一頁',
+                        next: '下一頁',
+                        jump: function (obj, first) {
+                            if (!first) {
+                                loadTableData(obj.curr, obj.limit, filters);
+                            }
+                        }
+                    });
+
+                    laydate.render({
+                        elem: '#ID-laydate'
+                    });
                 }
             });
         }
 
-        // 初始化
-        mockFetchData(); // 模擬獲取數據
-        renderTable(allData.slice(0, pageLimit)); // 渲染第1頁數據
-        renderPagination(); // 初始化分頁
+        // 首次加載數據
+        loadTableData(1, 10, {}); // 默認載入第一頁，10 條數據
+
+        // 搜索功能
+        form.on('submit(data-search-btn)', function (data) {
+            // 使用表單字段作為過濾條件，直接對應 ListKrakenReq 的屬性
+            loadTableData(1, 10, data.field);
+            return false;
+        });
+
+        // 清空按鈕
+        $('#clear-btn').on('click', function () {
+            // 清空表單內的所有輸入欄位
+            $('#searchForm')[0].reset(); // 重置表單
+            form.render(); // 重新渲染表單，以更新 select 下拉框等元素
+
+            // 如果有其他初始化行為，可以在這裡處理
+            console.log('表單已清空');
+        });
+
+        // 監聽新增按鈕
+        table.on('toolbar(krakenTableFilter)', function (obj) {
+            if (obj.event === 'add') {
+                var index = layer.open({
+                    title: '新增設備',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['80%', '80%'],
+                    content: '/page/admin/kraken/add.html'
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            }
+        });
     });
 </script>
-
 </body>
 </html>
