@@ -7,6 +7,7 @@ import com.greenwiz.bms.controller.data.kraken.ListKrakenReq;
 import com.greenwiz.bms.controller.data.kraken.UpdateKrakenReq;
 import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.facade.KrakenFacade;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class KrakenController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addKraken(@RequestBody AddKrakenReq request) {
+    public ResponseEntity<?> addKraken(@RequestBody @Valid AddKrakenReq request) {
         krakenFacade.addKraken(request);
         return ResponseEntity.ok("新增成功");
     }
