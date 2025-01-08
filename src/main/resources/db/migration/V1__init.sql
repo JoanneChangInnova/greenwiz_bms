@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `factory` (
  `factory_uuid` UUID NOT NULL DEFAULT UUID() COMMENT '工廠的唯一標識符（UUID）',
  `name` VARCHAR(100) NOT NULL COMMENT '工廠名稱',
  `utc_offset` VARCHAR(6) NOT NULL DEFAULT '+00:00' COMMENT '時區偏移量，格式如 +00:00（範圍 -12:00 到 +14:00）',
- `max_kwh` FLOAT UNSIGNED NOT NULL DEFAULT 100 COMMENT '最大限制功率（kWh）',
+ `max_kwh` FLOAT UNSIGNED NOT NULL DEFAULT 100 COMMENT '最大限制功率（kWh）預設100，最大值999999',
  `monitor_period_minute` SMALLINT UNSIGNED NOT NULL DEFAULT 15 COMMENT '監控週期（分鐘)',
  `country` VARCHAR(3) NULL COMMENT '國家名稱（ISO 3166-1三位字母代碼）',
  `address` VARCHAR(1024) NULL COMMENT '工廠地址',
