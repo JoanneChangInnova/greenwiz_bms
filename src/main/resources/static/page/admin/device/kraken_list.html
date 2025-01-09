@@ -36,8 +36,8 @@
                         <div class="layui-input-inline">
                             <select name="state">
                                 <option value="">請選擇狀態</option>
-                                <option value="1">上線</option>
-                                <option value="0">下線</option>
+                                <option value="0">啟用</option>
+                                <option value="1">停用</option>
                             </select>
                         </div>
                     </div>
@@ -62,7 +62,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">安裝時間</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="dtInstall" class="layui-input" placeholder="yyyy-MM-dd" id="ID-laydate">
+                                <input type="text" name="dtInstall" class="layui-input" placeholder="yyyy-MM-dd" id="dtInstall">
                             </div>
                         </div>
                     <div class="layui-inline">
@@ -127,7 +127,7 @@
                 {field: 'krakenModel', width: 120, title: '型號別'},
                 {field: 'factoryIotSerial', width: 150, title: '產品序號'},
                 {field: 'state', width: 100, title: '狀態', templet: function (d) {
-                        return d.state === 1 ? '上線' : '下線';
+                        return d.state === 0 ? '啟用' : '停用';
                     }},
                 {field: 'fwVer', width: 120, title: '韌體版本'},
                 {field: 'dtInstall', width: 180, title: '安裝時間'},
@@ -189,7 +189,7 @@
                     });
 
                     laydate.render({
-                        elem: '#ID-laydate'
+                        elem: '#dtInstall'
                     });
                 }
             });
@@ -226,12 +226,37 @@
                     shadeClose: true,
                     area: ['80%', '80%'],
                     content: '/page/admin/device/kraken_add.html'
+
                 });
                 $(window).on("resize", function () {
                     layer.full(index);
                 });
             }
         });
+
+        layui.config({
+            base: '/lib/layuimini/' // Layui-mini 的基礎路徑
+        }).extend({
+            admin: 'layuimini' // 引用 admin 模組
+        }).use(['admin'], function () {
+            var admin = layui.admin;
+        });
+
+
+        // 監聽整行點擊事件
+        table.on('row(krakenTableFilter)', function (obj) {
+            var target = event.target;
+            if ($(target).parents('.layui-form-checkbox').length > 0) {
+                return; // 點擊複選框時不跳轉
+            }
+            var data = obj.data;
+            var krakenId = data.id;
+            var editUrl = '/page/admin/device/kraken_edit.html?id=' + krakenId;
+            window.location.href = editUrl;
+            //top.layui.admin.openTabsPage(editUrl, '編輯 Kraken');
+        });
+
+
     });
 </script>
 </body>

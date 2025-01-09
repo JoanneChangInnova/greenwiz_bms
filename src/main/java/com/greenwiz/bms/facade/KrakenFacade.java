@@ -5,6 +5,7 @@ import com.greenwiz.bms.controller.data.kraken.ListKrakenReq;
 import com.greenwiz.bms.controller.data.kraken.UpdateKrakenReq;
 import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.service.KrakenService;
+import com.greenwiz.bms.utils.ValidationUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -39,7 +40,13 @@ public class KrakenFacade {
 
     public void updateKraken(UpdateKrakenReq request) {
         Kraken kraken = krakenService.findByPk(request.getId());
-
+        ValidationUtils.validateVersion(request.getDtModify(),kraken.getDtModify());
+        kraken.setKrakenModel(request.getKrakenModel());
+        kraken.setFactoryIotSerial(request.getFactoryIotSerial());
+        kraken.setName(request.getName());
+        kraken.setState(request.getState());
+        kraken.setFwVer(request.getFwVer());
+        kraken.setDtInstall(request.getDtInstall());
         krakenService.save(kraken);
     }
 }
