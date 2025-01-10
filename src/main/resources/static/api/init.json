@@ -23,13 +23,13 @@
           "child": [
             {
               "title": "kraken列表",
-              "href": "/page/admin/device/kraken_list.html",
+              "href": "page/admin/device/kraken_list.html",
               "icon": "fa fa-file-text",
               "target": "_self"
             },
             {
               "title": "channel列表",
-              "href": "/page/admin/device/channel_list.html",
+              "href": "page/admin/device/channel_list.html",
               "icon": "fa fa-file-text",
               "target": "_self"
             },
@@ -49,7 +49,7 @@
           "child": [
             {
               "title": "工廠列表",
-              "href": "/page/admin/factory/factory_list.html",
+              "href": "page/admin/factory/factory_list.html",
               "icon": "fa fa-file-text",
               "target": "_self"
             }
@@ -63,7 +63,7 @@
           "child": [
             {
               "title": "用戶列表",
-              "href": "/page/admin/user/user_list.html",
+              "href": "page/admin/user/user_list.html",
               "icon": "fa fa-file-text",
               "target": "_self"
             }

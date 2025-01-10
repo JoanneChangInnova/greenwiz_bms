@@ -234,14 +234,6 @@
             }
         });
 
-        layui.config({
-            base: '/lib/layuimini/' // Layui-mini 的基礎路徑
-        }).extend({
-            admin: 'layuimini' // 引用 admin 模組
-        }).use(['admin'], function () {
-            var admin = layui.admin;
-        });
-
 
         // 監聽整行點擊事件
         table.on('row(krakenTableFilter)', function (obj) {
@@ -252,8 +244,7 @@
             var data = obj.data;
             var krakenId = data.id;
             var editUrl = '/page/admin/device/kraken_edit.html?id=' + krakenId;
-            window.location.href = editUrl;
-            //top.layui.admin.openTabsPage(editUrl, '編輯 Kraken');
+            window.open(editUrl, '_self');
         });
 
 

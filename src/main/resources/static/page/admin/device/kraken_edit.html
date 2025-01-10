@@ -80,10 +80,11 @@
 	</div>
 </div>
 
-<script src="../../../lib/layui-v2.6.3/layui.js"></script>
+<script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
 <script>
-	layui.use(['form', 'layer', 'laydate'], function () {
-		var form = layui.form, layer = layui.layer, $ = layui.$, laydate = layui.laydate;
+	layui.use(['form', 'layer', 'laydate','miniTab'], function () {
+		var form = layui.form, layer = layui.layer, $ = layui.$, laydate = layui.laydate, miniTab = layui.miniTab;
 		var krakenId = new URLSearchParams(window.location.search).get('id'); // 取得 URL 中的 Kraken ID
 
 		// 初始化日期選擇器
@@ -123,8 +124,9 @@
 							var index = parent.layer.getFrameIndex(window.name); // 獲取當前彈窗的索引
 							parent.layer.close(index); // 關閉彈窗
 
-							// 重新加載 Kraken 列表頁面
-							parent.location.href = 'kraken_list.html';
+							// 返回並重新加載 Kraken 列表頁面
+							window.open('kraken_list.html', '_self');
+
 						});
 					} else {
 						layer.alert('Kraken 編輯失敗', {title: '錯誤'});
