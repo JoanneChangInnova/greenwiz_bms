@@ -8,6 +8,7 @@ import com.greenwiz.bms.controller.data.user.ParentData;
 import com.greenwiz.bms.controller.data.user.UpdateUserReq;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.service.UserService;
+import com.greenwiz.bms.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @PostMapping("/save")
     public void batachSaveForUser() {
@@ -46,12 +47,16 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<User> addUser(@Validated @RequestBody AddUserReq addUserReq) {
-        System.out.println("新增用戶: " + addUserReq);
-        User user = new User();
-        BeanUtils.copyProperties(addUserReq,user);
-        User addedUser = userService.save(user);
-        return ResponseEntity.status(200).body(addedUser);
+    public ResponseEntity<?> addUser(@Validated @RequestBody AddUserReq addUserReq) {
+        try {
+            User addedUser = userService.addUser(addUserReq);
+            return ResponseEntity.status(HttpStatus.CREATED).body(addedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            log.error("新增用戶失敗: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("新增用戶失敗，請稍後重試");
+        }
     }
 
     @PostMapping("/list")
