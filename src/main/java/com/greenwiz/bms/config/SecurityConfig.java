@@ -39,7 +39,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()  // 放行認證相關接口
                         .requestMatchers("/captcha/**").permitAll()      // 放行驗證碼生成
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/lib/**").permitAll() // 靜態資源
+                        .requestMatchers("/**","/index.html", "/page/index.html", "/css/**", "/js/**", "/images/**",
+                         "/lib/**", "/api/**").permitAll()
+                        .requestMatchers("/page/**").permitAll()  // Dev
                         .anyRequest().authenticated())                  // 其他接口需認證
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp

@@ -22,4 +22,9 @@ public class KrakenServiceImpl extends BaseDomainServiceImpl<Long, Kraken> imple
     public Page<Kraken> getKrakenPageBySpecification(Example<Kraken> example, Pageable pageable) {
         return jpaRepository.findAll(example, pageable);
     }
+
+    @Override
+    public Kraken getByName(String name) {
+        return jpaRepository.getByName(name);
+    }
 }

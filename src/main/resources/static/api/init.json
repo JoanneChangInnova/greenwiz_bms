@@ -1,11 +1,11 @@
 {
   "homeInfo": {
     "title": "首頁",
-    "href": "page/welcome-1.html?t=1"
+    "href": "/page/welcome-1.html?t=1"
   },
   "logoInfo": {
     "title": "GreenWiz",
-    "image": "images/logo.png",
+    "image": "/images/logo.png",
     "href": ""
   },
   "menuInfo": [
@@ -35,7 +35,7 @@
             },
             {
               "title": "批量新增",
-              "href": "page/table.html",
+              "href": "/page/table.html",
               "icon": "fa fa-file-text",
               "target": "_self"
             }

@@ -9,4 +9,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface KrakenService extends BaseDomainService<Long, Kraken> {
     Page<Kraken> getKrakenPageBySpecification(Example<Kraken> example, Pageable pageable);
+
+    Kraken getByName(String name);
 }

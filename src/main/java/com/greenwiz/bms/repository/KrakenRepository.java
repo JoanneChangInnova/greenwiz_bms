@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface KrakenRepository extends JpaRepository<Kraken, Long> {
+    Kraken getByName(String name);
 }
