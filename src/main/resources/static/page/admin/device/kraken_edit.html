@@ -82,6 +82,7 @@
 
 <script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
 <script src="/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script src="/js/comm.js" charset="utf-8"></script>
 <script>
 	layui.use(['form', 'layer', 'laydate','miniTab'], function () {
 		var form = layui.form, layer = layui.layer, $ = layui.$, laydate = layui.laydate, miniTab = layui.miniTab;
@@ -133,10 +134,7 @@
 					}
 				},
 				error: function (xhr) {
-					console.error("提交失敗:", xhr.responseText);
-					var response = JSON.parse(xhr.responseText);
-					// 返回list
-					layer.alert('提交失敗: ' + response.msg, {title: '錯誤'});
+					handleErrorResponse(xhr);
 				}
 			});
 

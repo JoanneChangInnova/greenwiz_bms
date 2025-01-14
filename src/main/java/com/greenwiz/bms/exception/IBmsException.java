@@ -4,7 +4,7 @@ import com.greenwiz.bms.enumeration.ResultCode;
 
 public interface IBmsException {
 
-    default BmsException SvcException(ResultCode resultCode) {
+    default BmsException Bmsxception(ResultCode resultCode) {
         return new BmsException(resultCode);
     }
 
