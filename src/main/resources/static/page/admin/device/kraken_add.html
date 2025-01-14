@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>新增 Kraken</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="stylesheet" href="../../../lib/layui-v2.6.3/css/layui.css" media="all">
+	<style>
+        body {
+            background-color: #ffffff;
+        }
+
+	</style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+	<div class="layui-form-item">
+		<label class="layui-form-label required">設備名稱</label>
+		<div class="layui-input-block">
+			<input type="text" name="name" lay-verify="required" placeholder="請輸入設備名稱" class="layui-input">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label required">型號別</label>
+		<div class="layui-input-block">
+			<input type="text" name="krakenModel" lay-verify="required" placeholder="範例：k24340000" class="layui-input">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label required">產品序號</label>
+		<div class="layui-input-block">
+			<input type="number" name="factoryIotSerial" lay-verify="required" placeholder="範例：404881408" class="layui-input">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label required">狀態</label>
+		<div class="layui-input-block">
+			<select name="state" lay-verify="required">
+				<option value="">請選擇狀態</option>
+				<option value="0">啟用</option>
+				<option value="1">停用</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">韌體版本</label>
+		<div class="layui-input-block">
+			<input type="text" name="fwVer" placeholder="請輸入韌體版本" class="layui-input">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label required">安裝時間</label>
+		<div class="layui-input-block">
+			<input type="date" name="dtInstall" class="layui-input" id="dtInstall">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<div class="layui-input-block">
+			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveKrakenBtn">確認保存</button>
+		</div>
+	</div>
+</div>
+
+<script src="../../../lib/layui-v2.6.3/layui.js"></script>
+<script src="/js/comm.js" charset="utf-8"></script>
+<script>
+	layui.use(['form', 'layer'], function () {
+		var form = layui.form, layer = layui.layer, $ = layui.$, laydate = layui.laydate;
+
+		laydate.render({
+			elem: '#dtInstall'
+		});
+
+		// 監聽表單提交
+		form.on('submit(saveKrakenBtn)', function (data) {
+			console.log("提交數據:", data.field);
+
+			$.ajax({
+				url: '/api/v1/kraken/add',
+				type: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify(data.field),
+				success: function (response, textStatus, xhr) {
+					console.log("返回數據:", response);
+					if (xhr.status === 200) {
+						layer.alert('Kraken 新增成功', {title: '提示'}, function () {
+							// 關閉當前彈出層
+							var index = parent.layer.getFrameIndex(window.name); // 獲取當前彈窗的索引
+							parent.layer.close(index); // 關閉彈窗
+
+							// 重新加載 Kraken 列表頁面
+							parent.location.href = 'kraken_list.html';
+						});
+					} else {
+						layer.alert('Kraken 新增失敗', {title: '錯誤'});
+					}
+				},
+				error: function (xhr) {
+					handleErrorResponse(xhr);
+				}
+			});
+
+			return false; // 阻止默認提交行為
+		});
+	});
+</script>
+</body>
+</html>

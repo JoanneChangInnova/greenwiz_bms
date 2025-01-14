@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 `dt_create` DATETIME NULL COMMENT '創建時間',
 `create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 ID 或 SYSTEM',
 `modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 ID 或 SYSTEM',
-PRIMARY KEY (`id`)
+PRIMARY KEY (`id`),
+UNIQUE KEY `unique_username` (`username`) COMMENT '唯一約束，防止重複的username'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用戶表';
 
 CREATE TABLE IF NOT EXISTS `channel` (
@@ -84,7 +85,7 @@ CREATE TABLE IF NOT EXISTS `iot_device` (
 `kraken_model` varchar(64) NOT NULL COMMENT '型號別',
 `factory_iot_serial` INT unsigned NOT NULL COMMENT '產品序號',
 `name` VARCHAR(100) DEFAULT NULL COMMENT '設備名稱',
-`state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:offline, 1:online',
+`state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:啟用, 1:停用',
 `fw_ver` char(16) NULL COMMENT '韌體版本',
 `dt_install` DATE NULL COMMENT '設備安裝時間',
 `dt_modify` DATETIME NULL COMMENT '修改時間',

@@ -1,7 +1,5 @@
 package com.greenwiz.bms.controller.data.kraken;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.OptBoolean;
 import com.greenwiz.bms.controller.data.base.PageReq;
 import lombok.Data;
 

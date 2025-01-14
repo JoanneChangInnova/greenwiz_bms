@@ -151,6 +151,8 @@
         </div>
     </div>
 
+    <input type="hidden" name="dtModify" class="layui-input" id="dtModify">  <!-- 修改時間 -->
+
     <div class="layui-form-item">
         <div class="layui-input-block">
             <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">確認保存</button>
@@ -159,6 +161,7 @@
 </div>
 
 <script src="../../../lib/layui-v2.6.3/layui.js"></script>
+<script src="/js/comm.js" charset="utf-8"></script>
 <script>
     layui.use(['form', 'layer'], function () {
         var form = layui.form, layer = layui.layer, $ = layui.$;
@@ -182,6 +185,8 @@
 	        $("#maxDevice").val(data.maxDevice);
 	        $("#language").val(data.language);
             $("#state").val(data.state);
+            $("input[name='state'][value='" + data.state + "']").prop("checked", true); // 自動勾選對應的 radio 按鈕
+            $("#dtModify").val(data.dtModify);
 
 	        form.render(); // 渲染表單
         });
@@ -214,8 +219,7 @@
                     }
                 },
                 error: function (xhr) {
-                    console.error("提交失敗:", xhr.responseText);
-                    layer.alert('提交失敗: ' + xhr.responseText, {title: '錯誤'});
+                    handleErrorResponse(xhr);
                 }
             });
 
