@@ -14,12 +14,6 @@ public interface UserService extends BaseDomainService<Long, User> {
      */
     Page<User> listUser(PageReq pageReq);
 
-    /**
-     * 新增用戶
-     * @param addUserReq 包含新增用戶所需資料的請求對象
-     * @return 新增成功的用戶實體
-     */
-    User addUser(AddUserReq addUserReq);
 
     /**
      * 根據用戶名查詢用戶
@@ -36,12 +30,6 @@ public interface UserService extends BaseDomainService<Long, User> {
      */
     boolean validatePassword(String rawPassword, String encodedPassword);
 
-    /**
-     * 將角色代碼轉換為角色名稱
-     * @param roleCode 角色代碼
-     * @return 對應的角色名稱
-     */
-    String getRoleName(Integer roleCode);
 
     /**
      * 密碼加密

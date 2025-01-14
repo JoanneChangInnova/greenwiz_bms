@@ -50,10 +50,12 @@ public class AuthController {
         }
 
         // 生成 JWT Token
-        String token = jwtUtils.generateToken(user.getUsername(), Collections.singletonList(userService.getRoleName(user.getRole())));
+        String token = jwtUtils.generateToken(user.getUsername(),
+                Collections.singletonList(user.getRole().name()));
 
         // 返回成功響應
-        return ResponseEntity.ok(new LoginResponse(token, user.getUsername(), userService.getRoleName(user.getRole())));
+        return ResponseEntity.ok(new LoginResponse(token, user.getUsername(),
+                user.getRole().name()));
     }
 
     /**

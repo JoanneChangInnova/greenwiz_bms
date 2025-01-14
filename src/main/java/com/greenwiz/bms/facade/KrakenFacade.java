@@ -37,14 +37,12 @@ public class KrakenFacade {
     }
 
     public void addKraken(AddKrakenReq request) {
-        validateKrakenName(request.getName(), null);
         Kraken kraken = new Kraken();
         BeanUtils.copyProperties(request, kraken);
         krakenService.save(kraken);
     }
 
     public void updateKraken(UpdateKrakenReq request) {
-        validateKrakenName(request.getName(), request.getId());
         Kraken kraken = krakenService.findByPk(request.getId());
         ValidationUtils.validateVersion(request.getDtModify(),kraken.getDtModify());
         kraken.setKrakenModel(request.getKrakenModel());
@@ -56,11 +54,4 @@ public class KrakenFacade {
         krakenService.save(kraken);
     }
 
-    /**
-     * 檢查設備名稱是否重複
-     */
-    private void validateKrakenName(String newName, Long reqKrakenId) {
-        Kraken krakenByName = krakenService.getByName(newName);
-        ValidationUtils.checkNameDuplicate(krakenByName, reqKrakenId, krakenByName.getId());
-    }
 }
