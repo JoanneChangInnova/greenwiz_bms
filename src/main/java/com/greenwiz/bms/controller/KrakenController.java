@@ -1,7 +1,6 @@
 package com.greenwiz.bms.controller;
 
 import com.greenwiz.bms.controller.data.base.LayuiTableResp;
-import com.greenwiz.bms.controller.data.base.PageReq;
 import com.greenwiz.bms.controller.data.kraken.AddKrakenReq;
 import com.greenwiz.bms.controller.data.kraken.ListKrakenReq;
 import com.greenwiz.bms.controller.data.kraken.UpdateKrakenReq;
@@ -47,7 +46,7 @@ public class KrakenController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<String> updateKraken(@RequestBody UpdateKrakenReq request) {
+    public ResponseEntity<?> updateKraken(@RequestBody UpdateKrakenReq request) {
         krakenFacade.updateKraken(request);
         return ResponseEntity.ok("修改成功");
     }

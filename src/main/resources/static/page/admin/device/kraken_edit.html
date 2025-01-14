@@ -134,7 +134,9 @@
 				},
 				error: function (xhr) {
 					console.error("提交失敗:", xhr.responseText);
-					layer.alert('提交失敗: ' + xhr.responseText, {title: '錯誤'});
+					var response = JSON.parse(xhr.responseText);
+					// 返回list
+					layer.alert('提交失敗: ' + response.msg, {title: '錯誤'});
 				}
 			});
 

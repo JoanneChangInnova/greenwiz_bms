@@ -1,7 +1,11 @@
 package com.greenwiz.bms.utils;
 
+import com.greenwiz.bms.exception.BmsException;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import static com.greenwiz.bms.enumeration.ResultCode.BM01;
 
 public class ValidationUtils {
 
@@ -12,7 +16,7 @@ public class ValidationUtils {
      */
     public static void validateVersion(LocalDateTime newDtModify, LocalDateTime oldDtModify) {
         if (!Objects.equals(newDtModify, oldDtModify)) {
-            throw new RuntimeException("BASE_VERSION_INVALID");
+            throw new BmsException(BM01);
         }
     }
 }
