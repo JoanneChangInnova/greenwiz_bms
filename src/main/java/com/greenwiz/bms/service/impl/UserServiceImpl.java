@@ -37,6 +37,11 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
     }
 
     @Override
+    public User findByEmail(String email) {
+        return jpaRepository.findByEmail(email);
+    }
+
+    @Override
     public boolean validatePassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }

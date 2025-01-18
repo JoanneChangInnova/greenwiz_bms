@@ -25,9 +25,9 @@ public class UserFacade {
 
     public User addUser(AddUserReq addUserReq) {
         // 檢查用戶名是否已存在
-        User user = userService.findByUsername(addUserReq.getUsername());
+        User user = userService.findByEmail(addUserReq.getEmail());
         if (user != null) {
-            throw new BmsException("用戶名已存在，請選擇其他用戶名");
+            throw new BmsException("Email已存在，請選擇其他Email");
         }
 
         User newUser = new User();
@@ -55,10 +55,10 @@ public class UserFacade {
         ValidationUtils.validateVersion(updateUserReq.getDtModify(),user.getDtModify());
 
         //用戶名稱若修改，檢查是否已有同名用戶
-        if(!updateUserReq.getUsername().equals(user.getUsername())){
-            User userByName = userService.findByUsername(updateUserReq.getUsername());
-            if(userByName != null){
-                throw new BmsException("用戶名已存在，請選擇其他用戶名");
+        if(!updateUserReq.getUsername().equals(user.getEmail())){
+            User userByEmail = userService.findByEmail(updateUserReq.getEmail());
+            if(userByEmail != null){
+                throw new BmsException("Email已存在，請選擇其他Email");
             }
         }
 

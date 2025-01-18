@@ -22,6 +22,8 @@ public interface UserService extends BaseDomainService<Long, User> {
      */
     User findByUsername(String username);
 
+    User findByEmail(String email);
+
     /**
      * 驗證用戶密碼
      * @param rawPassword 明文密碼

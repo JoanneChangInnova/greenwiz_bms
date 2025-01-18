@@ -72,7 +72,7 @@
             <div class="center">
                 <div class="item">
                     <span class="icon icon-2"></span>
-                    <input type="text" name="username" id="username" lay-verify="required" placeholder="請輸入使用者名稱"
+                    <input type="text" name="email" id="email" lay-verify="required" placeholder="請輸入使用者Email"
                            maxlength="24"/>
                 </div>
 
@@ -100,6 +100,7 @@
     ©版權所有 2025 格綠致<span class="padding-5">|</span><a target="_blank" href="">GreenWiz公司網站連結</a>
 </div>
 <script src="lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/js/comm.js" charset="utf-8"></script>
 <script>
     layui.use(['jquery'], function () {
         var $ = layui.jquery;
@@ -109,43 +110,70 @@
             $('#captchaImage').attr('src', 'http://localhost:8080/captcha/generate?timestamp=' + new Date().getTime());
         };
 
-        // 提交表單時進行登錄
+        function validateCaptcha(captchaInput, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://localhost:8080/captcha/validate', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    callback(true); // Captcha 驗證成功
+                } else {
+                    callback(false); // Captcha 驗證失敗
+                }
+            };
+            xhr.onerror = function () {
+                callback(false);
+            };
+            xhr.send(JSON.stringify({ captcha: captchaInput }));
+        }
+
+        // 提交表單進行登錄
         $('#submitForm').on('click', function (event) {
             event.preventDefault(); // 阻止默認表單提交行為
-            var username = $('#username').val();
+
+            var email = $('#email').val();
             var password = $('#password').val();
             var captcha = $('#captchaInput').val();
 
-            if (!username || !password || !captcha) {
+            if (!email || !password || !captcha) {
                 alert('請輸入完整信息');
                 return;
             }
 
-            $.ajax({
-                url: 'http://localhost:8080/api/v1/auth/login',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ username: username, password: password, captcha: captcha }),
-                success: function (response) {
-                    if (response.token) {
-                        localStorage.setItem('jwtToken', response.token);
+            // 先驗證 Captcha
+            validateCaptcha(captcha, function (isCaptchaValid) {
+                if (!isCaptchaValid) {
+                    alert('驗證碼錯誤，請重試');
+                    refreshCaptcha();
+                    return;
+                }
 
-                        if (response.role === 'ADMIN') {
-                            // TODO 改為正確的後台首頁
-                            window.location.href = '/page/admin/index.html';
+                // Captcha 驗證通過後執行登錄
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:8080/api/v1/auth/login', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.token) {
+                            localStorage.setItem('jwtToken', response.token);
+
+                            if (response.role === 'ADMIN') {
+                                window.location.href = '/page/admin/index.html';
+                            } else {
+                                alert('您無權訪問此頁面，請聯繫管理員');
+                            }
                         } else {
-                            refreshCaptcha();
-                            alert('您無權訪問此頁面，請聯繫管理員');
+                            handleErrorResponse(xhr);
                         }
                     } else {
-                        refreshCaptcha();
-                        alert('登錄失敗：' + response.message);
+                        handleErrorResponse(xhr);
                     }
-                },
-                error: function () {
-                    alert('登錄失敗，請稍後重試');
-                    refreshCaptcha();
-                }
+                };
+                xhr.onerror = function () {
+                    handleErrorResponse(xhr);
+                };
+                xhr.send(JSON.stringify({ email: email, password: password, captcha: captcha }));
             });
         });
 

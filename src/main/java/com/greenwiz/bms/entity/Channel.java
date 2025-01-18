@@ -61,9 +61,9 @@ public class Channel {
     /** 註冊時間 */
     private LocalDateTime dtCreate;
 
-    /** 建立資料的使用者 ID 或 SYSTEM */
+    /** 建立資料的使用者 username 或 SYSTEM */
     private String createUser;
 
-    /** 修改資料的使用者 ID 或 SYSTEM */
+    /** 修改資料的使用者 username 或 SYSTEM */
     private String modifyUser;
 }

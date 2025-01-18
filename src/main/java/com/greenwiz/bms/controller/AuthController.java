@@ -3,13 +3,18 @@ package com.greenwiz.bms.controller;
 import com.greenwiz.bms.controller.data.auth.LoginRequest;
 import com.greenwiz.bms.controller.data.auth.LoginResponse;
 import com.greenwiz.bms.entity.User;
+import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.service.UserService;
 import com.greenwiz.bms.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.Cookie;
+
 
 import java.util.Collections;
 
@@ -30,6 +35,9 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
+    @Value("${server.secure.enabled:false}") // 默認為 false
+    private boolean isSecure;
+
     /**
      * 用戶登錄接口
      *
@@ -37,26 +45,38 @@ public class AuthController {
      * @return JWT Token 和用戶信息
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         // 根據用戶名查詢用戶
-        User user = userService.findByUsername(loginRequest.getUsername());
+        User user = userService.findByEmail(loginRequest.getEmail());
         if (user == null) {
-            return ResponseEntity.badRequest().body("用戶名或密碼錯誤");
+            throw new BmsException("用戶名或密碼錯誤");
         }
 
         // 驗證密碼
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.badRequest().body("用戶名或密碼錯誤");
+            throw new BmsException("用戶名或密碼錯誤");
         }
 
         // 生成 JWT Token
         String token = jwtUtils.generateToken(user.getUsername(),
                 Collections.singletonList(user.getRole().name()));
 
+        // 將 Token 存入 HttpOnly Cookie
+        Cookie cookie = new Cookie("jwtToken", token);
+        cookie.setHttpOnly(true);  // 防止 JS 存取
+        cookie.setPath("/");       // 在整個應用程序中可用
+        cookie.setMaxAge(7 * 24 * 60 * 60); // 7 天有效期
+
+        if (isSecure) {
+            cookie.setSecure(true); //是否僅在 HTTPS 下傳輸
+        }
+
+        response.addCookie(cookie);
+
         // 返回成功響應
-        return ResponseEntity.ok(new LoginResponse(token, user.getUsername(),
-                user.getRole().name()));
+        return ResponseEntity.ok(new LoginResponse("登入成功", user.getUsername(), user.getRole().name()));
     }
+
 
     /**
      * 用戶登出接口
@@ -76,10 +96,10 @@ public class AuthController {
     @PostMapping("/validate")
     public ResponseEntity<?> validateToken(@RequestParam String token) {
         if (jwtUtils.validateToken(token)) {
-            String username = jwtUtils.getUserNameFromJwtToken(token);
-            return ResponseEntity.ok("Token 有效，當前用戶：" + username);
+            String email = jwtUtils.getEmailFromJwtToken(token);
+            return ResponseEntity.ok("Token 有效，當前用戶：" + email);
         } else {
-            return ResponseEntity.badRequest().body("Token 無效或已過期");
+            throw new BmsException("Token 無效或已過期");
         }
     }
 }

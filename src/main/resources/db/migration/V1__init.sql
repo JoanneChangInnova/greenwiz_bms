@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 `language` VARCHAR(10) NULL COMMENT '語言偏好，例如 CHT 或 ENG',
 `dt_modify` DATETIME NULL COMMENT '修改時間',
 `dt_create` DATETIME NULL COMMENT '創建時間',
-`create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 ID 或 SYSTEM',
-`modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 ID 或 SYSTEM',
+`create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 username 或 SYSTEM',
+`modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 username 或 SYSTEM',
 PRIMARY KEY (`id`),
 UNIQUE KEY `unique_username` (`username`) COMMENT '唯一約束，防止重複的username'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用戶表';
@@ -33,14 +33,14 @@ CREATE TABLE IF NOT EXISTS `channel` (
 `device_type` TINYINT UNSIGNED NULL COMMENT '設備類型，0:controller, 1:monitor',
 `device_model` VARCHAR(50) NULL COMMENT '設備型號',
 `breaker_type` TINYINT UNSIGNED NULL COMMENT '監測相位類型，0:1P+N, 1:2P, 2:2P+N, 3:3P, 4:3P+N（僅 smartmeter 必填）',
-`control_type` TINYINT UNSIGNED COMMENT '控制類型',
+`control_type` TINYINT UNSIGNED COMMENT '控制類型(controller必填)',
 `statistics_in_ov` BOOLEAN NULL COMMENT '是否為總用電通道，值為 TRUE 或 FALSE',
 `state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:offline, 1:online',
 `description` VARCHAR(50) DEFAULT NULL COMMENT '描述信息',
 `dt_modify` DATETIME NULL COMMENT '修改時間',
 `dt_create` DATETIME NULL COMMENT '創建時間',
-`create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 ID 或 SYSTEM',
-`modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 ID 或 SYSTEM',
+`create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 username 或 SYSTEM',
+`modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 username 或 SYSTEM',
 PRIMARY KEY (`id`),
 UNIQUE KEY `unique_factory_addr` (`factory_id`, `addr`) COMMENT '唯一約束，防止重複的factory_id和addr',
 UNIQUE KEY `unique_factory_channel_name` (`factory_id`, `channel_name`) COMMENT '唯一約束，防止重複的factory_id和channel_name'
@@ -60,8 +60,8 @@ CREATE TABLE IF NOT EXISTS `factory` (
  `comment` VARCHAR(2048) DEFAULT NULL COMMENT '工廠說明',
  `dt_modify` DATETIME NULL COMMENT '修改時間',
  `dt_create` DATETIME NULL COMMENT '創建時間',
- `create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 ID 或 SYSTEM',
- `modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 ID 或 SYSTEM',
+ `create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 username 或 SYSTEM',
+ `modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 username 或 SYSTEM',
  PRIMARY KEY (`id`),
  UNIQUE KEY (`factory_uuid`) COMMENT '唯一約束，防止重複的工廠 UUID'
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工廠基本信息表';
@@ -72,8 +72,8 @@ CREATE TABLE IF NOT EXISTS `user_factory`(
  `factory_id` BIGINT UNSIGNED NOT NULL COMMENT '工廠 ID，關聯工廠表的主鍵',
  `dt_modify` DATETIME NULL COMMENT '修改時間',
  `dt_create` DATETIME NULL COMMENT '創建時間',
- `create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 ID 或 SYSTEM',
- `modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 ID 或 SYSTEM',
+ `create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 username 或 SYSTEM',
+ `modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 username 或 SYSTEM',
  PRIMARY KEY (`id`),
  UNIQUE KEY `unique_user_factory` (`user_id`, `factory_id`) COMMENT '保證同一用戶和工廠的關係不重複'
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用戶與工廠關係表';
@@ -90,8 +90,8 @@ CREATE TABLE IF NOT EXISTS `iot_device` (
 `dt_install` DATE NULL COMMENT '設備安裝時間',
 `dt_modify` DATETIME NULL COMMENT '修改時間',
 `dt_create` DATETIME NULL COMMENT '創建時間',
-`create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 ID 或 SYSTEM',
-`modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 ID 或 SYSTEM',
+`create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 username 或 SYSTEM',
+`modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 username 或 SYSTEM',
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

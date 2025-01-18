@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class BaseEntity {
 
     /**
-     * 建立資料的使用者 ID 或 SYSTEM
+     * 建立資料的使用者 username 或 SYSTEM
      */
     private String createUser;
 
@@ -29,7 +29,7 @@ public class BaseEntity {
     private LocalDateTime dtCreate;
 
     /**
-     * 修改資料的使用者 ID 或 SYSTEM
+     * 修改資料的使用者 username 或 SYSTEM
      */
     private String modifyUser;
 

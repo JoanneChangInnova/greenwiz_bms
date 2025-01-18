@@ -38,13 +38,13 @@ public class JwtUtils {
     /**
      * 生成 JWT Token
      *
-     * @param username 用戶名
-     * @param roles    角色列表
+     * @param email Email
+     * @param roles 角色列表
      * @return JWT Token
      */
-    public String generateToken(String username, List<String> roles) {
+    public String generateToken(String email, List<String> roles) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_MS))
@@ -58,7 +58,7 @@ public class JwtUtils {
      * @param token JWT Token
      * @return 用戶名
      */
-    public String getUserNameFromJwtToken(String token) {
+    public String getEmailFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
