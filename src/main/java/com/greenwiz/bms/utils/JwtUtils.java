@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -53,10 +55,10 @@ public class JwtUtils {
     }
 
     /**
-     * 從 JWT Token 中解析用戶名
+     * 從 JWT Token 中解析email
      *
      * @param token JWT Token
-     * @return 用戶名
+     * @return email
      */
     public String getEmailFromJwtToken(String token) {
         return Jwts.parserBuilder()
@@ -103,5 +105,16 @@ public class JwtUtils {
             log.info("Invalid JWT: {}", e.getMessage());
         }
         return false;
+    }
+
+    public String extractJwtFromCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwtToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

@@ -53,14 +53,9 @@
                 <li class="layui-nav-item" lay-unselect>
                     <a href="javascript:;" data-refresh="刷新"><i class="fa fa-refresh"></i></a>
                 </li>
-<!--                <li class="layui-nav-item" lay-unselect>-->
-<!--                    <a href="javascript:;" data-clear="清理" class="layuimini-clear"><i class="fa fa-trash-o"></i></a>-->
-<!--                </li>-->
-<!--                <li class="layui-nav-item mobile layui-hide-xs" lay-unselect>-->
-<!--                    <a href="javascript:;" data-check-screen="full"><i class="fa fa-arrows-alt"></i></a>-->
-<!--                </li>-->
                 <li class="layui-nav-item layuimini-setting">
-                    <a href="javascript:;">admin</a>
+                    <!--  顯示用戶名稱和角色 -->
+                    <a href="javascript:;"><span id="username"></span>(<span id="role"></span>)</a>
                     <dl class="layui-nav-child">
                         <dd>
                             <a href="javascript:;" layuimini-content-href="page/user-setting.html" data-title="基本資料" data-icon="fa fa-gears">基本資料<span class="layui-badge-dot"></span></a>
@@ -112,9 +107,9 @@
                         <li class="layui-nav-item">
                             <a href="javascript:;"><span class="layui-nav-more"></span></a>
                             <dl class="layui-nav-child">
-                                <dd><a href="javascript:;" layuimini-tab-close="current">关 闭 当 前</a></dd>
-                                <dd><a href="javascript:;" layuimini-tab-close="other">关 闭 其 他</a></dd>
-                                <dd><a href="javascript:;" layuimini-tab-close="all">关 闭 全 部</a></dd>
+                                <dd><a href="javascript:;" layuimini-tab-close="current">關閉當前</a></dd>
+                                <dd><a href="javascript:;" layuimini-tab-close="other">關閉其他</a></dd>
+                                <dd><a href="javascript:;" layuimini-tab-close="all">關閉全部</a></dd>
                             </dl>
                         </li>
                     </ul>
@@ -129,6 +124,8 @@
 </div>
 <script src="../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
 <script src="../../js/lay-config.js?v=2.0.0" charset="utf-8"></script>
+<script src="/js/comm.js" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
     layui.use(['jquery', 'layer', 'miniAdmin','miniTongji'], function () {
         var $ = layui.jquery,
@@ -159,12 +156,45 @@
             ],
         });
 
-        $('.login-out').on("click", function () {
-            layer.msg('退出登入成功', function () {
-                window.location = 'login-3.html';
+        $('.login-out').on('click', function () {
+            $.ajax({
+                url: '/api/v1/auth/logout', // 登出接口
+                method: 'POST',
+                xhrFields: { withCredentials: true }, // 確保攜帶 HttpOnly Cookie
+                success: function (response) {
+                    // 顯示成功消息，然後導航到登入頁
+                    layer.msg('退出登入成功', function () {
+                        window.location.href = '/login.html';
+                    });
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    handleErrorResponse(xhr);
+                }
             });
         });
+
     });
+    // 動態獲取用戶資訊
+    $(document).ready(function () {
+        $.ajax({
+            url: '/api/v1/auth/userInfo',
+            method: 'GET',
+            xhrFields: { withCredentials: true }, // 確保攜帶 Cookie
+            success: function (response, textStatus, xhr) {
+                var roles = {0: '管理員', 1: '代理商', 2: '安裝商', 3: '客戶'};
+                // 顯示用戶資訊
+                $('#username').text(response.username);
+                $('#email').text(response.email);
+                var roleName = roles[parseInt(response.role)] || '未知';
+                $('#role').text(roleName);
+            },
+            error: function (xhr) {
+                handleErrorResponse(xhr);
+            }
+        });
+    });
+
+
 </script>
 </body>
 </html>

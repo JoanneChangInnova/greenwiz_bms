@@ -6,6 +6,7 @@ import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.service.UserService;
 import com.greenwiz.bms.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.Cookie;
-
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Collections;
 
 /**
@@ -58,7 +59,7 @@ public class AuthController {
         }
 
         // 生成 JWT Token
-        String token = jwtUtils.generateToken(user.getUsername(),
+        String token = jwtUtils.generateToken(user.getEmail(),
                 Collections.singletonList(user.getRole().name()));
 
         // 將 Token 存入 HttpOnly Cookie
@@ -74,16 +75,32 @@ public class AuthController {
         response.addCookie(cookie);
 
         // 返回成功響應
-        return ResponseEntity.ok(new LoginResponse("登入成功", user.getUsername(), user.getRole().name()));
+        return ResponseEntity.ok(new LoginResponse("登入成功", user.getEmail(), user.getRole().name()));
     }
 
 
     /**
      * 用戶登出接口
-     * 注意：如果使用前端存儲 Token，登出邏輯通常由前端直接清除 Token。
      */
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        // 清除服務端會話
+        request.getSession().invalidate();
+
+        // 清除 JSESSIONID Cookie
+        Cookie sessionCookie = new Cookie("JSESSIONID", null);
+        sessionCookie.setPath("/"); // 匹配應用的 Cookie 路徑
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setMaxAge(0); // 設置立即過期
+        response.addCookie(sessionCookie);
+
+        // 清除 Cookie
+        Cookie cookie = new Cookie("jwtToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 立即過期
+        response.addCookie(cookie);
+
         return ResponseEntity.ok("登出成功");
     }
 
@@ -102,4 +119,28 @@ public class AuthController {
             throw new BmsException("Token 無效或已過期");
         }
     }
+
+    @GetMapping("/userInfo")
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+        // 從 HttpServletRequest 中提取 Cookie
+        String token = jwtUtils.extractJwtFromCookie(request);
+        if (token == null || !jwtUtils.validateToken(token)) {
+            throw new BmsException("未登錄或 Token 無效");
+        }
+
+        // 從 JWT Token 中提取用戶資訊
+        String email = jwtUtils.getEmailFromJwtToken(token);
+        User user = userService.findByEmail(email);
+        if (user == null) {
+            throw new BmsException("不存在用戶");
+        }
+
+        // 返回用戶資訊
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("username", user.getUsername());
+        userInfo.put("email", user.getEmail());
+        userInfo.put("role", user.getRole());
+        return ResponseEntity.ok(userInfo);
+    }
+
 }
