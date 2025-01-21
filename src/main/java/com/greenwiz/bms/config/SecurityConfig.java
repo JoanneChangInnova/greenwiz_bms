@@ -1,5 +1,4 @@
 package com.greenwiz.bms.config;
-import com.greenwiz.bms.utils.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +7,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -42,16 +40,18 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-//                        .requestMatchers("/**","/index.html", "/page/index.html", "/css/**", "/js/**", "/images/**",
-//                         "/lib/**", "/api/**").permitAll()
-//                        .requestMatchers("/page/**").permitAll()  // Dev
-//                        .anyRequest().authenticated())                  // 其他接口需認證
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()   // 放行認證相關接口
                         .requestMatchers("/captcha/**").permitAll()       // 放行驗證碼生成
                         .requestMatchers("/","login.html", "/css/**", "/js/**", "/images/**", "/lib/**").permitAll()
-                        .requestMatchers("/page/admin/**").hasAuthority("ADMIN") // 限制訪問 /page/admin/** 僅限角色 ADMIN
-                        .requestMatchers("/page/agent/**").hasAuthority("AGENT") // 限制訪問 /page/admin/** 僅限角色 ADMIN
+//                        不做權限控管時打開以下：
+//                        .requestMatchers("/**","/index.html", "/page/index.html", "/css/**", "/js/**", "/images/**",
+//                                "/lib/**", "/api/**").permitAll()
+//                        .requestMatchers("/page/**").permitAll()
+
+//                        控管權限打開以下：
+                        .requestMatchers("/page/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/page/agent/**").hasAuthority("AGENT")
                         .anyRequest().authenticated()                     // 其他接口需認證
                 )
                 .exceptionHandling(exception -> exception

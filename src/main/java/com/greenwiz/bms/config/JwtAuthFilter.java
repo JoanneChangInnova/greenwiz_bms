@@ -1,4 +1,6 @@
-package com.greenwiz.bms.utils;
+package com.greenwiz.bms.config;
+import com.greenwiz.bms.utils.JwtUtils;
+import com.greenwiz.bms.utils.ThreadLocalUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +21,6 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
-
     public JwtAuthFilter(JwtUtils jwtUtils) {
         this.jwtUtils = jwtUtils;
     }
@@ -41,6 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (jwtUtils.validateToken(token)) {
                 // 從 Token 中提取用戶信息
                 String email = jwtUtils.getEmailFromJwtToken(token);
+                ThreadLocalUtils.setUser(email);
 
                 // 從 Token 獲取角色，轉換為 Spring Security 的 GrantedAuthority
                 List<SimpleGrantedAuthority> roles = jwtUtils.getRolesFromJwtToken(token);
@@ -58,6 +60,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         // 繼續過濾器鏈
         filterChain.doFilter(request, response);
+        ThreadLocalUtils.cleanAll();
     }
 
 }

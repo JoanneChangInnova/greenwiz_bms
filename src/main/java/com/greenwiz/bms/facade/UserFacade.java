@@ -55,7 +55,7 @@ public class UserFacade {
         ValidationUtils.validateVersion(updateUserReq.getDtModify(),user.getDtModify());
 
         //用戶名稱若修改，檢查是否已有同名用戶
-        if(!updateUserReq.getUsername().equals(user.getEmail())){
+        if(!updateUserReq.getEmail().equals(user.getEmail())){
             User userByEmail = userService.findByEmail(updateUserReq.getEmail());
             if(userByEmail != null){
                 throw new BmsException("Email已存在，請選擇其他Email");

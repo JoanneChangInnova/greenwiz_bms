@@ -37,6 +37,7 @@
             <div class="layui-input-block">
                 <select name="role" lay-verify="required" id="role">
                     <option value="">請選擇角色</option>
+                    <option value="0">管理員</option>
                     <option value="1">代理商</option>
                     <option value="2">安裝商</option>
                     <option value="3">一般用戶</option>
@@ -156,6 +157,7 @@
     <div class="layui-form-item">
         <div class="layui-input-block">
             <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">確認保存</button>
+<!--            <button class="layui-btn layui-btn-primary" id="cancelBtn" layuimini-tab-close="current">取消</button>-->
         </div>
     </div>
 </div>
@@ -225,7 +227,12 @@
 
             return false; // 阻止默認提交行為
         });
-    });
+
+    // // 綁定取消按鈕事件
+    // $('#cancelBtn').on('click', function () {
+    //     miniTab.deleteCurrentByIframe();
+    // });
+     });
 </script>
 </body>
 </html>

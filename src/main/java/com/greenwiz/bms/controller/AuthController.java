@@ -67,9 +67,9 @@ public class AuthController {
         cookie.setHttpOnly(true);  // 防止 JS 存取
         cookie.setPath("/");       // 在整個應用程序中可用
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7 天有效期
-
         if (isSecure) {
             cookie.setSecure(true); //是否僅在 HTTPS 下傳輸
+            cookie.setAttribute("SameSite", "None");
         }
 
         response.addCookie(cookie);
@@ -92,6 +92,10 @@ public class AuthController {
         sessionCookie.setPath("/"); // 匹配應用的 Cookie 路徑
         sessionCookie.setHttpOnly(true);
         sessionCookie.setMaxAge(0); // 設置立即過期
+        if (isSecure) {
+            sessionCookie.setSecure(true); //是否僅在 HTTPS 下傳輸
+            sessionCookie.setAttribute("SameSite", "None");
+        }
         response.addCookie(sessionCookie);
 
         // 清除 Cookie
@@ -99,6 +103,10 @@ public class AuthController {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0); // 立即過期
+        if (isSecure) {
+            cookie.setSecure(true); //是否僅在 HTTPS 下傳輸
+            cookie.setAttribute("SameSite", "None");
+        }
         response.addCookie(cookie);
 
         return ResponseEntity.ok("登出成功");
@@ -137,6 +145,7 @@ public class AuthController {
 
         // 返回用戶資訊
         Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("userId", user.getId());
         userInfo.put("username", user.getUsername());
         userInfo.put("email", user.getEmail());
         userInfo.put("role", user.getRole());
