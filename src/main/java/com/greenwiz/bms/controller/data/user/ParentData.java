@@ -4,11 +4,13 @@ import lombok.Data;
 
 @Data
 public class ParentData {
-    private int id;
-    private String name;
+    private Long id;
+    private String username;
+    private String email;
 
-    public ParentData(int id, String name) {
+    public ParentData(Long id, String username, String email) {
         this.id = id;
-        this.name = name;
+        this.username = username;
+        this.email = email;
     }
 }

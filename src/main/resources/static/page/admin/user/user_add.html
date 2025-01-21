@@ -25,7 +25,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label required">角色</label>
         <div class="layui-input-block">
-            <select name="role" lay-verify="required">
+            <select name="role" lay-verify="required" lay-filter="role">
                 <option value="">請選擇角色</option>
                 <option value="0">管理員</option>
                 <option value="1">代理商</option>
@@ -38,7 +38,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label required">用戶管理者</label>
         <div class="layui-input-block">
-            <select name="parentId" lay-verify="required">
+            <select name="parentId" lay-verify="required" lay-search="{caseSensitive:false, fuzzy: true}">
                 <option value="">請選擇管理者</option>
                 <!-- 動態載入 API 返回的數據 -->
             </select>
@@ -170,14 +170,45 @@
             }
         });
 
-        // 動態載入管理者選單
-        $.get('/api/v1/user/listParentIdAndUserName', function (data) {
+        // 當角色選擇改變時，動態載入管理者選單
+        form.on('select(role)', function(data) {
+            console.log("角色選擇改變:", data.value);
+            var userRole = data.value; // 取得選中的角色值
+
+            // 清空 parentId 選項
             var select = $("select[name='parentId']");
-            data.forEach(function (item) {
-                select.append(new Option(item.name, item.id));
-            });
-            form.render('select'); // 重新渲染
+            select.empty();
+            select.append(new Option("請選擇管理者", ""));
+
+            if (userRole) {
+                // 構造請求數據
+                var requestData = JSON.stringify({ userRole: userRole });
+
+                // 發送 POST 請求到後端，傳遞 userRole 參數
+                $.ajax({
+                    url: '/api/v1/user/listParentInfo',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: requestData,
+                    success: function(data) {
+                        console.log("成功調用 API:", data);
+
+                        // 將返回的數據添加到 parentId 的選項中
+                        data.forEach(function(item) {
+                            select.append(new Option(item.username + " (" + item.email + ")", item.id));
+                        });
+
+                        // 重新渲染 select 元素，確保 layui 框架正確顯示
+                        form.render('select');
+                    },
+                    error: function() {
+                        // 如果請求失敗，顯示錯誤信息
+                        alert('無法加載選項，請重試');
+                    }
+                });
+            }
         });
+
 
         // 監聽表單提交
         form.on('submit(saveBtn)', function (data) {
@@ -207,7 +238,7 @@
             return false; // 阻止默認提交行為
         });
     });
-
 </script>
 </body>
 </html>
+

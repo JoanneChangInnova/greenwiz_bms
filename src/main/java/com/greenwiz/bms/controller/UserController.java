@@ -2,22 +2,18 @@ package com.greenwiz.bms.controller;
 
 import com.greenwiz.bms.controller.data.base.LayuiTableResp;
 import com.greenwiz.bms.controller.data.base.PageReq;
-import com.greenwiz.bms.controller.data.user.AddUserReq;
-import com.greenwiz.bms.controller.data.user.ParentData;
-import com.greenwiz.bms.controller.data.user.UpdateUserReq;
+import com.greenwiz.bms.controller.data.user.*;
 import com.greenwiz.bms.entity.User;
+import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.facade.UserFacade;
 import com.greenwiz.bms.service.UserService;
-import com.greenwiz.bms.utils.ThreadLocalUtils;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -34,14 +30,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/listParentIdAndUserName")
-    public List<ParentData> listParentIdAndUserName() {
-        List<ParentData> dataList = new ArrayList<>();
-        dataList.add(new ParentData(1, "管理者A"));
-        dataList.add(new ParentData(2, "管理者B"));
-        dataList.add(new ParentData(3, "管理者C"));
-
-        return dataList;
+    @PostMapping("/listParentInfo")
+    public List<ParentData> listParentInfo(@RequestBody UserRoleRequest request) {
+        return userFacade.listParentInfo(request.getUserRole());
     }
 
     @PostMapping("/add")
@@ -51,8 +42,8 @@ public class UserController {
     }
 
     @PostMapping("/list")
-    public LayuiTableResp<User> listUser(@RequestBody PageReq pageReq) {
-        Page<User> users = userFacade.listUser(pageReq);
+    public LayuiTableResp<UserListData> listUser(@RequestBody PageReq pageReq) {
+        Page<UserListData> users = userFacade.listUser(pageReq);
         return LayuiTableResp.success(users.getTotalElements(), users.getContent());
     }
 
@@ -64,11 +55,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userService.findByPk(id);
-        if (user == null) {
-            throw new BmsException("找不到此用戶，id:" + id);
-        }
-        return ResponseEntity.ok(user);
+    public ResponseEntity<GetUserData> getUserById(@PathVariable Long id) {
+        GetUserData getUserData = userFacade.getUserById(id);
+        return ResponseEntity.ok(getUserData);
     }
 }

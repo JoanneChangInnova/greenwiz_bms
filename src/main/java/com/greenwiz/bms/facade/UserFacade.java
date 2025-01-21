@@ -1,18 +1,25 @@
 package com.greenwiz.bms.facade;
 
 import com.greenwiz.bms.controller.data.base.PageReq;
-import com.greenwiz.bms.controller.data.user.AddUserReq;
-import com.greenwiz.bms.controller.data.user.UpdateUserReq;
+import com.greenwiz.bms.controller.data.user.*;
 import com.greenwiz.bms.entity.User;
+import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.enumeration.UserState;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.service.UserService;
+import com.greenwiz.bms.utils.ThreadLocalUtils;
 import com.greenwiz.bms.utils.ValidationUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserFacade {
@@ -45,8 +52,43 @@ public class UserFacade {
         return userService.save(newUser);
     }
 
-    public Page<User> listUser(PageReq pageReq) {
-        return userService.listUser(pageReq);
+    /**
+     *  管理員可看到所有用戶
+     *  其他角色只可看到parentId為自己的用戶 (尚未實作）
+     */
+    public Page<UserListData> listUser(PageReq pageReq) {
+        // 1. 獲取用戶分頁結果
+        Page<User> userPage = userService.listUser(pageReq);
+
+        // 2. 提取 parentIds（去重）
+        List<Long> parentIds = userPage.getContent().stream()
+                .map(User::getParentId) // 提取 parentId
+                .filter(parentId -> parentId != null) // 過濾掉空值
+                .distinct() // 去重
+                .collect(Collectors.toList());
+
+        // 3. 查詢父帳號信息
+        List<User> parentList = userService.findByParentIdIn(parentIds);
+
+        // 4. 將父帳號信息轉換為 Map<parentId, parentUserInfo>
+        Map<Long, String> parentInfoMap = parentList.stream()
+                .collect(Collectors.toMap(
+                        User::getId,
+                        user -> user.getUsername() + " (" + user.getEmail() + ")"
+                ));
+
+        // 5. 使用 BeanUtils.copyProperties 簡化屬性賦值
+        List<UserListData> userListData = userPage.getContent().stream()
+                .map(user -> {
+                    UserListData data = new UserListData();
+                    BeanUtils.copyProperties(user, data); // 自動拷貝相同名稱的屬性
+                    data.setParentUserInfo(parentInfoMap.getOrDefault(user.getParentId(), "無")); // 手動設置額外字段
+                    return data;
+                })
+                .collect(Collectors.toList());
+
+        // 6. 返回轉換後的分頁結果
+        return new PageImpl<>(userListData, userPage.getPageable(), userPage.getTotalElements());
     }
 
     public User updateUser(UpdateUserReq updateUserReq) {
@@ -64,5 +106,62 @@ public class UserFacade {
 
         BeanUtils.copyProperties(updateUserReq, user);
         return userService.save(user);
+    }
+
+    /**
+     * 管理員可申請任何角色帳號：
+     *  - 角色為管理員 -> 上層findByRole0
+     *  - 角色為代理商 -> 上層findByRole0
+     *  - 角色為安裝商 -> 上層findByRole1
+     *  - 角色為客戶   -> 上層findByRole2
+     * 代理商只能申請安裝商：上層只能填代理商自己
+     * 安裝商可申請客戶，但需上層代理商或管理員審核：上層填安裝商自己
+     */
+    public List<ParentData> listParentInfo(UserRole userRole) {
+        // 獲取當前操作員的用戶
+        User operator = findUserByEmailOrFail(ThreadLocalUtils.getUser());
+
+        List<User> userList;
+
+        if (operator.getRole() == UserRole.ADMIN) {
+            // 若操作員是 ADMIN，根據傳入的 userRole 使用 switch 查詢對應角色的用戶
+            userList = switch (userRole) {
+                case ADMIN, AGENT -> userService.findByUserRole(UserRole.ADMIN);
+                case INSTALLER -> userService.findByUserRole(UserRole.AGENT);
+                case CUSTOMER -> userService.findByUserRole(UserRole.INSTALLER);
+            };
+        } else {
+            // 若操作員不是 ADMIN，則只返回操作員自己
+            userList = List.of(operator);
+        }
+
+        // 將 userList 轉換為 ParentData 列表
+        return userList.stream()
+                .map(user -> new ParentData(user.getId(), user.getUsername(), user.getEmail()))
+                .toList();
+    }
+
+    private User findUserByEmailOrFail(String email){
+        User user = userService.findByEmail(email);
+        if(user == null){
+            throw new BmsException("User不存在");
+        }
+        return user;
+    }
+
+    public GetUserData getUserById(Long id) {
+        User user = userService.findByPk(id);
+        if (user == null) {
+            throw new BmsException("找不到此用戶，id:" + id);
+        }
+        User parentUser = userService.findByPk(user.getParentId());
+        if(parentUser == null){
+            throw new BmsException("找不到管理者用戶，id:" + id);
+        }
+        ParentData parentData = new ParentData(parentUser.getId(), parentUser.getUsername(), parentUser.getEmail());
+        GetUserData getUserData = new GetUserData();
+        BeanUtils.copyProperties(user,getUserData);
+        getUserData.setParentData(parentData);
+        return getUserData;
     }
 }

@@ -2,6 +2,7 @@ package com.greenwiz.bms.service.impl;
 
 import com.greenwiz.bms.controller.data.base.PageReq;
 import com.greenwiz.bms.entity.User;
+import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.repository.UserRepository;
 import com.greenwiz.bms.service.UserService;
 import lombok.AccessLevel;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implements UserService {
@@ -49,6 +52,16 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
     @Override
     public String encodePassword(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
+    }
+
+    @Override
+    public List<User> findByUserRole(UserRole userRole) {
+        return jpaRepository.findByRole(userRole);
+    }
+
+    @Override
+    public List<User> findByParentIdIn(List<Long> parentIds) {
+        return jpaRepository.findByParentIdIn(parentIds);
     }
 
 

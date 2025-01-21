@@ -3,7 +3,12 @@ package com.greenwiz.bms.service;
 import com.greenwiz.bms.controller.data.base.PageReq;
 import com.greenwiz.bms.controller.data.user.AddUserReq;
 import com.greenwiz.bms.entity.User;
+import com.greenwiz.bms.enumeration.UserRole;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface UserService extends BaseDomainService<Long, User> {
 
@@ -40,4 +45,7 @@ public interface UserService extends BaseDomainService<Long, User> {
      */
     String encodePassword(String rawPassword);
 
+    List<User> findByUserRole(UserRole userRole);
+
+    List<User> findByParentIdIn(List<Long> parentIds);
 }
