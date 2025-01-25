@@ -48,7 +48,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label required">用戶管理者</label>
         <div class="layui-input-block">
-            <select name="parentId" lay-verify="required" id="parentId" lay-verify="required">
+            <select name="parentId" lay-verify="required" id="parentId" lay-verify="required" lay-search="{caseSensitive:false, fuzzy: true}">
                 <option value="">請選擇管理者</option>
                 <!-- 動態載入 API 返回的數據 -->
             </select>

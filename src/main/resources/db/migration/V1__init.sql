@@ -23,6 +23,7 @@ PRIMARY KEY (`id`),
 UNIQUE KEY `unique_email` (`email`) COMMENT '唯一約束，防止重複的email'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用戶表';
 
+DROP TABLE IF EXISTS `channel`;
 CREATE TABLE IF NOT EXISTS `channel` (
 `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主鍵，唯一標識每個通道',
 `factory_id` BIGINT UNSIGNED NULL COMMENT '工廠 ID，關聯工廠資料表的主鍵',
@@ -34,10 +35,8 @@ CREATE TABLE IF NOT EXISTS `channel` (
 `device_model` VARCHAR(100) NULL COMMENT '設備型號，
 Monitor:METSEPM2220,METSEPM1125HCL05RD,IEM2455-230V-100A,SPM80000-60,SPM301-60,SPM1,SW1100-1P3W,SW3200-010,STD640,SMT660
 Controller:SWB,CX-IR0001S,AMA-Fans',
-`monitor_type` VARCHAR(50) NULL COMMENT 'breaker type監測相位，1P+N, 2P, 2P+N, 3P, 3P+N（僅 smartmeter 必填）',
-`control_type` TINYINT UNSIGNED
-    COMMENT '控制類型，CX-IR0001S:Auto,Only Air,Strong Air,OFF; AMA-Fans:1,2,3,OFF; SWB:ON,OFF (僅 controller 必填)',
-`temperature` SMALLINT UNSIGNED NULL COMMENT '溫度，僅CX-IR0001S需填，值16~30',
+`function_type` VARCHAR(50) NULL COMMENT '功能模式，monitor:1P+N/2P/2P+N/3P/3P+N; SWB:ON/OFF; AMA-Fans:3/2/1/OFF; CX-IR0001S:Auto/Only Air/Strong Air/OFF',
+`function_detail` JSON NULL COMMENT '細項資料，monitor: {"detectorType":數值}; controller CX-IR0001S: {"temperature": 16~30}',
 `statistics_in_ov` BOOLEAN NULL COMMENT '是否為總用電通道，值為 TRUE 或 FALSE',
 `state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:offline, 1:online',
 `description` VARCHAR(50) DEFAULT NULL COMMENT '描述',
@@ -49,22 +48,6 @@ PRIMARY KEY (`id`),
 UNIQUE KEY `unique_factory_addr` (`factory_id`, `addr`) COMMENT '唯一約束，防止重複的factory_id和addr',
 UNIQUE KEY `unique_factory_channel_name` (`factory_id`, `channel_name`) COMMENT '唯一約束，防止重複的factory_id和channel_name'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通道表，存儲通道相關信息';
-
-# CREATE TABLE IF NOT EXISTS `monitor_channel` (
-#  `channel_id` BIGINT UNSIGNED NOT NULL,
-#  `device_model` VARCHAR(100) NULL COMMENT 'monitor設備型號，METSEPM2220,METSEPM1125HCL05RD,IEM2455-230V-100A,SPM80000-60,SPM301-60,SPM1,SW1100-1P3W,SW3200-010,STD640,SMT660',
-#  `monitor_type` VARCHAR(50) NOT NULL COMMENT 'breaker type監測相位，1P+N, 2P, 2P+N, 3P, 3P+N',
-#  PRIMARY KEY (`channel_id`)
-# );
-#
-# CREATE TABLE IF NOT EXISTS `controller_channel` (
-# `channel_id` BIGINT UNSIGNED NOT NULL,
-# `device_model` VARCHAR(100) NULL COMMENT 'controller設備型號，SWB,CX-IR0001S,AMA-Fans',
-# `control_type` VARCHAR(50) NULL COMMENT '控制類型，CX-IR0001S:Auto,Only Air,Strong Air,OFF; AMA-Fans:1,2,3,OFF; SWB:ON,OFF',
-# `temperature` SMALLINT UNSIGNED NULL COMMENT '溫度，僅CX-IR0001S需填，值16~30',
-# PRIMARY KEY (`channel_id`)
-# );
-
 
 CREATE TABLE IF NOT EXISTS `factory` (
  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主鍵',
@@ -114,6 +97,22 @@ CREATE TABLE IF NOT EXISTS `iot_device` (
 `modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 email',
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+# CREATE TABLE IF NOT EXISTS `monitor_channel` (
+#  `channel_id` BIGINT UNSIGNED NOT NULL,
+#  `device_model` VARCHAR(100) NULL COMMENT 'monitor設備型號，METSEPM2220,METSEPM1125HCL05RD,IEM2455-230V-100A,SPM80000-60,SPM301-60,SPM1,SW1100-1P3W,SW3200-010,STD640,SMT660',
+#  `monitor_type` VARCHAR(50) NOT NULL COMMENT 'breaker type監測相位，1P+N, 2P, 2P+N, 3P, 3P+N',
+#  PRIMARY KEY (`channel_id`)
+# );
+#
+# CREATE TABLE IF NOT EXISTS `controller_channel` (
+# `channel_id` BIGINT UNSIGNED NOT NULL,
+# `device_model` VARCHAR(100) NULL COMMENT 'controller設備型號，SWB,CX-IR0001S,AMA-Fans',
+# `control_type` VARCHAR(50) NULL COMMENT '控制類型，CX-IR0001S:Auto,Only Air,Strong Air,OFF; AMA-Fans:1,2,3,OFF; SWB:ON,OFF',
+# `temperature` SMALLINT UNSIGNED NULL COMMENT '溫度，僅CX-IR0001S需填，值16~30',
+# PRIMARY KEY (`channel_id`)
+# );
 
 
 CREATE TABLE IF NOT EXISTS `smartmeter` (
