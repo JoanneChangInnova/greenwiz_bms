@@ -1,5 +1,7 @@
 package com.greenwiz.bms.controller;
 
+import com.greenwiz.bms.exception.BmsException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,25 +56,15 @@ public class CaptchaController {
      * 校驗驗證碼
      */
     @PostMapping("/captcha/validate")
-    public Map<String, Object> validateCaptcha(@RequestBody Map<String, String> payload, HttpSession session) {
+    public ResponseEntity<?> validateCaptcha(@RequestBody Map<String, String> payload, HttpSession session) {
         String inputCode = payload.get("captcha");
         String sessionCode = (String) session.getAttribute("CAPTCHA_CODE");
-
-//        // 日誌輸出
-//        System.out.println("Validation CAPTCHA Session ID: " + session.getId());
-//        System.out.println("Stored CAPTCHA: " + sessionCode);
-//        System.out.println("Input CAPTCHA: " + inputCode);
-
-        Map<String, Object> response = new HashMap<>();
         if (sessionCode != null && sessionCode.equalsIgnoreCase(inputCode)) {
-            response.put("success", true);
-            response.put("message", "驗證成功");
             session.removeAttribute("CAPTCHA_CODE");
+            return ResponseEntity.ok("success");
         } else {
-            response.put("success", false);
-            response.put("message", "驗證碼錯誤");
+            throw new BmsException("驗證碼錯誤");
         }
-        return response;
     }
 
     /**

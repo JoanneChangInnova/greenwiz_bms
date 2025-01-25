@@ -1,5 +1,6 @@
 package com.greenwiz.bms.entity;
 
+import com.greenwiz.bms.utils.ThreadLocalUtils;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 public class BaseEntity {
 
     /**
-     * 建立資料的使用者 ID 或 SYSTEM
+     * 建立資料的使用者 email
      */
     private String createUser;
 
@@ -29,20 +30,20 @@ public class BaseEntity {
     private LocalDateTime dtCreate;
 
     /**
-     * 修改資料的使用者 ID 或 SYSTEM
+     * 修改資料的使用者 email
      */
     private String modifyUser;
 
     @PrePersist
     private void onPrePersist() {
-        setCreateUser("SYSTEM");
-        setModifyUser("SYSTEM");
+        setCreateUser(ThreadLocalUtils.getUser());
+        setModifyUser(ThreadLocalUtils.getUser());
         setDtCreate(LocalDateTime.now());
     }
 
     @PreUpdate
     private void insertModifyUser() {
-        setModifyUser("SYSTEM");
+        setModifyUser(ThreadLocalUtils.getUser());
     }
 
 

@@ -215,9 +215,9 @@ layui.define(['laypage', 'form'], function (exports) {
                     listHtml.append(lm);
                 }
 
-                // 无数据
+                // 無數據
                 if (l === 0) {
-                    listHtml.append('<p class="layui-iconpicker-tips">无数据</p>');
+                    listHtml.append('<p class="layui-iconpicker-tips">無數據</p>');
                 }
 
                 // 判断是否分页

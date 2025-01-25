@@ -1,5 +1,5 @@
 package com.greenwiz.bms.config;
-import com.greenwiz.bms.utils.JwtAuthFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -8,6 +8,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -20,6 +21,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+
+    @Autowired
+    private CustomAccessDeniedHandler accessDeniedHandler;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -37,12 +41,23 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()  // 放行認證相關接口
-                        .requestMatchers("/captcha/**").permitAll()      // 放行驗證碼生成
-                        .requestMatchers("/**","/index.html", "/page/index.html", "/css/**", "/js/**", "/images/**",
-                         "/lib/**", "/api/**").permitAll()
-                        .requestMatchers("/page/**").permitAll()  // Dev
-                        .anyRequest().authenticated())                  // 其他接口需認證
+                        .requestMatchers("/api/v1/auth/**").permitAll()   // 放行認證相關接口
+                        .requestMatchers("/captcha/**").permitAll()       // 放行驗證碼生成
+                        .requestMatchers("/","login.html", "/css/**", "/js/**", "/images/**", "/lib/**").permitAll()
+//                        不做權限控管時打開以下：
+//                        .requestMatchers("/**","/index.html", "/page/index.html", "/css/**", "/js/**", "/images/**",
+//                                "/lib/**", "/api/**").permitAll()
+//                        .requestMatchers("/page/**").permitAll()
+
+//                        控管權限打開以下：
+                        .requestMatchers("/page/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/page/agent/**").hasAuthority("AGENT")
+                        .anyRequest().authenticated()                     // 其他接口需認證
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login.html")) // 未認證跳轉到登錄頁
+                        .accessDeniedHandler(accessDeniedHandler) // 無權訪問時跳轉到自定義的 403 頁面
+                )
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp
                                 .policyDirectives("frame-ancestors 'self'")

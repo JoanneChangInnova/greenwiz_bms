@@ -35,8 +35,9 @@
         <div class="layui-form-item">
             <label class="layui-form-label required">角色</label>
             <div class="layui-input-block">
-                <select name="role" lay-verify="required" id="role">
+                <select name="role" lay-verify="required" id="role" lay-filter="role">
                     <option value="">請選擇角色</option>
+                    <option value="0">管理員</option>
                     <option value="1">代理商</option>
                     <option value="2">安裝商</option>
                     <option value="3">一般用戶</option>
@@ -47,7 +48,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label required">用戶管理者</label>
         <div class="layui-input-block">
-            <select name="parentId" lay-verify="required" id="parentId">
+            <select name="parentId" lay-verify="required" id="parentId" lay-verify="required" lay-search="{caseSensitive:false, fuzzy: true}">
                 <option value="">請選擇管理者</option>
                 <!-- 動態載入 API 返回的數據 -->
             </select>
@@ -156,6 +157,7 @@
     <div class="layui-form-item">
         <div class="layui-input-block">
             <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">確認保存</button>
+<!--            <button class="layui-btn layui-btn-primary" id="cancelBtn" layuimini-tab-close="current">取消</button>-->
         </div>
     </div>
 </div>
@@ -173,7 +175,6 @@
             $("#id").val(data.id);
             $("#username").val(data.username);
             $("#role").val(data.role); // 假設角色是 1、2 或 3
-	        $("#parentId").val(data.parentId); // 假設是存在的
 	        $("#email").val(data.email);
 	        $("#company").val(data.company);
 	        $("#contact").val(data.contact);
@@ -188,18 +189,67 @@
             $("input[name='state'][value='" + data.state + "']").prop("checked", true); // 自動勾選對應的 radio 按鈕
             $("#dtModify").val(data.dtModify);
 
+            // 獲取 parentData，並動態生成下拉框選項
+            var parentData = data.parentData; // 單一管理者數據
+            var select = $("#parentId");
+            select.empty(); // 清空選項
+            select.append(new Option("請選擇管理者", "")); // 添加默認選項
+
+            if (parentData) {
+                // 插入單一管理者數據為選項
+                var option = new Option(
+                        parentData.username + " (" + parentData.email + ")", // 顯示文本
+                        parentData.id // 選項值
+                );
+                select.append(option);
+
+                // 設置選中值
+                $("#parentId").val(parentData.id);
+            }
+
+            // 重新渲染表單
+            form.render('select');
 	        form.render(); // 渲染表單
         });
 
-        // 動態載入管理者選單
-        $.get('/api/v1/user/listParentIdAndUserName', function (data) {
-            var select = $("select[name='parentId']");
-            data.forEach(function (item) {
-                select.append(new Option(item.name, item.id));
-            });
-            form.render('select'); // 重新渲染
-        });
+        // 當角色選擇改變時，動態載入管理者選單
+        form.on('select(role)', function(data) {
+            console.log("角色選擇改變:", data.value);
+            var userRole = data.value; // 取得選中的角色值
 
+            // 清空 parentId 選項
+            var select = $("select[name='parentId']");
+            select.empty();
+            select.append(new Option("請選擇管理者", ""));
+
+            if (userRole) {
+                // 構造請求數據
+                var requestData = JSON.stringify({ userRole: userRole });
+
+                // 發送 POST 請求到後端，傳遞 userRole 參數
+                $.ajax({
+                    url: '/api/v1/user/listParentInfo',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: requestData,
+                    success: function(data) {
+                        console.log("成功調用 API:", data);
+
+                        // 將返回的數據添加到 parentId 的選項中
+                        data.forEach(function(item) {
+                            select.append(new Option(item.username + " (" + item.email + ")", item.id));
+                        });
+
+                        // 重新渲染 select 元素，確保 layui 框架正確顯示
+                        form.render('select');
+                    },
+                    error: function() {
+                        // 如果請求失敗，顯示錯誤信息
+                        alert('無法加載選項，請重試');
+                    }
+                });
+            }
+        });
         // 表單提交事件
         form.on('submit(saveBtn)', function (data) {
             console.log("提交數據:", data.field);
@@ -225,7 +275,12 @@
 
             return false; // 阻止默認提交行為
         });
-    });
+
+    // // 綁定取消按鈕事件
+    // $('#cancelBtn').on('click', function () {
+    //     miniTab.deleteCurrentByIframe();
+    // });
+     });
 </script>
 </body>
 </html>
