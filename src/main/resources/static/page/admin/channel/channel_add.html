@@ -96,29 +96,34 @@
 	     * - 若選中controller CX-IR0001S，則出現temperature數字輸入匡 {"temperature": 16~30}
 	     */
 	-->
-	<div class="layui-form-item">
+	<!-- 細項資料 -->
+	<!-- 細項資料區塊，根據設備型號動態顯示 -->
+	<div class="layui-form-item" id="functionDetailContainer" style="display: none;">
 		<label class="layui-form-label">細項資料</label>
 		<div class="layui-input-block">
 
-			<!-- 細項資料，根據設備類型或型號動態顯示 -->
+			<!-- detectorType 輸入框 (適用於 MONITOR 類型設備) -->
 			<div class="layui-form-item" id="detectorTypeItem" style="display: none;">
 				<label class="layui-form-label">detectorType</label>
 				<div class="layui-input-block">
-					<input lay-filter="functionDetail" type="number" name="functionDetail" data-type="detectorType"
+					<input type="number" name="detectorType"
 					       placeholder="請輸入 detectorType 數值" class="layui-input" min="0">
 				</div>
 			</div>
 
+			<!-- temperature 輸入框 (適用於 CX-IR0001S 型號) -->
 			<div class="layui-form-item" id="temperatureItem" style="display: none;">
 				<label class="layui-form-label">temperature</label>
 				<div class="layui-input-block">
-					<input lay-filter="functionDetail" number" name="functionDetail" data-type="temperature"
+					<input type="number" name="temperature"
 					       placeholder="請輸入 temperature 數值 (16~30)" class="layui-input" min="16" max="30">
 				</div>
 			</div>
 
 		</div>
 	</div>
+
+
 
 
 	<div class="layui-form-item">
@@ -161,98 +166,145 @@
 	<script src="/js/comm.js" charset="utf-8"></script>
 	<script>
 		layui.use(['form', 'layer'], function () {
-			var form = layui.form, layer = layui.layer, $ = layui.$;
+    var form = layui.form, layer = layui.layer, $ = layui.$;
 
-			// 監聽設備類型選擇的變化，更新設備型號選項
-			form.on('select(deviceType)', function(data) {
-				var deviceType = data.value;
-				var deviceModelSelect = $('#deviceModelSelect');
+        // 抽取隱藏細項資料區塊和清空輸入框的邏輯
+    function resetFunctionDetail() {
+        $('#functionDetailContainer').hide();  // 隱藏細項資料區塊
+        $('#detectorTypeItem').hide();         // 隱藏 detectorType 輸入框
+        $('#temperatureItem').hide();          // 隱藏 temperature 輸入框
+        $('input[name="detectorType"]').val('');  // 清空 detectorType 的值
+        $('input[name="temperature"]').val('');   // 清空 temperature 的值
+    }
 
-				// 清空設備型號選擇框
-				deviceModelSelect.empty();
-				$('#functionTypeSelect').empty().append('<option value="">請選擇功能模式</option>'); // 清空功能模式
+    // 監聽設備類型選擇的變化，更新設備型號選項
+    form.on('select(deviceType)', function(data) {
+        var deviceType = data.value;
+        var deviceModelSelect = $('#deviceModelSelect');
+        resetFunctionDetail();
 
-				if (deviceType === 'CONTROLLER') {
-					deviceModelSelect.append('<option value="">請選擇設備型號</option>');
-					deviceModelSelect.append('<option value="SWB">SWB</option>');
-					deviceModelSelect.append('<option value="CX-IR0001S">CX-IR0001S</option>');
-					deviceModelSelect.append('<option value="AMA-Fans">AMA-Fans</option>');
-				} else if (deviceType === 'MONITOR') {
-					deviceModelSelect.append('<option value="">請選擇設備型號</option>');
-					deviceModelSelect.append('<option value="METSEPM2220">METSEPM2220</option>');
-					deviceModelSelect.append('<option value="METSEPM1125HCL05RD">METSEPM1125HCL05RD</option>');
-					deviceModelSelect.append('<option value="IEM2455-230V-100A">IEM2455-230V-100A</option>');
-				}
+        // 清空設備型號選擇框
+        deviceModelSelect.empty();
+        $('#functionTypeSelect').empty().append('<option value="">請選擇功能模式</option>'); // 清空功能模式
+        $('#detectorTypeItem').hide();
+        $('#temperatureItem').hide();
 
-				form.render('select'); // 重新渲染 select
-			});
+        if (deviceType === 'CONTROLLER') {
+            deviceModelSelect.append('<option value="">請選擇設備型號</option>');
+            deviceModelSelect.append('<option value="SWB">SWB</option>');
+            deviceModelSelect.append('<option value="CX-IR0001S">CX-IR0001S</option>');
+            deviceModelSelect.append('<option value="AMA-Fans">AMA-Fans</option>');
+        } else if (deviceType === 'MONITOR') {
+            deviceModelSelect.append('<option value="">請選擇設備型號</option>');
+            deviceModelSelect.append('<option value="METSEPM2220">METSEPM2220</option>');
+            deviceModelSelect.append('<option value="METSEPM1125HCL05RD">METSEPM1125HCL05RD</option>');
+            deviceModelSelect.append('<option value="IEM2455-230V-100A">IEM2455-230V-100A</option>');
+        }
 
-			// 監聽設備型號選擇的變化，更新功能模式選項
-			form.on('select(deviceModel)', function(data) {
-				var deviceModel = data.value;
-				var functionTypeSelect = $('#functionTypeSelect');
+        form.render('select'); // 重新渲染 select
+    });
 
-				// 清空功能模式選擇框
-				functionTypeSelect.empty();
+    // 合併設備型號的監聽事件，處理功能模式和細項資料
+    form.on('select(deviceModel)', function(data) {
+        var deviceModel = data.value;
+        console.log("選擇的設備型號:", deviceModel);
+        var functionTypeSelect = $('#functionTypeSelect');
+        resetFunctionDetail();
 
-				if (deviceModel === 'SWB') {
-					functionTypeSelect.append('<option value="ON">ON</option>');
-					functionTypeSelect.append('<option value="OFF">OFF</option>');
-				} else if (deviceModel === 'AMA-Fans') {
-					functionTypeSelect.append('<option value="1">1</option>');
-					functionTypeSelect.append('<option value="2">2</option>');
-					functionTypeSelect.append('<option value="3">3</option>');
-					functionTypeSelect.append('<option value="OFF">OFF</option>');
-				} else if (deviceModel === 'CX-IR0001S') {
-					functionTypeSelect.append('<option value="Auto">Auto</option>');
-					functionTypeSelect.append('<option value="Only Air">Only Air</option>');
-					functionTypeSelect.append('<option value="Strong Air">Strong Air</option>');
-					functionTypeSelect.append('<option value="OFF">OFF</option>');
-				} else if (['METSEPM2220', 'METSEPM1125HCL05RD', 'IEM2455-230V-100A'].includes(deviceModel)) {
-					functionTypeSelect.append('<option value="1P+N">1P+N</option>');
-					functionTypeSelect.append('<option value="2P">2P</option>');
-					functionTypeSelect.append('<option value="2P+N">2P+N</option>');
-					functionTypeSelect.append('<option value="3P">3P</option>');
-					functionTypeSelect.append('<option value="3P+N">3P+N</option>');
-				} else {
-					functionTypeSelect.append('<option value="">請選擇功能模式</option>'); // 預設選項
-				}
+        // 清空功能模式選擇框和細項資料輸入框
+        functionTypeSelect.empty();
+        $('#detectorTypeItem').hide();
+        $('#temperatureItem').hide();
+        $('input[name="detectorType"]').val('');
+        $('input[name="temperature"]').val('');
 
-				form.render('select'); // 重新渲染 select
-			});
-			// 尚未細項資料js，可運作
+        // 功能模式選項
+        if (deviceModel === 'SWB') {
+            functionTypeSelect.append('<option value="ON">ON</option>');
+            functionTypeSelect.append('<option value="OFF">OFF</option>');
+        } else if (deviceModel === 'AMA-Fans') {
+            functionTypeSelect.append('<option value="1">1</option>');
+            functionTypeSelect.append('<option value="2">2</option>');
+            functionTypeSelect.append('<option value="3">3</option>');
+            functionTypeSelect.append('<option value="OFF">OFF</option>');
+        } else if (deviceModel === 'CX-IR0001S') {
+            functionTypeSelect.append('<option value="Auto">Auto</option>');
+            functionTypeSelect.append('<option value="Only Air">Only Air</option>');
+            functionTypeSelect.append('<option value="Strong Air">Strong Air</option>');
+            functionTypeSelect.append('<option value="OFF">OFF</option>');
 
-			// 監聽表單提交
-			form.on('submit(saveChannelBtn)', function (data) {
-				console.log("提交數據:", data.field);
+              $('#functionDetailContainer').show();
+            $('#temperatureItem').show();  // 顯示 temperature 輸入框
 
-				$.ajax({
-					url: '/api/v1/channel/add',
-					type: 'POST',
-					contentType: 'application/json',
-					data: JSON.stringify(data.field),
-					success: function (response, textStatus, xhr) {
-						console.log("返回數據:", response);
-						if (xhr.status === 200) {
-							layer.alert('Channel 新增成功', {title: '提示'}, function () {
-								var index = parent.layer.getFrameIndex(window.name); // 獲取當前彈窗的索引
-								parent.layer.close(index); // 關閉彈窗
+            console.log("顯示 temperature 輸入框");
+        } else if (['METSEPM2220', 'METSEPM1125HCL05RD', 'IEM2455-230V-100A'].includes(deviceModel)) {
+        console.log("顯示 detectorType 輸入框");
+            functionTypeSelect.append('<option value="1P+N">1P+N</option>');
+            functionTypeSelect.append('<option value="2P">2P</option>');
+            functionTypeSelect.append('<option value="2P+N">2P+N</option>');
+            functionTypeSelect.append('<option value="3P">3P</option>');
+            functionTypeSelect.append('<option value="3P+N">3P+N</option>');
 
-								// 重新加載 Channel 列表頁面
-								parent.location.href = 'channel_list.html';
-							});
-						} else {
-							layer.alert('Channel 新增失敗', {title: '錯誤'});
-						}
-					},
-					error: function (xhr) {
-						handleErrorResponse(xhr);
-					}
-				});
+              $('#functionDetailContainer').show();
+            $('#detectorTypeItem').show();  // 顯示 detectorType 輸入框
+        } else {
+            functionTypeSelect.append('<option value="">請選擇功能模式</option>'); // 預設選項
+            $('#functionDetailContainer').hide();
+        }
 
-				return false; // 阻止默認提交行為
-			});
-		});
+        form.render('select'); // 重新渲染 select
+    });
+
+    // 監聽表單提交，格式化細項資料為 JSON 並儲存到 functionDetail 欄位
+    form.on('submit(saveChannelBtn)', function (data) {
+        var functionDetails = {};
+
+        // 取得 detectorType 和 temperature 的數值，並轉換為 JSON 格式
+        var detectorType = $('input[name="detectorType"]').val();
+        var temperature = $('input[name="temperature"]').val();
+
+        if (detectorType) {
+            functionDetails.detectorType = parseInt(detectorType);
+        }
+        if (temperature) {
+            temperature = parseInt(temperature);
+            if (temperature >= 16 && temperature <= 30) {
+                functionDetails.temperature = temperature;
+            } else {
+                layer.alert('Temperature 必須在 16 到 30 之間！', { title: '錯誤' });
+                return false;  // 阻止表單提交
+            }
+        }
+
+        // 將 JSON 格式的細項資料轉換為字串，儲存在 data.field.functionDetail
+        data.field.functionDetail = JSON.stringify(functionDetails);
+        console.log("提交數據:", data.field);  // 檢查最終提交的數據
+
+        // 提交數據到後端
+        $.ajax({
+            url: '/api/v1/channel/add',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data.field),
+            success: function (response, textStatus, xhr) {
+                if (xhr.status === 200) {
+                    layer.alert('Channel 新增成功', { title: '提示' }, function () {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                        parent.location.href = 'channel_list.html';
+                    });
+                } else {
+                    layer.alert('Channel 新增失敗', { title: '錯誤' });
+                }
+            },
+            error: function (xhr) {
+                handleErrorResponse(xhr);
+            }
+        });
+
+        return false;  // 阻止表單默認提交
+    });
+});
 
 	</script>
 </body>
