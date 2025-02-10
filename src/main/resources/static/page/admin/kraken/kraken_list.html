@@ -225,7 +225,7 @@
                     maxmin: true,
                     shadeClose: true,
                     area: ['80%', '80%'],
-                    content: '/page/admin/device/kraken_add.html'
+                    content: '/page/admin/kraken/kraken_add.html'
 
                 });
                 $(window).on("resize", function () {
@@ -243,7 +243,7 @@
             }
             var data = obj.data;
             var krakenId = data.id;
-            var editUrl = '/page/admin/device/kraken_edit.html?id=' + krakenId;
+            var editUrl = '/page/admin/kraken/kraken_edit.html?id=' + krakenId;
             window.open(editUrl, '_self');
         });
 

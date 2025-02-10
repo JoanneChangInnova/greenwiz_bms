@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>新增 Channel</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="stylesheet" href="../../../lib/layui-v2.6.3/css/layui.css" media="all">
+	<style>
+		body {
+			background-color: #ffffff;
+		}
+	</style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+	<!-- 選擇krakenID，自動帶入FactoryId，到了Factory才新增kraken，則kraken底下的channel應全數更新factoryId，但如果這時Modbus地址重複，
+	就會有問題，跳出提示框在factory頁面顯示哪兩筆kraken_id底下的channel_id有重複的addr 需到channel頁面修改-->
+
+	<!-- findKrakenList (Id, name, 型號別)-->
+	<div class="layui-form-item">
+		<label class="layui-form-label required">kraken設備ID</label>
+		<div class="layui-input-block">
+			<input type="number" name="iotDeviceId" lay-verify="required" placeholder="請輸入kraken設備ID"
+			       class="layui-input">
+		</div>
+	</div>
+
+	<!-- 如果kraken 已有 factory 則檢查是否有重複，若沒有則不檢查。編輯時同樣檢查kraken是否已有factoryID	-->
+	<div class="layui-form-item">
+		<label class="layui-form-label required">Addr(Modbus)</label>
+		<div class="layui-input-block">
+			<input type="number" name="addr" lay-verify="required" placeholder="請輸入 Modbus 地址 (1~30)"
+			       class="layui-input">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label required">通道名稱</label>
+		<div class="layui-input-block">
+			<input type="text" name="name" lay-verify="required" placeholder="請輸入通道名稱" class="layui-input">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label required">通道代號</label>
+		<div class="layui-input-block">
+			<input type="text" name="channelName" lay-verify="required" placeholder="請輸入通道代號 (如 A-99-99-99)"
+			       class="layui-input">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label required">設備類型</label>
+		<div class="layui-input-block">
+			<select name="deviceType" lay-verify="required" lay-filter="deviceType">
+				<option value="">請選擇設備類型</option>
+				<option value="CONTROLLER">Controller</option>
+				<option value="MONITOR">Monitor</option>
+			</select>
+		</div>
+	</div>
+
+	<!--	* Monitor: METSEPM2220, METSEPM1125HCL05RD, IEM2455-230V-100A 等。-->
+	<!--	* Controller: SWB, CX-IR0001S, AMA-Fans 等。-->
+	<div class="layui-form-item">
+		<label class="layui-form-label">設備型號</label>
+		<div class="layui-input-block">
+			<select name="deviceModel" lay-verify="required" id="deviceModelSelect" lay-filter="deviceModel">
+				<!-- 初始時選項為空 -->
+			</select>
+		</div>
+	</div>
+
+	<!-- 若選中monitor，則列出1P+N/2P/2P+N/3P/3P+N-->
+	<!-- 若選中
+	 * - SWB: ON/OFF
+	 * - AMA-Fans: 3/2/1/OFF
+	 * - CX-IR0001S: Auto/Only Air/Strong Air/OFF
+	-->
+	<div class="layui-form-item">
+		<label class="layui-form-label">功能模式</label>
+		<div class="layui-input-block">
+			<select name="functionType" lay-verify="required" id="functionTypeSelect" lay-filter="functionType">
+				<option value="">請選擇功能模式</option>
+			</select>
+		</div>
+	</div>
+
+
+	<!--
+	    /**
+	     * 細項資料 (JSON 格式)。
+	     * - 若選中monitor: 則出現detectorType數字輸入匡，送出時以Map格式{"detectorType":數值}送出
+	     * - 若選中controller CX-IR0001S，則出現temperature數字輸入匡 {"temperature": 16~30}
+	     */
+	-->
+	<div class="layui-form-item">
+		<label class="layui-form-label">細項資料</label>
+		<div class="layui-input-block">
+
+			<!-- 細項資料，根據設備類型或型號動態顯示 -->
+			<div class="layui-form-item" id="detectorTypeItem" style="display: none;">
+				<label class="layui-form-label">detectorType</label>
+				<div class="layui-input-block">
+					<input lay-filter="functionDetail" type="number" name="functionDetail" data-type="detectorType"
+					       placeholder="請輸入 detectorType 數值" class="layui-input" min="0">
+				</div>
+			</div>
+
+			<div class="layui-form-item" id="temperatureItem" style="display: none;">
+				<label class="layui-form-label">temperature</label>
+				<div class="layui-input-block">
+					<input lay-filter="functionDetail" number" name="functionDetail" data-type="temperature"
+					       placeholder="請輸入 temperature 數值 (16~30)" class="layui-input" min="16" max="30">
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+	<div class="layui-form-item">
+			<label class="layui-form-label required">總用電通道</label>
+			<div class="layui-input-block">
+				<select name="statisticsInOv" lay-verify="required">
+					<option value="">是否為總用電通道</option>
+					<option value="true">是</option>
+					<option value="false">否</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="layui-form-item">
+			<label class="layui-form-label required">狀態</label>
+			<div class="layui-input-block">
+				<select name="state" lay-verify="required">
+					<option value="">請選擇狀態</option>
+					<option value=0>離線</option>
+					<option value=1>上線</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="layui-form-item">
+			<label class="layui-form-label">描述</label>
+			<div class="layui-input-block">
+				<textarea name="description" placeholder="請輸入描述" class="layui-textarea"></textarea>
+			</div>
+		</div>
+
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveChannelBtn">確認保存</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="../../../lib/layui-v2.6.3/layui.js"></script>
+	<script src="/js/comm.js" charset="utf-8"></script>
+	<script>
+		layui.use(['form', 'layer'], function () {
+			var form = layui.form, layer = layui.layer, $ = layui.$;
+
+			// 監聽設備類型選擇的變化，更新設備型號選項
+			form.on('select(deviceType)', function(data) {
+				var deviceType = data.value;
+				var deviceModelSelect = $('#deviceModelSelect');
+
+				// 清空設備型號選擇框
+				deviceModelSelect.empty();
+				$('#functionTypeSelect').empty().append('<option value="">請選擇功能模式</option>'); // 清空功能模式
+
+				if (deviceType === 'CONTROLLER') {
+					deviceModelSelect.append('<option value="">請選擇設備型號</option>');
+					deviceModelSelect.append('<option value="SWB">SWB</option>');
+					deviceModelSelect.append('<option value="CX-IR0001S">CX-IR0001S</option>');
+					deviceModelSelect.append('<option value="AMA-Fans">AMA-Fans</option>');
+				} else if (deviceType === 'MONITOR') {
+					deviceModelSelect.append('<option value="">請選擇設備型號</option>');
+					deviceModelSelect.append('<option value="METSEPM2220">METSEPM2220</option>');
+					deviceModelSelect.append('<option value="METSEPM1125HCL05RD">METSEPM1125HCL05RD</option>');
+					deviceModelSelect.append('<option value="IEM2455-230V-100A">IEM2455-230V-100A</option>');
+				}
+
+				form.render('select'); // 重新渲染 select
+			});
+
+			// 監聽設備型號選擇的變化，更新功能模式選項
+			form.on('select(deviceModel)', function(data) {
+				var deviceModel = data.value;
+				var functionTypeSelect = $('#functionTypeSelect');
+
+				// 清空功能模式選擇框
+				functionTypeSelect.empty();
+
+				if (deviceModel === 'SWB') {
+					functionTypeSelect.append('<option value="ON">ON</option>');
+					functionTypeSelect.append('<option value="OFF">OFF</option>');
+				} else if (deviceModel === 'AMA-Fans') {
+					functionTypeSelect.append('<option value="1">1</option>');
+					functionTypeSelect.append('<option value="2">2</option>');
+					functionTypeSelect.append('<option value="3">3</option>');
+					functionTypeSelect.append('<option value="OFF">OFF</option>');
+				} else if (deviceModel === 'CX-IR0001S') {
+					functionTypeSelect.append('<option value="Auto">Auto</option>');
+					functionTypeSelect.append('<option value="Only Air">Only Air</option>');
+					functionTypeSelect.append('<option value="Strong Air">Strong Air</option>');
+					functionTypeSelect.append('<option value="OFF">OFF</option>');
+				} else if (['METSEPM2220', 'METSEPM1125HCL05RD', 'IEM2455-230V-100A'].includes(deviceModel)) {
+					functionTypeSelect.append('<option value="1P+N">1P+N</option>');
+					functionTypeSelect.append('<option value="2P">2P</option>');
+					functionTypeSelect.append('<option value="2P+N">2P+N</option>');
+					functionTypeSelect.append('<option value="3P">3P</option>');
+					functionTypeSelect.append('<option value="3P+N">3P+N</option>');
+				} else {
+					functionTypeSelect.append('<option value="">請選擇功能模式</option>'); // 預設選項
+				}
+
+				form.render('select'); // 重新渲染 select
+			});
+			// 尚未細項資料js，可運作
+
+			// 監聽表單提交
+			form.on('submit(saveChannelBtn)', function (data) {
+				console.log("提交數據:", data.field);
+
+				$.ajax({
+					url: '/api/v1/channel/add',
+					type: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify(data.field),
+					success: function (response, textStatus, xhr) {
+						console.log("返回數據:", response);
+						if (xhr.status === 200) {
+							layer.alert('Channel 新增成功', {title: '提示'}, function () {
+								var index = parent.layer.getFrameIndex(window.name); // 獲取當前彈窗的索引
+								parent.layer.close(index); // 關閉彈窗
+
+								// 重新加載 Channel 列表頁面
+								parent.location.href = 'channel_list.html';
+							});
+						} else {
+							layer.alert('Channel 新增失敗', {title: '錯誤'});
+						}
+					},
+					error: function (xhr) {
+						handleErrorResponse(xhr);
+					}
+				});
+
+				return false; // 阻止默認提交行為
+			});
+		});
+
+	</script>
+</body>
+</html>
