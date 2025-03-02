@@ -43,6 +43,11 @@
 		</div>
 	</div>
 
+<!--	channelName驗證規則：-->
+<!--	第一個字母必須是 A-Z-->
+<!--	第二個部分必須是 -M 或 數字 (01~99)-->
+<!--	數字最多三層，每層之間用 - 連接-->
+<!--	不能只有 A 或 B 或 -M-->
 	<div class="layui-form-item">
 		<label class="layui-form-label required">通道代號</label>
 		<div class="layui-input-block">
@@ -123,9 +128,6 @@
 		</div>
 	</div>
 
-
-
-
 	<div class="layui-form-item">
 			<label class="layui-form-label required">總用電通道</label>
 			<div class="layui-input-block">
@@ -164,11 +166,11 @@
 
 	<script src="../../../lib/layui-v2.6.3/layui.js"></script>
 	<script src="/js/comm.js" charset="utf-8"></script>
-	<script>
-		layui.use(['form', 'layer'], function () {
+<script type="text/javascript">
+	layui.use(['form', 'layer'], function () {
     var form = layui.form, layer = layui.layer, $ = layui.$;
 
-        // 抽取隱藏細項資料區塊和清空輸入框的邏輯
+    // 抽取隱藏細項資料區塊和清空輸入框的邏輯
     function resetFunctionDetail() {
         $('#functionDetailContainer').hide();  // 隱藏細項資料區塊
         $('#detectorTypeItem').hide();         // 隱藏 detectorType 輸入框
@@ -176,6 +178,13 @@
         $('input[name="detectorType"]').val('');  // 清空 detectorType 的值
         $('input[name="temperature"]').val('');   // 清空 temperature 的值
     }
+
+    // 通道代號驗證
+	function validateChannelName(channelName) {
+		var pattern = /^[A-Z](-(M|\d{2}))?(-\d{2}){0,2}$/;
+		return pattern.test(channelName);
+	}
+
 
     // 監聽設備類型選擇的變化，更新設備型號選項
     form.on('select(deviceType)', function(data) {
@@ -233,19 +242,19 @@
             functionTypeSelect.append('<option value="Strong Air">Strong Air</option>');
             functionTypeSelect.append('<option value="OFF">OFF</option>');
 
-              $('#functionDetailContainer').show();
+            $('#functionDetailContainer').show();
             $('#temperatureItem').show();  // 顯示 temperature 輸入框
 
             console.log("顯示 temperature 輸入框");
         } else if (['METSEPM2220', 'METSEPM1125HCL05RD', 'IEM2455-230V-100A'].includes(deviceModel)) {
-        console.log("顯示 detectorType 輸入框");
+            console.log("顯示 detectorType 輸入框");
             functionTypeSelect.append('<option value="1P+N">1P+N</option>');
             functionTypeSelect.append('<option value="2P">2P</option>');
             functionTypeSelect.append('<option value="2P+N">2P+N</option>');
             functionTypeSelect.append('<option value="3P">3P</option>');
             functionTypeSelect.append('<option value="3P+N">3P+N</option>');
 
-              $('#functionDetailContainer').show();
+            $('#functionDetailContainer').show();
             $('#detectorTypeItem').show();  // 顯示 detectorType 輸入框
         } else {
             functionTypeSelect.append('<option value="">請選擇功能模式</option>'); // 預設選項
@@ -258,6 +267,15 @@
     // 監聽表單提交，格式化細項資料為 JSON 並儲存到 functionDetail 欄位
     form.on('submit(saveChannelBtn)', function (data) {
         var functionDetails = {};
+
+        // 取得通道代號
+        var channelName = data.field.channelName;
+
+        // 驗證通道代號
+        if (!validateChannelName(channelName)) {
+            layer.alert('通道代號格式不正確，請使用大寫字母或格式如 A-99-99-99！', { title: '錯誤' });
+            return false;  // 阻止表單提交
+        }
 
         // 取得 detectorType 和 temperature 的數值，並轉換為 JSON 格式
         var detectorType = $('input[name="detectorType"]').val();
@@ -305,7 +323,7 @@
         return false;  // 阻止表單默認提交
     });
 });
+</script>
 
-	</script>
 </body>
 </html>

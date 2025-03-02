@@ -14,4 +14,9 @@ public class ChannelServiceImpl extends BaseDomainServiceImpl<Long, Channel> imp
     @Autowired
     @Getter(value = AccessLevel.PROTECTED)
     private ChannelRepository jpaRepository;
+
+    @Override
+    public boolean existsByFactoryIdAndChannelName(Long factoryId, String channelName) {
+        return jpaRepository.existsByFactoryIdAndChannelName(factoryId, channelName);
+    }
 }

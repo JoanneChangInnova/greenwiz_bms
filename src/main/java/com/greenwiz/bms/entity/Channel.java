@@ -41,8 +41,9 @@ public class Channel extends BaseEntity {
     private String name;
 
     /**
-     * 通道代號，格式為 A-99-99-99 或 A(四層結構)，
-     * 第一層為 A~Z，第二至第四層為 11~99，同一個工廠內不可重複。
+     * 通道代號，格式為四層結構，第一層必為大寫英文字母A~Z，
+     * 各層用 - 符號連接，二至四層可為01~99數字，例如A-01-99-99，
+     * 第二層亦可為M，例如A-M，Z-M，同一個工廠內通道代號不可重複。
      */
     private String channelName;
 

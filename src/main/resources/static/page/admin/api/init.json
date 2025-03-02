@@ -16,26 +16,14 @@
       "target": "_self",
       "child": [
         {
-          "title": "設備管理",
+          "title": "用戶管理",
           "href": "",
-          "icon": "fa fa-server",
+          "icon": "fa fa-user-circle-o",
           "target": "_self",
           "child": [
             {
-              "title": "kraken列表",
-              "href": "/page/admin/kraken/kraken_list.html",
-              "icon": "fa fa-file-text",
-              "target": "_top"
-            },
-            {
-              "title": "channel列表",
-              "href": "/page/admin/channel/channel_list.html",
-              "icon": "fa fa-file-text",
-              "target": "_parent"
-            },
-            {
-              "title": "批量新增",
-              "href": "/page/table.html",
+              "title": "用戶列表",
+              "href": "/page/admin/user/user_list.html",
               "icon": "fa fa-file-text",
               "target": "_self"
             }
@@ -56,14 +44,26 @@
           ]
         },
         {
-          "title": "用戶管理",
+          "title": "設備管理",
           "href": "",
-          "icon": "fa fa-user-circle-o",
+          "icon": "fa fa-server",
           "target": "_self",
           "child": [
             {
-              "title": "用戶列表",
-              "href": "/page/admin/user/user_list.html",
+              "title": "kraken列表",
+              "href": "/page/admin/kraken/kraken_list.html",
+              "icon": "fa fa-file-text",
+              "target": "_top"
+            },
+            {
+              "title": "channel列表",
+              "href": "/page/admin/channel/channel_list.html",
+              "icon": "fa fa-file-text",
+              "target": "_parent"
+            },
+            {
+              "title": "批量新增",
+              "href": "/page/table.html",
               "icon": "fa fa-file-text",
               "target": "_self"
             }

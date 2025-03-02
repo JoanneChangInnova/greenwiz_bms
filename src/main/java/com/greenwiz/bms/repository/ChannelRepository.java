@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ChannelRepository extends JpaRepository<Channel, Long> {
+    boolean existsByFactoryIdAndChannelName(Long factoryId, String channelName);
 }
