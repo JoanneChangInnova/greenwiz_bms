@@ -27,7 +27,7 @@
 		</div>
 	</div>
 
-	<!-- 如果kraken 已有 factory 則檢查是否有重複，若沒有則不檢查。編輯時同樣檢查kraken是否已有factoryID	-->
+	<!-- 同一個kraken底下不可重複	-->
 	<div class="layui-form-item">
 		<label class="layui-form-label required">Addr(Modbus)</label>
 		<div class="layui-input-block">
@@ -43,11 +43,11 @@
 		</div>
 	</div>
 
-<!--	channelName驗證規則：-->
-<!--	第一個字母必須是 A-Z-->
-<!--	第二個部分必須是 -M 或 數字 (01~99)-->
-<!--	數字最多三層，每層之間用 - 連接-->
-<!--	不能只有 A 或 B 或 -M-->
+	<!--	channelName驗證規則：-->
+	<!--	第一個字母必須是 A-Z-->
+	<!--	第二個部分必須是 -M 或 數字 (01~99)-->
+	<!--	數字最多三層，每層之間用 - 連接-->
+	<!--	不能只有 A 或 B 或 -M-->
 	<div class="layui-form-item">
 		<label class="layui-form-label required">通道代號</label>
 		<div class="layui-input-block">
@@ -79,196 +79,113 @@
 	</div>
 
 	<!-- 若選中monitor，則列出1P+N/2P/2P+N/3P/3P+N-->
-	<!-- 若選中
-	 * - SWB: ON/OFF
-	 * - AMA-Fans: 3/2/1/OFF
-	 * - CX-IR0001S: Auto/Only Air/Strong Air/OFF
-	-->
-	<div class="layui-form-item">
+	<!-- 若選中controller，則不需填-->
+	<!-- 功能模式：僅當設備類型為 MONITOR 時顯示 -->
+	<div class="layui-form-item" id="functionModeContainer" style="display: none;">
 		<label class="layui-form-label">功能模式</label>
 		<div class="layui-input-block">
-			<select name="functionType" lay-verify="required" id="functionTypeSelect" lay-filter="functionType">
+			<select name="functionMode" id="functionModeSelect">
 				<option value="">請選擇功能模式</option>
 			</select>
 		</div>
 	</div>
 
 
-	<!--
-	    /**
-	     * 細項資料 (JSON 格式)。
-	     * - 若選中monitor: 則出現detectorType數字輸入匡，送出時以Map格式{"detectorType":數值}送出
-	     * - 若選中controller CX-IR0001S，則出現temperature數字輸入匡 {"temperature": 16~30}
-	     */
-	-->
-	<!-- 細項資料 -->
-	<!-- 細項資料區塊，根據設備型號動態顯示 -->
-	<div class="layui-form-item" id="functionDetailContainer" style="display: none;">
-		<label class="layui-form-label">細項資料</label>
+	<div class="layui-form-item">
+		<label class="layui-form-label required">總用電通道</label>
 		<div class="layui-input-block">
-
-			<!-- detectorType 輸入框 (適用於 MONITOR 類型設備) -->
-			<div class="layui-form-item" id="detectorTypeItem" style="display: none;">
-				<label class="layui-form-label">detectorType</label>
-				<div class="layui-input-block">
-					<input type="number" name="detectorType"
-					       placeholder="請輸入 detectorType 數值" class="layui-input" min="0">
-				</div>
-			</div>
-
-			<!-- temperature 輸入框 (適用於 CX-IR0001S 型號) -->
-			<div class="layui-form-item" id="temperatureItem" style="display: none;">
-				<label class="layui-form-label">temperature</label>
-				<div class="layui-input-block">
-					<input type="number" name="temperature"
-					       placeholder="請輸入 temperature 數值 (16~30)" class="layui-input" min="16" max="30">
-				</div>
-			</div>
-
+			<select name="statisticsInOv" lay-verify="required">
+				<option value="">是否為總用電通道</option>
+				<option value="true">是</option>
+				<option value="false">否</option>
+			</select>
 		</div>
 	</div>
 
 	<div class="layui-form-item">
-			<label class="layui-form-label required">總用電通道</label>
-			<div class="layui-input-block">
-				<select name="statisticsInOv" lay-verify="required">
-					<option value="">是否為總用電通道</option>
-					<option value="true">是</option>
-					<option value="false">否</option>
-				</select>
-			</div>
-		</div>
-
-		<div class="layui-form-item">
-			<label class="layui-form-label required">狀態</label>
-			<div class="layui-input-block">
-				<select name="state" lay-verify="required">
-					<option value="">請選擇狀態</option>
-					<option value=0>離線</option>
-					<option value=1>上線</option>
-				</select>
-			</div>
-		</div>
-
-		<div class="layui-form-item">
-			<label class="layui-form-label">描述</label>
-			<div class="layui-input-block">
-				<textarea name="description" placeholder="請輸入描述" class="layui-textarea"></textarea>
-			</div>
-		</div>
-
-		<div class="layui-form-item">
-			<div class="layui-input-block">
-				<button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveChannelBtn">確認保存</button>
-			</div>
+		<label class="layui-form-label required">狀態</label>
+		<div class="layui-input-block">
+			<select name="state" lay-verify="required">
+				<option value="">請選擇狀態</option>
+				<option value=0>離線</option>
+				<option value=1>上線</option>
+			</select>
 		</div>
 	</div>
 
-	<script src="../../../lib/layui-v2.6.3/layui.js"></script>
-	<script src="/js/comm.js" charset="utf-8"></script>
+	<div class="layui-form-item">
+		<label class="layui-form-label">描述</label>
+		<div class="layui-input-block">
+			<textarea name="description" placeholder="請輸入描述" class="layui-textarea"></textarea>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<div class="layui-input-block">
+			<button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveChannelBtn">確認保存</button>
+		</div>
+	</div>
+</div>
+
+<script src="../../../lib/layui-v2.6.3/layui.js"></script>
+<script src="/js/comm.js" charset="utf-8"></script>
 <script type="text/javascript">
 	layui.use(['form', 'layer'], function () {
-    var form = layui.form, layer = layui.layer, $ = layui.$;
+		var form = layui.form, layer = layui.layer, $ = layui.$;
 
-    // 抽取隱藏細項資料區塊和清空輸入框的邏輯
-    function resetFunctionDetail() {
-        $('#functionDetailContainer').hide();  // 隱藏細項資料區塊
-        $('#detectorTypeItem').hide();         // 隱藏 detectorType 輸入框
-        $('#temperatureItem').hide();          // 隱藏 temperature 輸入框
-        $('input[name="detectorType"]').val('');  // 清空 detectorType 的值
-        $('input[name="temperature"]').val('');   // 清空 temperature 的值
-    }
-
-    // 通道代號驗證
+		    // 通道代號驗證
 	function validateChannelName(channelName) {
 		var pattern = /^[A-Z](-(M|\d{2}))?(-\d{2}){0,2}$/;
 		return pattern.test(channelName);
 	}
 
+		function resetFunctionMode() {
+			$('#functionModeContainer').hide();
+			$('#functionModeSelect').empty().append('<option value="">請選擇功能模式</option>');
+		}
 
-    // 監聽設備類型選擇的變化，更新設備型號選項
-    form.on('select(deviceType)', function(data) {
-        var deviceType = data.value;
-        var deviceModelSelect = $('#deviceModelSelect');
-        resetFunctionDetail();
+		form.on('select(deviceType)', function(data) {
+			var deviceType = data.value;
+			var deviceModelSelect = $('#deviceModelSelect');
+			resetFunctionMode();
+			deviceModelSelect.empty();
 
-        // 清空設備型號選擇框
-        deviceModelSelect.empty();
-        $('#functionTypeSelect').empty().append('<option value="">請選擇功能模式</option>'); // 清空功能模式
-        $('#detectorTypeItem').hide();
-        $('#temperatureItem').hide();
+			if (deviceType === 'CONTROLLER') {
+				deviceModelSelect.append('<option value="">請選擇設備型號</option>');
+				deviceModelSelect.append('<option value="SWB">SWB</option>');
+				deviceModelSelect.append('<option value="CX-IR0001S">CX-IR0001S</option>');
+				deviceModelSelect.append('<option value="AMA-Fans">AMA-Fans</option>');
+			} else if (deviceType === 'MONITOR') {
+				deviceModelSelect.append('<option value="">請選擇設備型號</option>');
+				deviceModelSelect.append('<option value="METSEPM2220">METSEPM2220</option>');
+				deviceModelSelect.append('<option value="METSEPM1125HCL05RD">METSEPM1125HCL05RD</option>');
+				deviceModelSelect.append('<option value="IEM2455-230V-100A">IEM2455-230V-100A</option>');
+			}
+			form.render('select');
+		});
 
-        if (deviceType === 'CONTROLLER') {
-            deviceModelSelect.append('<option value="">請選擇設備型號</option>');
-            deviceModelSelect.append('<option value="SWB">SWB</option>');
-            deviceModelSelect.append('<option value="CX-IR0001S">CX-IR0001S</option>');
-            deviceModelSelect.append('<option value="AMA-Fans">AMA-Fans</option>');
-        } else if (deviceType === 'MONITOR') {
-            deviceModelSelect.append('<option value="">請選擇設備型號</option>');
-            deviceModelSelect.append('<option value="METSEPM2220">METSEPM2220</option>');
-            deviceModelSelect.append('<option value="METSEPM1125HCL05RD">METSEPM1125HCL05RD</option>');
-            deviceModelSelect.append('<option value="IEM2455-230V-100A">IEM2455-230V-100A</option>');
-        }
+		form.on('select(deviceModel)', function(data) {
+			var deviceType = $('select[name="deviceType"]').val();
+			var functionModeSelect = $('#functionModeSelect');
+			resetFunctionMode();
 
-        form.render('select'); // 重新渲染 select
-    });
+			if (deviceType === 'MONITOR') {
+				$('#functionModeContainer').show();
+				functionModeSelect.append('<option value="1P+N">1P+N</option>');
+				functionModeSelect.append('<option value="2P">2P</option>');
+				functionModeSelect.append('<option value="2P+N">2P+N</option>');
+				functionModeSelect.append('<option value="3P">3P</option>');
+				functionModeSelect.append('<option value="3P+N">3P+N</option>');
+			}
+			form.render('select');
+		});
 
-    // 合併設備型號的監聽事件，處理功能模式和細項資料
-    form.on('select(deviceModel)', function(data) {
-        var deviceModel = data.value;
-        console.log("選擇的設備型號:", deviceModel);
-        var functionTypeSelect = $('#functionTypeSelect');
-        resetFunctionDetail();
+		form.on('submit(saveChannelBtn)', function (data) {
+			if ($('select[name="deviceType"]').val() === 'CONTROLLER') {
+				data.field.functionMode = null;
+			}
 
-        // 清空功能模式選擇框和細項資料輸入框
-        functionTypeSelect.empty();
-        $('#detectorTypeItem').hide();
-        $('#temperatureItem').hide();
-        $('input[name="detectorType"]').val('');
-        $('input[name="temperature"]').val('');
-
-        // 功能模式選項
-        if (deviceModel === 'SWB') {
-            functionTypeSelect.append('<option value="ON">ON</option>');
-            functionTypeSelect.append('<option value="OFF">OFF</option>');
-        } else if (deviceModel === 'AMA-Fans') {
-            functionTypeSelect.append('<option value="1">1</option>');
-            functionTypeSelect.append('<option value="2">2</option>');
-            functionTypeSelect.append('<option value="3">3</option>');
-            functionTypeSelect.append('<option value="OFF">OFF</option>');
-        } else if (deviceModel === 'CX-IR0001S') {
-            functionTypeSelect.append('<option value="Auto">Auto</option>');
-            functionTypeSelect.append('<option value="Only Air">Only Air</option>');
-            functionTypeSelect.append('<option value="Strong Air">Strong Air</option>');
-            functionTypeSelect.append('<option value="OFF">OFF</option>');
-
-            $('#functionDetailContainer').show();
-            $('#temperatureItem').show();  // 顯示 temperature 輸入框
-
-            console.log("顯示 temperature 輸入框");
-        } else if (['METSEPM2220', 'METSEPM1125HCL05RD', 'IEM2455-230V-100A'].includes(deviceModel)) {
-            console.log("顯示 detectorType 輸入框");
-            functionTypeSelect.append('<option value="1P+N">1P+N</option>');
-            functionTypeSelect.append('<option value="2P">2P</option>');
-            functionTypeSelect.append('<option value="2P+N">2P+N</option>');
-            functionTypeSelect.append('<option value="3P">3P</option>');
-            functionTypeSelect.append('<option value="3P+N">3P+N</option>');
-
-            $('#functionDetailContainer').show();
-            $('#detectorTypeItem').show();  // 顯示 detectorType 輸入框
-        } else {
-            functionTypeSelect.append('<option value="">請選擇功能模式</option>'); // 預設選項
-            $('#functionDetailContainer').hide();
-        }
-
-        form.render('select'); // 重新渲染 select
-    });
-
-    // 監聽表單提交，格式化細項資料為 JSON 並儲存到 functionDetail 欄位
-    form.on('submit(saveChannelBtn)', function (data) {
-        var functionDetails = {};
-
-        // 取得通道代號
+			        // 取得通道代號
         var channelName = data.field.channelName;
 
         // 驗證通道代號
@@ -276,27 +193,6 @@
             layer.alert('通道代號格式不正確，請使用大寫字母或格式如 A-99-99-99！', { title: '錯誤' });
             return false;  // 阻止表單提交
         }
-
-        // 取得 detectorType 和 temperature 的數值，並轉換為 JSON 格式
-        var detectorType = $('input[name="detectorType"]').val();
-        var temperature = $('input[name="temperature"]').val();
-
-        if (detectorType) {
-            functionDetails.detectorType = parseInt(detectorType);
-        }
-        if (temperature) {
-            temperature = parseInt(temperature);
-            if (temperature >= 16 && temperature <= 30) {
-                functionDetails.temperature = temperature;
-            } else {
-                layer.alert('Temperature 必須在 16 到 30 之間！', { title: '錯誤' });
-                return false;  // 阻止表單提交
-            }
-        }
-
-        // 將 JSON 格式的細項資料轉換為字串，儲存在 data.field.functionDetail
-        data.field.functionDetail = JSON.stringify(functionDetails);
-        console.log("提交數據:", data.field);  // 檢查最終提交的數據
 
         // 提交數據到後端
         $.ajax({
@@ -324,6 +220,5 @@
     });
 });
 </script>
-
 </body>
 </html>

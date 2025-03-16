@@ -31,7 +31,7 @@ public class Channel extends BaseEntity {
     private Long iotDeviceId;
 
     /**
-     * Modbus 地址，值範圍 1~30，同一個工廠內不可重複。
+     * Modbus 地址，值範圍 1~30，同一個iot_device不可重複。
      */
     private Integer addr;
 
@@ -63,18 +63,9 @@ public class Channel extends BaseEntity {
     /**
      * 功能模式，例如：
      * - monitor: 1P+N/2P/2P+N/3P/3P+N
-     * - SWB: ON/OFF
-     * - AMA-Fans: 3/2/1/OFF
-     * - CX-IR0001S: Auto/Only Air/Strong Air/OFF
+     * - controller （不填)
      */
-    private String functionType;
-
-    /**
-     * 細項資料 (JSON 格式)。
-     * - monitor: {"detectorType":數值}
-     * - controller CX-IR0001S: {"temperature": 16~30}
-     */
-    private String functionDetail;
+    private String functionMode;
 
     /**
      * 是否為總用電通道，值為 TRUE 或 FALSE。

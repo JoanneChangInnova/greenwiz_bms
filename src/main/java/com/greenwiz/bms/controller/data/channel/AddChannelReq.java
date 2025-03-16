@@ -9,13 +9,14 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class AddChannelReq extends RequestJson {
 
     private Long factoryId;
 
-    @NotNull(message = "iotDeviceId 不能為空")
     private Long iotDeviceId;
 
     @NotNull(message = "Modbus 地址不能為空")
@@ -35,10 +36,7 @@ public class AddChannelReq extends RequestJson {
     @NotBlank(message = "設備型號不能為空")
     private String deviceModel;
 
-    @NotBlank(message = "功能模式不能為空")
-    private String functionType;
-
-    private String functionDetail;
+    private String functionMode;
 
     @NotNull(message = "是否為總用電通道不能為空")
     private Boolean statisticsInOv;
@@ -52,6 +50,6 @@ public class AddChannelReq extends RequestJson {
     protected void validate() throws RuntimeException {
         ValidationUtils.validateChannelName(channelName);
         ValidationUtils.validateDeviceModel(deviceType, deviceModel);
-        ValidationUtils.validateFunctionType(deviceModel, functionType);
+        ValidationUtils.validateFunctionMode(deviceModel, functionMode);
     }
 }

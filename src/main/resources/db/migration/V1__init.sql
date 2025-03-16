@@ -23,7 +23,6 @@ PRIMARY KEY (`id`),
 UNIQUE KEY `unique_email` (`email`) COMMENT '唯一約束，防止重複的email'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用戶表';
 
-DROP TABLE IF EXISTS `channel`;
 CREATE TABLE IF NOT EXISTS `channel` (
 `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主鍵，唯一標識每個通道',
 `factory_id` BIGINT UNSIGNED NULL COMMENT '工廠 ID，關聯工廠資料表的主鍵',
@@ -35,8 +34,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
 `device_model` VARCHAR(100) NULL COMMENT '設備型號，
 Monitor:METSEPM2220,METSEPM1125HCL05RD,IEM2455-230V-100A,SPM80000-60,SPM301-60,SPM1,SW1100-1P3W,SW3200-010,STD640,SMT660
 Controller:SWB,CX-IR0001S,AMA-Fans',
-`function_type` VARCHAR(50) NULL COMMENT '功能模式，monitor:1P+N/2P/2P+N/3P/3P+N; SWB:ON/OFF; AMA-Fans:3/2/1/OFF; CX-IR0001S:Auto/Only Air/Strong Air/OFF',
-`function_detail` JSON NULL COMMENT '細項資料，monitor: {"detectorType":數值}; controller CX-IR0001S: {"temperature": 16~30}',
+`function_mode` VARCHAR(50) NULL COMMENT '功能模式，monitor:1P+N/2P/2P+N/3P/3P+N; controller不填',
 `statistics_in_ov` BOOLEAN NULL COMMENT '是否為總用電通道，值為 TRUE 或 FALSE',
 `state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:offline, 1:online',
 `description` VARCHAR(50) DEFAULT NULL COMMENT '描述',
@@ -45,7 +43,7 @@ Controller:SWB,CX-IR0001S,AMA-Fans',
 `create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 email',
 `modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 email',
 PRIMARY KEY (`id`),
-UNIQUE KEY `unique_factory_addr` (`factory_id`, `addr`) COMMENT '唯一約束，防止重複的factory_id和addr',
+UNIQUE KEY `unique_factory_addr` (`iot_device_id`, `addr`) COMMENT '唯一約束，防止重複的iot_device_id和addr',
 UNIQUE KEY `unique_factory_channel_name` (`factory_id`, `channel_name`) COMMENT '唯一約束，防止重複的factory_id和channel_name'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通道表，存儲通道相關信息';
 
@@ -114,69 +112,3 @@ PRIMARY KEY (`id`)
 # PRIMARY KEY (`channel_id`)
 # );
 
-
-CREATE TABLE IF NOT EXISTS `smartmeter` (
-`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-`db_factory_id` bigint(20) unsigned NOT NULL DEFAULT 0,
-`db_iot_id` bigint(20) unsigned NOT NULL DEFAULT 0,
-`db_main_sm_id` bigint(20) unsigned NOT NULL DEFAULT 0 COMMENT 'main smartmeter of this smartmeter',
-`statistics_in_ov` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '0 / 1',
-`kraken_model` tinyint(3) unsigned NOT NULL DEFAULT 0,
-`channel_name` varchar(8) NOT NULL DEFAULT '',
-`name` varchar(32) NOT NULL DEFAULT '',
-`dt_timestamp_local` datetime NOT NULL,
-`dt_timestamp_utc` datetime DEFAULT NULL,
-`smartmeter_type` tinyint(4) unsigned NOT NULL,
-`smartmeter_addr` smallint(5) unsigned NOT NULL DEFAULT 0,
-`breaker_type` varchar(50) NOT NULL DEFAULT '0',
-`state` char(7) NOT NULL DEFAULT '0' COMMENT 'online / offline',
-`dt_built_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-`smartmeter_status` tinyint(3) unsigned NOT NULL DEFAULT 0,
-`data_type` tinyint(3) unsigned NOT NULL DEFAULT 0,
-`voltage_a` float unsigned NOT NULL DEFAULT 0,
-`voltage_b` float unsigned NOT NULL DEFAULT 0,
-`voltage_c` float unsigned NOT NULL DEFAULT 0,
-`voltage_ab` float unsigned NOT NULL DEFAULT 0,
-`voltage_bc` float unsigned NOT NULL DEFAULT 0,
-`voltage_ca` float unsigned NOT NULL DEFAULT 0,
-`current_a` float unsigned NOT NULL DEFAULT 0,
-`current_b` float unsigned NOT NULL DEFAULT 0,
-`current_c` float unsigned NOT NULL DEFAULT 0,
-`frequency` float unsigned NOT NULL DEFAULT 0,
-`power_kwh_a` double unsigned NOT NULL DEFAULT 0,
-`power_kwh_b` double unsigned NOT NULL DEFAULT 0,
-`power_kwh_c` double unsigned NOT NULL DEFAULT 0,
-`power_kwh_t` double unsigned NOT NULL DEFAULT 0,
-`max_power_kw_a` float unsigned NOT NULL DEFAULT 0,
-`max_power_kw_b` float unsigned NOT NULL DEFAULT 0,
-`max_power_kw_c` float unsigned NOT NULL DEFAULT 0,
-`max_power_kw_t` float unsigned NOT NULL DEFAULT 0,
-`average_power_kw_a` float unsigned NOT NULL DEFAULT 0,
-`average_power_kw_b` float unsigned NOT NULL DEFAULT 0,
-`average_power_kw_c` float unsigned NOT NULL DEFAULT 0,
-`average_power_kw_t` float unsigned NOT NULL DEFAULT 0,
-`real_power_kw_a` float unsigned NOT NULL DEFAULT 0,
-`real_power_kw_b` float unsigned NOT NULL DEFAULT 0,
-`real_power_kw_c` float unsigned NOT NULL DEFAULT 0,
-`real_power_kw_t` float unsigned NOT NULL DEFAULT 0,
-`reactive_power_kvar_a` float unsigned NOT NULL DEFAULT 0,
-`reactive_power_kvar_b` float unsigned NOT NULL DEFAULT 0,
-`reactive_power_kvar_c` float unsigned NOT NULL DEFAULT 0,
-`reactive_power_kvar_t` float unsigned NOT NULL DEFAULT 0,
-`apparent_power_kva_a` float unsigned NOT NULL DEFAULT 0,
-`apparent_power_kva_b` float unsigned NOT NULL DEFAULT 0,
-`apparent_power_kva_c` float unsigned NOT NULL DEFAULT 0,
-`apparent_power_kva_t` float unsigned NOT NULL DEFAULT 0,
-`power_factor_a` float unsigned NOT NULL DEFAULT 0,
-`power_factor_b` float unsigned NOT NULL DEFAULT 0,
-`power_factor_c` float unsigned NOT NULL DEFAULT 0,
-`power_factor_t` float unsigned NOT NULL DEFAULT 0,
-`description` varchar(1204) NOT NULL DEFAULT '',
-`dt_update` datetime NOT NULL,
-`dt_last_correction` datetime DEFAULT NULL,
-`dt_create` datetime NOT NULL,
-PRIMARY KEY (`id`),
-KEY `FK_smartmeter_rt_factory` (`db_factory_id`) USING BTREE,
-KEY `FK_smartmeter_rt_iot_device` (`db_iot_id`) USING BTREE,
-KEY `parent_sm_id` (`db_main_sm_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

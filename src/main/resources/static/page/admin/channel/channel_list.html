@@ -67,7 +67,7 @@
                     <div class="layui-inline">
                         <label class="layui-form-label">功能模式</label>
                         <div class="layui-input-inline">
-                            <input type="text" name="functionType" autocomplete="off" class="layui-input" placeholder="請輸入功能模式">
+                            <input type="text" name="functionMode" autocomplete="off" class="layui-input" placeholder="請輸入功能模式">
                         </div>
                     </div>
                     <div class="layui-inline">
@@ -133,7 +133,7 @@
                 {field: 'channelName', width: 150, title: '通道代號'},
                 {field: 'deviceType', width: 120, title: '設備類型'},
                 {field: 'deviceModel', width: 150, title: '設備型號'},
-                {field: 'functionType', width: 150, title: '功能模式'},
+                {field: 'functionMode', width: 150, title: '功能模式'},
                 {field: 'state', width: 100, title: '狀態', templet: function (d) {
                         return d.state === 'ONLINE' ? '在線' : '離線';
                     }},
@@ -163,7 +163,7 @@
                 channelName: filters.channelName || null,
                 deviceType: filters.deviceType || null,
                 deviceModel: filters.deviceModel || null,
-                functionType: filters.functionType || null,
+                functionMode: filters.functionMode || null,
                 state: filters.state || null,
                 statisticsInOv: filters.statisticsInOv || null,
                 createUser: filters.createUser || null,

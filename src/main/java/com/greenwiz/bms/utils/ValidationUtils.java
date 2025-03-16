@@ -2,7 +2,6 @@ package com.greenwiz.bms.utils;
 
 import com.greenwiz.bms.enumeration.DeviceModel;
 import com.greenwiz.bms.enumeration.DeviceType;
-import com.greenwiz.bms.enumeration.FunctionType;
 import com.greenwiz.bms.exception.BmsException;
 
 import java.time.LocalDateTime;
@@ -47,14 +46,15 @@ public class ValidationUtils {
     }
 
     /** 驗證功能模式是否合法 */
-    public static void validateFunctionType(String deviceModel, String functionType) {
-        boolean isValid = Arrays.stream(FunctionType.Monitor.values()).anyMatch(f -> f.getFunctionType().equals(functionType)) ||
-                Arrays.stream(FunctionType.SWB.values()).anyMatch(f -> f.getFunctionType().equals(functionType)) ||
-                Arrays.stream(FunctionType.AmaFans.values()).anyMatch(f -> f.getFunctionType().equals(functionType)) ||
-                Arrays.stream(FunctionType.CXIR0001S.values()).anyMatch(f -> f.getFunctionType().equals(functionType));
+    public static void validateFunctionMode(String deviceType, String functionMode) {
+        // 只有當 deviceType 為 "MONITOR" 時，才進行功能模式驗證
+        if ("MONITOR".equalsIgnoreCase(deviceType)) {
+            boolean isValid = Arrays.stream(com.greenwiz.bms.enumeration.functionMode.Monitor.values())
+                    .anyMatch(f -> f.getFunctionMode().equals(functionMode));
 
-        if (!isValid) {
-            throw new BmsException("功能模式 [" + functionType + "] 不符合設備型號 [" + deviceModel + "]");
+            if (!isValid) {
+                throw new BmsException("功能模式 [" + functionMode + "] 不符合設備類型 [" + deviceType + "]");
+            }
         }
     }
 
