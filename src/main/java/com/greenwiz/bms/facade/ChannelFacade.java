@@ -6,8 +6,14 @@ import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.service.ChannelService;
 import com.greenwiz.bms.service.KrakenService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ChannelFacade {
@@ -19,33 +25,61 @@ public class ChannelFacade {
     private KrakenService krakenService;
 
 
-    public Channel addChannel(AddChannelReq req) {
-        setFactoryIdToChannel(req);
-        validateChannelNameDuplicateInFactory(req.getFactoryId(), req.getChannelName());
-
-        Channel channel =
-                Channel.builder().factoryId(req.getFactoryId()).iotDeviceId(req.getIotDeviceId()).addr(req.getAddr())
-                        .name(req.getName()).channelName(req.getChannelName()).deviceType(req.getDeviceType())
-                        .deviceModel(req.getDeviceModel()).functionMode(req.getFunctionMode())
-                        .statisticsInOv(req.getStatisticsInOv()).state(req.getState()).description(req.getDescription())
-                        .build();
-
-        return channelService.save(channel);
+    public void addChannel(AddChannelReq req) {
+        Channel channel = new Channel();
+        BeanUtils.copyProperties(req, channel);
+        setFactoryIdToChannel(channel, req.getIotDeviceId());
+        validateChannelNameDuplicateInFactory(channel.getFactoryId(), req.getChannelName());
+        setAddr(channel, req.getIotDeviceId());
+        channelService.save(channel);
     }
+
+    /**
+     * 讀取kraken底下有哪些channel，Addr從中找出最小者填入，範圍1~30，若有跳號1,2,4 則新增要填3，
+     * 同一kraken底下不可以重複。
+     */
+    private void setAddr(Channel channel, Long iotDeviceId) {
+        if (iotDeviceId == null) {
+            throw new BmsException("kraken設備ID 不能為空");
+        }
+
+        List<Channel> channels = channelService.findByIotDeviceIdOrderByAddrAsc(iotDeviceId);
+
+        // 提取已使用的 addr 值
+        Set<Integer> usedAddrs = channels.stream()
+                .map(Channel::getAddr)
+                .filter(Objects::nonNull) // 避免 null 值
+                .collect(Collectors.toSet());
+
+        // 遍歷 1~30，找出第一個未被使用的 addr 並設定給 channel
+        for (int i = 1; i <= 30; i++) {
+            if (!usedAddrs.contains(i)) {
+                channel.setAddr(i);
+                return;
+            }
+        }
+
+        // 若 1~30 均已被佔用，則拋出異常
+        throw new BmsException("kraken設備ID: " + iotDeviceId + "Addr(Modbus) 1~30 已全數佔用，無法再新增Channel");
+    }
+
 
     /**
      * 如果有選iot_device_id，且kraken已綁定factory，則自動帶入所屬的factory_id
      * 新增/編輯 Channel 檢驗
      */
-    private void setFactoryIdToChannel(AddChannelReq req) {
-        if (req.getIotDeviceId() != null) {
-            Kraken kraken = krakenService.findByPk(req.getIotDeviceId());
-            if (kraken == null) {
-                throw new BmsException("kraken設備ID 不存在");
-            }
-            if (kraken.getFactoryId() != null) {
-                req.setFactoryId(kraken.getFactoryId());
-            }
+    private void setFactoryIdToChannel(Channel channel, Long iotDeviceId) {
+        if (iotDeviceId == null) {
+            throw new BmsException("kraken設備ID 不能為空");
+        }
+
+        Kraken kraken = krakenService.findByPk(iotDeviceId);
+        if (kraken == null) {
+            throw new BmsException("kraken設備ID 不存在");
+        }
+
+        if (kraken.getFactoryId() != null) {
+            channel.setFactoryId(kraken.getFactoryId());
         }
     }
 

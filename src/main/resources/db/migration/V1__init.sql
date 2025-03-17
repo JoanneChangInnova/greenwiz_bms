@@ -27,9 +27,9 @@ CREATE TABLE IF NOT EXISTS `channel` (
 `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主鍵，唯一標識每個通道',
 `factory_id` BIGINT UNSIGNED NULL COMMENT '工廠 ID，關聯工廠資料表的主鍵',
 `iot_device_id` BIGINT UNSIGNED NULL COMMENT '關聯iot_device表的主鍵',
-`addr` TINYINT UNSIGNED NULL COMMENT 'Modbus 地址，值範圍 1~30，同一個工廠內不可重複',
+`addr` TINYINT UNSIGNED NULL COMMENT 'Modbus 地址，值範圍 1~30，同一個kraken內不可重複',
 `name` VARCHAR(50) DEFAULT NULL COMMENT '名稱',
-`channel_name` VARCHAR(20) NULL COMMENT '通道代號，格式為 A-99-99-99 或 A(四層結構)，第一層為 A~Z，第二至第四層為 11~99，同一個工廠內不可重複',
+`channel_name` VARCHAR(20) NULL COMMENT '通道代號，格式為四層結構，第一層必為大寫英文字母A~Z，各層用 - 符號連接，二至四層可為01~99數字，例如A-01-99-99，第二層亦可為M，例如A-M，Z-M，同一個工廠內通道代號不可重複。',
 `device_type`  VARCHAR(20) NULL COMMENT '設備類型，controller, monitor',
 `device_model` VARCHAR(100) NULL COMMENT '設備型號，
 Monitor:METSEPM2220,METSEPM1125HCL05RD,IEM2455-230V-100A,SPM80000-60,SPM301-60,SPM1,SW1100-1P3W,SW3200-010,STD640,SMT660

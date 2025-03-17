@@ -15,14 +15,13 @@ import lombok.EqualsAndHashCode;
 @Data
 public class AddChannelReq extends RequestJson {
 
-    private Long factoryId;
-
+    @NotNull(message = "kraken設備ID不能為空")
     private Long iotDeviceId;
 
-    @NotNull(message = "Modbus 地址不能為空")
-    @Min(value = 1, message = "Modbus 地址最小值為 1")
-    @Max(value = 30, message = "Modbus 地址最大值為 30")
-    private Integer addr;
+//    @NotNull(message = "Modbus 地址不能為空")
+//    @Min(value = 1, message = "Modbus 地址最小值為 1")
+//    @Max(value = 30, message = "Modbus 地址最大值為 30")
+//    private Integer addr;
 
     @NotBlank(message = "名稱不能為空")
     private String name;

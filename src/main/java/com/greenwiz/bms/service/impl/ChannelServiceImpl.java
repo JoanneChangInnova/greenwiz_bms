@@ -8,6 +8,8 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ChannelServiceImpl extends BaseDomainServiceImpl<Long, Channel> implements ChannelService {
 
@@ -18,5 +20,10 @@ public class ChannelServiceImpl extends BaseDomainServiceImpl<Long, Channel> imp
     @Override
     public boolean existsByFactoryIdAndChannelName(Long factoryId, String channelName) {
         return jpaRepository.existsByFactoryIdAndChannelName(factoryId, channelName);
+    }
+
+    @Override
+    public List<Channel> findByIotDeviceIdOrderByAddrAsc(Long iotDeviceId) {
+        return jpaRepository.findByIotDeviceIdOrderByAddrAsc(iotDeviceId);
     }
 }
