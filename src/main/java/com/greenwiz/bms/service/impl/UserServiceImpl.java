@@ -3,6 +3,7 @@ package com.greenwiz.bms.service.impl;
 import com.greenwiz.bms.controller.data.base.PageReq;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.enumeration.UserRole;
+import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.repository.UserRepository;
 import com.greenwiz.bms.service.UserService;
 import lombok.AccessLevel;
@@ -64,5 +65,13 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
         return jpaRepository.findByParentIdIn(parentIds);
     }
 
+    @Override
+    public void updatePassword(Long userId, String encodedNewPassword) {
+        User user = jpaRepository.findById(userId)
+                .orElseThrow(() -> new BmsException("用戶不存在"));
+
+        user.setPassword(encodedNewPassword);
+        jpaRepository.saveAndFlush(user);
+    }
 
 }

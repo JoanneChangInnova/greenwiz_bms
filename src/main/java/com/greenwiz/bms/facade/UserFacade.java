@@ -7,12 +7,18 @@ import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.enumeration.UserState;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.service.UserService;
+import com.greenwiz.bms.utils.JwtUtils;
 import com.greenwiz.bms.utils.ThreadLocalUtils;
 import com.greenwiz.bms.utils.ValidationUtils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserFacade {
 
@@ -29,6 +36,9 @@ public class UserFacade {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     public User addUser(AddUserReq addUserReq) {
         // 檢查用戶名是否已存在
@@ -164,4 +174,50 @@ public class UserFacade {
         getUserData.setParentData(parentData);
         return getUserData;
     }
+
+    public void changePassword(String oldPassword, String newPassword,
+                               HttpServletRequest httpRequest, HttpServletResponse response) {
+        // 取得當前用戶資訊
+        String token = jwtUtils.extractJwtFromCookie(httpRequest);
+        if (token == null || !jwtUtils.validateToken(token)) {
+            throw new BmsException("未登入或 Token 無效");
+        }
+
+        String email = jwtUtils.getEmailFromJwtToken(token);
+        User user = userService.findByEmail(email);
+
+        if (user == null) {
+            throw new BmsException("用戶不存在");
+        }
+
+        // **驗證舊密碼**
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BmsException("舊密碼不正確");
+        }
+
+        // **加密新密碼並更新**
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedNewPassword);
+        userService.save(user); // 只負責數據更新
+
+        // **登出處理**
+        logoutUser(httpRequest, response);
+    }
+
+    /**
+     * 登出處理：清除 Session 和 Cookie
+     */
+    private void logoutUser(HttpServletRequest httpRequest, HttpServletResponse response) {
+        SecurityContextHolder.clearContext(); // 清除 Spring Security Context
+        httpRequest.getSession().invalidate(); // 失效 Session
+
+        // 清除 JWT Token
+        Cookie cookie = new Cookie("jwtToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 讓 Cookie 立即失效
+        response.addCookie(cookie);
+    }
+
+
 }

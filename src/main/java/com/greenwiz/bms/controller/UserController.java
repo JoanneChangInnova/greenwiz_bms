@@ -8,6 +8,10 @@ import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.facade.UserFacade;
 import com.greenwiz.bms.service.UserService;
+import com.greenwiz.bms.utils.JwtUtils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,5 +62,15 @@ public class UserController {
     public ResponseEntity<GetUserData> getUserById(@PathVariable Long id) {
         GetUserData getUserData = userFacade.getUserById(id);
         return ResponseEntity.ok(getUserData);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request,
+                                            HttpServletRequest httpRequest,
+                                            HttpServletResponse response) {
+        // 透過 UserFacade 處理所有密碼變更邏輯
+        userFacade.changePassword(request.getOldPassword(), request.getNewPassword(), httpRequest, response);
+
+        return ResponseEntity.ok("密碼修改成功，請重新登入");
     }
 }
