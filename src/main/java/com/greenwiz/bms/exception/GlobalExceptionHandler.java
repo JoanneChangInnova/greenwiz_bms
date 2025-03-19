@@ -14,12 +14,19 @@ import java.util.stream.Collectors;
 @ControllerAdvice()
 public class GlobalExceptionHandler {
 
+//    @ExceptionHandler(BmsException.class)
+//    public ResponseEntity<Map<String, String>> handleSvcException(BmsException e) {
+//        Map<String, String> response = new HashMap<>();
+//        response.put("code", e.getResultCode());
+//        response.put("msg", e.getResultMsg());
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+//    }
     @ExceptionHandler(BmsException.class)
     public ResponseEntity<Map<String, String>> handleSvcException(BmsException e) {
         Map<String, String> response = new HashMap<>();
+        response.put("message", e.getResultMsg()); // 讓前端統一讀取 "message" 而不是 "msg"
         response.put("code", e.getResultCode());
-        response.put("msg", e.getResultMsg());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response); // 修改為 400 Bad Request
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

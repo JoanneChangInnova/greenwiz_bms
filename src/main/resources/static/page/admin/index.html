@@ -62,7 +62,7 @@
                                data-icon="fa fa-gears" id="user_edit">基本資料<span class="layui-badge-dot"></span></a>
                         </dd>
                         <dd>
-                            <a href="javascript:;" layuimini-content-href="" data-title="修改密碼"
+                            <a href="javascript:;" data-title="修改密碼"
                                data-icon="fa fa-gears" id="password_edit">修改密碼</a>
                         </dd>
                         <dd>
@@ -194,14 +194,99 @@
                 userId = response.userId;
 
                 $('#user_edit').attr('layuimini-content-href', '/page/admin/user/user_edit.html?id=' + userId);
-                $('#password_edit').attr('layuimini-content-href', '/page/admin/user/user_password.html?id=' + userId);
-
+                // $('#password_edit').attr('layuimini-content-href', '/page/admin/user/user_password.html?id=' + userId);
             },
             error: function (xhr) {
                 handleErrorResponse(xhr);
             }
         });
     });
+
+    // 點擊修改密碼
+    $(document).ready(function () {
+        // 監聽點擊「修改密碼」按鈕
+        $(document).off('click', '#password_edit').on('click', '#password_edit', function () {
+            layer.open({
+                type: 1,
+                title: '修改密碼',
+                area: ['400px', '320px'], // 設定彈窗大小
+                content: `
+            <div style="padding: 20px;">
+                <form id="changePasswordForm" class="layui-form">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">舊密碼</label>
+                        <div class="layui-input-block">
+                            <input type="password" id="oldPassword" class="layui-input" required placeholder="請輸入舊密碼">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">新密碼</label>
+                        <div class="layui-input-block">
+                            <input type="password" id="newPassword" class="layui-input" required placeholder="請輸入新密碼">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">確認新密碼</label>
+                        <div class="layui-input-block">
+                            <input type="password" id="confirmPassword" class="layui-input" required placeholder="請再次輸入新密碼">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button type="button" class="layui-btn layui-btn-normal" id="submitChangePassword">確認修改</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        `
+            });
+        });
+    });
+
+    //提交修改密碼
+    $(document).on('click', '#submitChangePassword', function () {
+        var oldPassword = $('#oldPassword').val().trim();
+        var newPassword = $('#newPassword').val().trim();
+        var confirmPassword = $('#confirmPassword').val().trim();
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            layer.msg('請填寫所有欄位', { icon: 2 });
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            layer.msg('新密碼長度至少為 6 個字元', { icon: 2 });
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            layer.msg('新密碼與確認密碼不一致', { icon: 2 });
+            return;
+        }
+
+        $.ajax({
+            url: '/api/v1/user/change-password',  // 更新 API 路徑
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                oldPassword: oldPassword,
+                newPassword: newPassword
+            }),
+            xhrFields: { withCredentials: true }, // 確保攜帶 JWT Token
+            success: function (response) {
+                layer.msg('密碼修改成功，請重新登入', { icon: 1, time: 2000 }, function () {
+                    localStorage.removeItem("jwtToken");  // 清除 Token
+                    sessionStorage.removeItem("jwtToken");
+                    window.location.href = '/login.html';
+                });
+            },
+            error: function (xhr) {
+                handleErrorResponse(xhr);
+            }
+        });
+
+    });
+
 
 
 </script>

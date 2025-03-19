@@ -48,4 +48,8 @@ public interface UserService extends BaseDomainService<Long, User> {
     List<User> findByUserRole(UserRole userRole);
 
     List<User> findByParentIdIn(List<Long> parentIds);
+
+    void updatePassword(Long userId, String encodedNewPassword);
+
+
 }
