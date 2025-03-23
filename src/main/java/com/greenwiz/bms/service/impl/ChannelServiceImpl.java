@@ -6,6 +6,9 @@ import com.greenwiz.bms.service.ChannelService;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,5 +28,10 @@ public class ChannelServiceImpl extends BaseDomainServiceImpl<Long, Channel> imp
     @Override
     public List<Channel> findByIotDeviceIdOrderByAddrAsc(Long iotDeviceId) {
         return jpaRepository.findByIotDeviceIdOrderByAddrAsc(iotDeviceId);
+    }
+
+    @Override
+    public Page<Channel> findAll(Example<Channel> example, PageRequest pageable) {
+        return jpaRepository.findAll(example, pageable);
     }
 }

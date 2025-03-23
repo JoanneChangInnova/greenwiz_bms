@@ -1,6 +1,7 @@
 package com.greenwiz.bms.facade;
 
 import com.greenwiz.bms.controller.data.channel.AddChannelReq;
+import com.greenwiz.bms.controller.data.channel.ListChannelReq;
 import com.greenwiz.bms.entity.Channel;
 import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.exception.BmsException;
@@ -8,6 +9,9 @@ import com.greenwiz.bms.service.ChannelService;
 import com.greenwiz.bms.service.KrakenService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -95,5 +99,13 @@ public class ChannelFacade {
         if (channelService.existsByFactoryIdAndChannelName(factoryId, channelName)) {
             throw new BmsException("工廠ID " + factoryId + " 已存在相同的通道代號");
         }
+    }
+
+    public Page<Channel> getChannelList(ListChannelReq listChannelReq) {
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues();
+        Channel channel = new Channel();
+        BeanUtils.copyProperties(listChannelReq, channel);
+        Example<Channel> example = Example.of(channel, matcher);
+        return channelService.findAll(example, listChannelReq.getPageable());
     }
 }
