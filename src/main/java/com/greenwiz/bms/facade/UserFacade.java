@@ -22,9 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,22 +39,39 @@ public class UserFacade {
     private JwtUtils jwtUtils;
 
     public User addUser(AddUserReq addUserReq) {
-        // 檢查用戶名是否已存在
-        User user = userService.findByEmail(addUserReq.getEmail());
-        if (user != null) {
+        // 檢查 Email 是否已存在
+        User existingUser = userService.findByEmail(addUserReq.getEmail());
+        if (existingUser != null) {
             throw new BmsException("Email已存在，請選擇其他Email");
         }
 
         User newUser = new User();
         BeanUtils.copyProperties(addUserReq, newUser);
 
+        // 取得序列 ID 並設為主鍵
+        Long userId = userService.getNextUserId();
+        newUser.setId(userId);
+
+        // 根據角色設定 parentId
+        if (newUser.getRole() == UserRole.ADMIN) {
+            newUser.setParentId(userId); // admin 自己是自己上層
+        } else {
+            // 非 admin 由登入者作為 parent
+            String operatorEmail = ThreadLocalUtils.getUser();
+            User operator = userService.findByEmail(operatorEmail);
+            if (operator == null) {
+                throw new BmsException("登入者資訊無效，請重新登入");
+            }
+            newUser.setParentId(operator.getId());
+        }
+
         // 密碼加密
         String encodedPassword = passwordEncoder.encode(addUserReq.getPassword());
         newUser.setPassword(encodedPassword);
 
-        //設置默認值（如果未提供）
+        // 預設狀態為已開通
         if (newUser.getState() == null) {
-            newUser.setState(UserState.APPROVED); // 管理員新增，默認狀態：開通
+            newUser.setState(UserState.APPROVED);
         }
 
         return userService.save(newUser);
@@ -77,8 +92,12 @@ public class UserFacade {
                 .distinct() // 去重
                 .collect(Collectors.toList());
 
-        // 3. 查詢父帳號信息
-        List<User> parentList = userService.findByParentIdIn(parentIds);
+        // 3. 查詢父帳號信息（包括自己）
+        Set<Long> allUserIds = new HashSet<>(parentIds);
+        userPage.getContent().forEach(user -> allUserIds.add(user.getId()));
+
+        List<User> parentList = userService.findByParentIdIn(new ArrayList<>(allUserIds));
+
 
         // 4. 將父帳號信息轉換為 Map<parentId, parentUserInfo>
         Map<Long, String> parentInfoMap = parentList.stream()

@@ -74,4 +74,8 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
         jpaRepository.saveAndFlush(user);
     }
 
+    @Override
+    public Long getNextUserId() {
+        return jpaRepository.getNextUserId();
+    }
 }

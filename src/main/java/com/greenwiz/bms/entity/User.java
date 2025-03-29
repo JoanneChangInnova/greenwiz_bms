@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 public class User extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(nullable = false)
+    private Long id; // 不再使用 @GeneratedValue
 
     /**
      * 角色代碼: 0:admin, 1:agent, 2:installer, 3:customer

@@ -51,5 +51,6 @@ public interface UserService extends BaseDomainService<Long, User> {
 
     void updatePassword(Long userId, String encodedNewPassword);
 
+    Long getNextUserId();
 
 }
