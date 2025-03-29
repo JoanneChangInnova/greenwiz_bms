@@ -2,6 +2,7 @@ package com.greenwiz.bms.facade;
 
 import com.greenwiz.bms.controller.data.channel.AddChannelReq;
 import com.greenwiz.bms.controller.data.channel.ListChannelReq;
+import com.greenwiz.bms.controller.data.channel.UpdateChannelReq;
 import com.greenwiz.bms.entity.Channel;
 import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.exception.BmsException;
@@ -41,18 +42,17 @@ public class ChannelFacade {
     /**
      * 讀取kraken底下有哪些channel，Addr從中找出最小者填入，範圍1~30，若有跳號1,2,4 則新增要填3，
      * 同一kraken底下不可以重複。
+     * 如果update channel時更換kraken ID 則 addr 也會一起變換，原本佔據的addr會空出來
      */
     private void setAddr(Channel channel, Long iotDeviceId) {
         if (iotDeviceId == null) {
-            throw new BmsException("kraken設備ID 不能為空");
+            throw new BmsException("kraken ID 不能為空");
         }
 
         List<Channel> channels = channelService.findByIotDeviceIdOrderByAddrAsc(iotDeviceId);
 
         // 提取已使用的 addr 值
-        Set<Integer> usedAddrs = channels.stream()
-                .map(Channel::getAddr)
-                .filter(Objects::nonNull) // 避免 null 值
+        Set<Integer> usedAddrs = channels.stream().map(Channel::getAddr).filter(Objects::nonNull) // 避免 null 值
                 .collect(Collectors.toSet());
 
         // 遍歷 1~30，找出第一個未被使用的 addr 並設定給 channel
@@ -64,7 +64,7 @@ public class ChannelFacade {
         }
 
         // 若 1~30 均已被佔用，則拋出異常
-        throw new BmsException("kraken設備ID: " + iotDeviceId + "Addr(Modbus) 1~30 已全數佔用，無法再新增Channel");
+        throw new BmsException("kraken ID: " + iotDeviceId + "Addr(Modbus) 1~30 已全數佔用，無法再新增Channel");
     }
 
 
@@ -74,12 +74,12 @@ public class ChannelFacade {
      */
     private void setFactoryIdToChannel(Channel channel, Long iotDeviceId) {
         if (iotDeviceId == null) {
-            throw new BmsException("kraken設備ID 不能為空");
+            throw new BmsException("kraken ID 不能為空");
         }
 
         Kraken kraken = krakenService.findByPk(iotDeviceId);
         if (kraken == null) {
-            throw new BmsException("kraken設備ID 不存在");
+            throw new BmsException("kraken ID 不存在");
         }
 
         if (kraken.getFactoryId() != null) {
@@ -97,7 +97,8 @@ public class ChannelFacade {
             return;
         }
         if (channelService.existsByFactoryIdAndChannelName(factoryId, channelName)) {
-            throw new BmsException("工廠ID " + factoryId + " 已存在相同的通道代號");
+            throw new BmsException(
+                    "工廠ID " + factoryId + " 已存在相同的通道代號，請確認kraken ID 和 通道代號 是否設置正確");
         }
     }
 
@@ -107,5 +108,31 @@ public class ChannelFacade {
         BeanUtils.copyProperties(listChannelReq, channel);
         Example<Channel> example = Example.of(channel, matcher);
         return channelService.findAll(example, listChannelReq.getPageable());
+    }
+
+    public void updateChannel(Long id, UpdateChannelReq request) {
+        Channel channel = channelService.findByPk(id);
+        if (channel == null) {
+            throw new BmsException("Channel不存在");
+        }
+        // 如果Kraken ID變更 factory_id 和 addr 都要變更
+        if (!request.getIotDeviceId().equals(channel.getIotDeviceId())) {
+            setFactoryIdToChannel(channel, request.getIotDeviceId());
+            setAddr(channel, request.getIotDeviceId());
+        }
+        if (!Objects.equals(channel.getFactoryId(), request.getFactoryId())) {
+            validateChannelNameDuplicateInFactory(channel.getFactoryId(), request.getChannelName());
+        }
+        channel.setIotDeviceId(request.getIotDeviceId());
+        channel.setName(request.getName());
+        channel.setChannelName(request.getChannelName());
+        channel.setDeviceType(request.getDeviceType());
+        channel.setDeviceModel(request.getDeviceModel());
+        channel.setFunctionMode(request.getFunctionMode());
+        channel.setStatisticsInOv(request.getStatisticsInOv());
+        channel.setState(request.getState());
+        channel.setDescription(request.getDescription());
+
+        channelService.save(channel);
     }
 }

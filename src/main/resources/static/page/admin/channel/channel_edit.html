@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>編輯 Channel</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../../lib/layui-v2.6.3/css/layui.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+    <input type="hidden" name="factoryId" id="factoryId">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">kraken ID</label>
+        <div class="layui-input-block">
+            <input type="number" name="iotDeviceId" id="iotDeviceId" lay-verify="required" class="layui-input" min="1">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">通道名稱</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" id="name" lay-verify="required" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">通道代號</label>
+        <div class="layui-input-block">
+            <input type="text" name="channelName" id="channelName" lay-verify="required" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">設備類型</label>
+        <div class="layui-input-block">
+            <select name="deviceType" id="deviceType" lay-verify="required" lay-filter="deviceType">
+                <option value="">請選擇設備類型</option>
+                <option value="CONTROLLER">Controller</option>
+                <option value="MONITOR">Monitor</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">設備型號</label>
+        <div class="layui-input-block">
+            <select name="deviceModel" id="deviceModel" lay-verify="required" lay-filter="deviceModel"></select>
+        </div>
+    </div>
+
+    <div class="layui-form-item" id="functionModeContainer" style="display: none;">
+        <label class="layui-form-label">功能模式</label>
+        <div class="layui-input-block">
+            <select name="functionMode" id="functionMode">
+                <option value="">請選擇功能模式</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">總用電通道</label>
+        <div class="layui-input-block">
+            <select name="statisticsInOv" id="statisticsInOv" lay-verify="required">
+                <option value="">是否為總用電通道</option>
+                <option value="true">是</option>
+                <option value="false">否</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">狀態</label>
+        <div class="layui-input-block">
+            <select name="state" id="state" lay-verify="required">
+                <option value="">請選擇狀態</option>
+                <option value=0>離線</option>
+                <option value=1>上線</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">描述</label>
+        <div class="layui-input-block">
+            <textarea name="description" id="description" class="layui-textarea"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">確認修改</button>
+        </div>
+    </div>
+</div>
+
+<script src="../../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/js/comm.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+    
+        var id = new URLSearchParams(location.search).get("id");
+    
+        // 根據設備類型變更設備型號選單
+        form.on('select(deviceType)', function (data) {
+            updateDeviceModelOptions(form, data.value);
+        });
+    
+        // 初始化表單內容
+        $.get('/api/v1/channel/' + id, function (res) {
+            if (res) {
+                $("#factoryId").val(res.factoryId);
+                $("#iotDeviceId").val(res.iotDeviceId);
+                $("#name").val(res.name);
+                $("#channelName").val(res.channelName);
+                $("#state").val(res.state);
+                $("#description").val(res.description);
+                $("#statisticsInOv").val(res.statisticsInOv.toString());
+                
+                // 設置設備類型並更新相關選項
+                $("#deviceType").val(res.deviceType);
+                updateDeviceModelOptions(form, res.deviceType);
+                
+                // 設置設備型號和功能模式的值
+                $("#deviceModel").val(res.deviceModel);
+                if (res.deviceType === 'MONITOR') {
+                    $("#functionMode").val(res.functionMode);
+                }
+                
+                form.render('select');
+            } else {
+                layer.alert('獲取數據失敗', {title: '錯誤'});
+            }
+        });
+    
+        // 監聽提交
+        form.on('submit(saveBtn)', function (data) {
+            if (data.field.deviceType === 'CONTROLLER') {
+                data.field.functionMode = null;
+            }
+    
+            var channelName = data.field.channelName;
+            if (!validateChannelName(channelName)) {
+                layer.alert('通道代號格式不正確，請使用大寫字母或格式如 A-99-99-99！', {title: '錯誤'});
+                return false;
+            }
+    
+            $.ajax({
+                url: '/api/v1/channel/update/' + id,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data.field),
+                success: function (response, textStatus, xhr) {
+                    if (xhr.status === 200) {
+                        layer.alert('Channel 修改成功', {title: '提示'}, function () {
+                            var index = parent.layer.getFrameIndex(window.name);
+								parent.layer.close(index);
+								parent.location.href = 'channel_list.html';
+                        });
+                    } else {
+                        layer.alert('Channel 修改失敗', {title: '錯誤'});
+                    }
+                },
+                error: function (xhr) {
+                    handleErrorResponse(xhr);
+                }
+            });
+    
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

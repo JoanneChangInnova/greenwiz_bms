@@ -4,8 +4,6 @@ import com.greenwiz.bms.controller.data.base.RequestJson;
 import com.greenwiz.bms.enumeration.DeviceType;
 import com.greenwiz.bms.enumeration.State;
 import com.greenwiz.bms.utils.ValidationUtils;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -13,15 +11,12 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AddChannelReq extends RequestJson {
-
+public class UpdateChannelReq extends RequestJson {
     @NotNull(message = "kraken ID不能為空")
     private Long iotDeviceId;
 
-//    @NotNull(message = "Modbus 地址不能為空")
-//    @Min(value = 1, message = "Modbus 地址最小值為 1")
-//    @Max(value = 30, message = "Modbus 地址最大值為 30")
-//    private Integer addr;
+    @NotNull(message = "工廠ID不能為空")
+    private Long factoryId;
 
     @NotBlank(message = "名稱不能為空")
     private String name;
