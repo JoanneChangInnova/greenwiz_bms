@@ -15,14 +15,15 @@
 </head>
 <body>
 <div class="layui-form layuimini-form">
+    <input type="hidden" name="dtModify" id="dtModify">
+    <input type="hidden" name="factoryId" id="factoryId">
+
     <div class="layui-form-item">
         <label class="layui-form-label">Channel ID</label>
         <div class="layui-input-block">
             <input type="text" id="channelId" class="layui-input" readonly style="background-color: #f2f2f2;">
         </div>
     </div>
-
-    <input type="hidden" name="factoryId" id="factoryId">
 
     <div class="layui-form-item">
         <label class="layui-form-label required">kraken ID</label>
@@ -126,7 +127,8 @@
         // 初始化表單內容
         $.get('/api/v1/channel/' + id, function (res) {
             if (res) {
-                $("#channelId").val(res.id);  // 新增這行
+                $("#dtModify").val(res.dtModify);  // 新增這行
+                $("#channelId").val(res.id);
                 $("#factoryId").val(res.factoryId);
                 $("#iotDeviceId").val(res.iotDeviceId);
                 $("#name").val(res.name);

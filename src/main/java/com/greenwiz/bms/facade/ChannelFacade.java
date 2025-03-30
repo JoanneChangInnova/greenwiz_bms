@@ -8,6 +8,7 @@ import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.service.ChannelService;
 import com.greenwiz.bms.service.KrakenService;
+import com.greenwiz.bms.utils.ValidationUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -115,6 +116,7 @@ public class ChannelFacade {
         if (channel == null) {
             throw new BmsException("Channel不存在");
         }
+        ValidationUtils.validateVersion(request.getDtModify(),channel.getDtModify());
         // 如果Kraken ID變更 factory_id 和 addr 都要變更
         if (!request.getIotDeviceId().equals(channel.getIotDeviceId())) {
             setFactoryIdToChannel(channel, request.getIotDeviceId());
