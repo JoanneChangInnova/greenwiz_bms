@@ -93,9 +93,14 @@
                 {field: 'deviceType', width: 120, title: '設備類型'},
                 {field: 'deviceModel', width: 150, title: '設備型號'},
                 {field: 'functionMode', width: 150, title: '功能模式'},
-                {field: 'state', width: 100, title: '狀態', templet: function (d) {
-                        return d.state === 'ONLINE' ? '在線' : '離線';
-                    }},
+                {field: 'state', title: '狀態', width: 85, templet: function(d){
+                    if(d.state === 0) {
+                        return '離線';
+                    } else if(d.state === 1) {
+                        return '上線';
+                    }
+                    return '未知';
+                }},
                 {field: 'statisticsInOv', width: 150, title: '是否為總用電通道', templet: function (d) {
                         return d.statisticsInOv ? '是' : '否';
                     }},

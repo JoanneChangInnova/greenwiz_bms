@@ -15,6 +15,13 @@
 </head>
 <body>
 <div class="layui-form layuimini-form">
+    <div class="layui-form-item">
+        <label class="layui-form-label">Channel ID</label>
+        <div class="layui-input-block">
+            <input type="text" id="channelId" class="layui-input" readonly style="background-color: #f2f2f2;">
+        </div>
+    </div>
+
     <input type="hidden" name="factoryId" id="factoryId">
 
     <div class="layui-form-item">
@@ -119,6 +126,7 @@
         // 初始化表單內容
         $.get('/api/v1/channel/' + id, function (res) {
             if (res) {
+                $("#channelId").val(res.id);  // 新增這行
                 $("#factoryId").val(res.factoryId);
                 $("#iotDeviceId").val(res.iotDeviceId);
                 $("#name").val(res.name);
@@ -165,7 +173,9 @@
                         layer.alert('Channel 修改成功', {title: '提示'}, function () {
                             var index = parent.layer.getFrameIndex(window.name);
 								parent.layer.close(index);
-								parent.location.href = 'channel_list.html';
+								// 返回並重新加載 channel 列表頁面
+							     window.open('channel_list.html', '_self');
+
                         });
                     } else {
                         layer.alert('Channel 修改失敗', {title: '錯誤'});
