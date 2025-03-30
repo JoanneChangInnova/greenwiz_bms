@@ -1,6 +1,7 @@
 package com.greenwiz.bms.facade;
 
 import com.greenwiz.bms.controller.data.kraken.AddKrakenReq;
+import com.greenwiz.bms.controller.data.kraken.KrakenData;
 import com.greenwiz.bms.controller.data.kraken.ListKrakenReq;
 import com.greenwiz.bms.controller.data.kraken.UpdateKrakenReq;
 import com.greenwiz.bms.entity.Kraken;
@@ -13,6 +14,9 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.greenwiz.bms.enumeration.ResultCode.NAME_DUPLICATE;
 import static com.greenwiz.bms.enumeration.ResultCode.VERSION_INVALID;
@@ -54,4 +58,8 @@ public class KrakenFacade {
         krakenService.save(kraken);
     }
 
+    public List<KrakenData> listKrakenData() {
+        List<KrakenData> krakenList = krakenService.findAllKrakenData();
+        return krakenList;
+    }
 }

@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class FactoryFacade {
 
-    public void addFactory(AddFactoryReq request) {
+    public void addFactory(AddFactoryReq addFactoryReq) {
+
     }
 
     public Page<Factory> getFactoryList(ListFactoryReq request) {
@@ -18,6 +19,6 @@ public class FactoryFacade {
     }
 
     public void updateFactory(Long id, UpdateFactoryReq request) {
-       
+
     }
 }

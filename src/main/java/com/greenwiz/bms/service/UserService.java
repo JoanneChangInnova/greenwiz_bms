@@ -2,6 +2,7 @@ package com.greenwiz.bms.service;
 
 import com.greenwiz.bms.controller.data.base.PageReq;
 import com.greenwiz.bms.controller.data.user.AddUserReq;
+import com.greenwiz.bms.controller.data.user.UserData;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.enumeration.UserRole;
 import org.springframework.data.domain.Page;
@@ -52,4 +53,5 @@ public interface UserService extends BaseDomainService<Long, User> {
     void updatePassword(Long userId, String encodedNewPassword);
 
 
+    List<UserData> findAllUserDataByRoleCustomer();
 }

@@ -4,12 +4,8 @@ import com.greenwiz.bms.controller.data.base.LayuiTableResp;
 import com.greenwiz.bms.controller.data.base.PageReq;
 import com.greenwiz.bms.controller.data.user.*;
 import com.greenwiz.bms.entity.User;
-import com.greenwiz.bms.enumeration.UserRole;
-import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.facade.UserFacade;
 import com.greenwiz.bms.service.UserService;
-import com.greenwiz.bms.utils.JwtUtils;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -20,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -35,7 +30,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/listParentInfo")
-    public List<ParentData> listParentInfo(@RequestBody UserRoleRequest request) {
+    public List<UserData> listParentInfo(@RequestBody UserRoleRequest request) {
         return userFacade.listParentInfo(request.getUserRole());
     }
 
@@ -72,5 +67,14 @@ public class UserController {
         userFacade.changePassword(request.getOldPassword(), request.getNewPassword(), httpRequest, response);
 
         return ResponseEntity.ok("密碼修改成功，請重新登入");
+    }
+
+    /**
+     * 列出所有客戶角色的使用者 id, email 和 name
+     */
+    @GetMapping("/listAllCustomers")
+    public List<UserData> listUserDataByUserRoleCustomer() {
+        List<UserData> userDatas = userFacade.listUserDataByUserRoleCustomer();
+        return userDatas;
     }
 }

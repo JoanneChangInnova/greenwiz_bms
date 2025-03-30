@@ -1,6 +1,7 @@
 package com.greenwiz.bms.service.impl;
 
 import com.greenwiz.bms.controller.data.base.PageReq;
+import com.greenwiz.bms.controller.data.user.UserData;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.exception.BmsException;
@@ -74,4 +75,7 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
         jpaRepository.saveAndFlush(user);
     }
 
+    public List<UserData> findAllUserDataByRoleCustomer() {
+        return jpaRepository.findAllUserDataByRoleCustomer();
+    }
 }

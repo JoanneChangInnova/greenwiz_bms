@@ -1,17 +1,12 @@
 package com.greenwiz.bms.controller;
 
 import com.greenwiz.bms.controller.data.base.LayuiTableResp;
-import com.greenwiz.bms.controller.data.channel.AddChannelReq;
-import com.greenwiz.bms.controller.data.channel.ListChannelReq;
-import com.greenwiz.bms.controller.data.channel.UpdateChannelReq;
 import com.greenwiz.bms.controller.data.factory.AddFactoryReq;
 import com.greenwiz.bms.controller.data.factory.ListFactoryReq;
 import com.greenwiz.bms.controller.data.factory.UpdateFactoryReq;
-import com.greenwiz.bms.entity.Channel;
 import com.greenwiz.bms.entity.Factory;
-import com.greenwiz.bms.facade.ChannelFacade;
 import com.greenwiz.bms.facade.FactoryFacade;
-import com.greenwiz.bms.service.ChannelService;
+import com.greenwiz.bms.facade.KrakenFacade;
 import com.greenwiz.bms.service.FactoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,27 +24,32 @@ public class FactoryController {
     @Autowired
     private FactoryService factoryService;
 
+    @Autowired
+    private KrakenFacade krakenFacade;
+
     @PostMapping("/add")
-    public ResponseEntity<?> addChannel(@Valid @RequestBody AddFactoryReq request) {
+    public ResponseEntity<?> addFactory(@Valid @RequestBody AddFactoryReq request) {
         factoryFacade.addFactory(request);
         return ResponseEntity.ok("新增成功");
     }
 
     @PostMapping("/list")
-    public LayuiTableResp<Factory> getKrakenList(@RequestBody ListFactoryReq request) {
-        Page<Factory> channels = factoryFacade.getFactoryList(request);
-        return LayuiTableResp.success(channels.getTotalElements(), channels.getContent());
+    public LayuiTableResp<Factory> getFactoryList(@RequestBody ListFactoryReq request) {
+        Page<Factory> factorys = factoryFacade.getFactoryList(request);
+        return LayuiTableResp.success(factorys.getTotalElements(), factorys.getContent());
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> getChannel(@PathVariable Long id) {
-        Factory channel = factoryService.findByPk(id);
-        if(channel == null){
+    public ResponseEntity<?> getFactory(@PathVariable Long id) {
+        Factory factory = factoryService.findByPk(id);
+        if (factory == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        return ResponseEntity.ok(channel);
+        return ResponseEntity.ok(factory);
     }
+
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateChannel(@PathVariable Long id, @Valid @RequestBody UpdateFactoryReq request) {
+    public ResponseEntity<?> updateFactory(@PathVariable Long id, @Valid @RequestBody UpdateFactoryReq request) {
         factoryFacade.updateFactory(id, request);
         return ResponseEntity.ok("修改成功");
     }

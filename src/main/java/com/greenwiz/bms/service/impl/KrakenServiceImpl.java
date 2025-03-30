@@ -1,5 +1,6 @@
 package com.greenwiz.bms.service.impl;
 
+import com.greenwiz.bms.controller.data.kraken.KrakenData;
 import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.repository.KrakenRepository;
 import com.greenwiz.bms.service.KrakenService;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class KrakenServiceImpl extends BaseDomainServiceImpl<Long, Kraken> implements KrakenService {
@@ -26,5 +29,10 @@ public class KrakenServiceImpl extends BaseDomainServiceImpl<Long, Kraken> imple
     @Override
     public Kraken getByName(String name) {
         return jpaRepository.getByName(name);
+    }
+
+    @Override
+    public List<KrakenData> findAllKrakenData() {
+        return jpaRepository.findAllKrakenData();
     }
 }

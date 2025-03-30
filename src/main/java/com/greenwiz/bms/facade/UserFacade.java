@@ -22,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -127,7 +126,7 @@ public class UserFacade {
      * 代理商只能申請安裝商：上層只能填代理商自己
      * 安裝商可申請客戶，但需上層代理商或管理員審核：上層填安裝商自己
      */
-    public List<ParentData> listParentInfo(UserRole userRole) {
+    public List<UserData> listParentInfo(UserRole userRole) {
         // 獲取當前操作員的用戶
         User operator = findUserByEmailOrFail(ThreadLocalUtils.getUser());
 
@@ -147,7 +146,7 @@ public class UserFacade {
 
         // 將 userList 轉換為 ParentData 列表
         return userList.stream()
-                .map(user -> new ParentData(user.getId(), user.getUsername(), user.getEmail()))
+                .map(user -> new UserData(user.getId(), user.getUsername(), user.getEmail()))
                 .toList();
     }
 
@@ -168,7 +167,7 @@ public class UserFacade {
         if(parentUser == null){
             throw new BmsException("找不到管理者用戶，id:" + id);
         }
-        ParentData parentData = new ParentData(parentUser.getId(), parentUser.getUsername(), parentUser.getEmail());
+        UserData parentData = new UserData(parentUser.getId(), parentUser.getUsername(), parentUser.getEmail());
         GetUserData getUserData = new GetUserData();
         BeanUtils.copyProperties(user,getUserData);
         getUserData.setParentData(parentData);
@@ -220,4 +219,7 @@ public class UserFacade {
     }
 
 
+    public List<UserData> listUserDataByUserRoleCustomer() {
+        return userService.findAllUserDataByRoleCustomer();
+    }
 }

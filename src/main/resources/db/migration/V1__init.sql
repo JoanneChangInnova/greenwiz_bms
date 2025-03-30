@@ -43,7 +43,7 @@ Controller:SWB,CX-IR0001S,AMA-Fans',
 `create_user` VARCHAR(10) NULL COMMENT '建立資料的使用者 email',
 `modify_user` VARCHAR(10) NULL COMMENT '修改資料的使用者 email',
 PRIMARY KEY (`id`),
-UNIQUE KEY `unique_factory_addr` (`iot_device_id`, `addr`) COMMENT '唯一約束，防止重複的iot_device_id和addr',
+UNIQUE KEY `unique_iot_device_addr` (`iot_device_id`, `addr`) COMMENT '唯一約束，防止重複的iot_device_id和addr',
 UNIQUE KEY `unique_factory_channel_name` (`factory_id`, `channel_name`) COMMENT '唯一約束，防止重複的factory_id和channel_name'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通道表，存儲通道相關信息';
 
