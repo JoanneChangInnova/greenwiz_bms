@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UpdateChannelReq extends RequestJson {
@@ -39,6 +41,9 @@ public class UpdateChannelReq extends RequestJson {
     private State state;
 
     private String description;
+
+    @NotNull
+    private LocalDateTime dtModify;
 
     @Override
     protected void validate() throws RuntimeException {
