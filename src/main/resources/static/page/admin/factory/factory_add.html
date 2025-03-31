@@ -6,62 +6,89 @@
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!-- Layui CSS -->
     <link rel="stylesheet" href="../../../lib/layui-v2.6.3/css/layui.css" media="all">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        body {
-            background-color: #ffffff;
+        body { background-color: #ffffff; }
+        /* 調整 Select2 樣式以匹配 Layui */
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #e6e6e6;
+            border-radius: 2px;
+            min-height: 38px;
+            height: auto;
+            background: #fff;
+            box-sizing: border-box;
+            padding: 0 30px 0 10px;
+            cursor: pointer;
         }
-        .kraken-selection-row {
-            margin-bottom: 10px;
+        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+            padding: 4px 0 4px 0;  /* 移除左側內邊距 */
+            line-height: 36px;
+            white-space: normal;
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
         }
-        .kraken-selection-row:last-child {
-            margin-bottom: 0;
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #f2f2f2;
+            border: 1px solid #e6e6e6;
+            border-radius: 2px;
+            padding: 0 5px 0 25px;
+            margin: 2px;
+            line-height: 24px;
+            float: none;
+            position: relative;
         }
-        .kraken-select-container {
-            flex: 1;
-            margin-right: 5px;
+        
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            margin: 0;
+            padding: 0 4px;
         }
-        .kraken-select-container .layui-form-select {
-            width: 100%;
+        .select2-container--default .select2-search--inline .select2-search__field {
+            margin-top: 3px;
+            margin-left: 0px;  /* 移除左側邊距 */
         }
-        .kraken-buttons {
-            white-space: nowrap;
+        .select2-container {
+            width: 100% !important;
+        }
+        .select2-dropdown {
+            border: 1px solid #e6e6e6;
+            border-radius: 2px;
         }
     </style>
 </head>
 <body>
 <div class="layui-form layuimini-form">
-    <!-- 所有表單項目 -->
+    <!-- 原有的表單項目 -->
     <div class="layui-form-item">
         <label class="layui-form-label required">工廠名稱</label>
         <div class="layui-input-block">
             <input type="text" name="name" lay-verify="required" lay-reqtext="工廠名稱不能為空" placeholder="請輸入工廠名稱" class="layui-input">
         </div>
     </div>
-
     <div class="layui-form-item">
         <label class="layui-form-label">時區</label>
         <div class="layui-input-block">
             <input type="text" name="utcOffset" value="+00:00" placeholder="請輸入時區" class="layui-input">
         </div>
     </div>
-
     <div class="layui-form-item">
         <label class="layui-form-label">最大用電量</label>
         <div class="layui-input-block">
             <input type="number" name="maxKwh" value="100" placeholder="請輸入最大用電量" class="layui-input">
         </div>
     </div>
-
     <div class="layui-form-item">
         <label class="layui-form-label">監控週期(分鐘)</label>
         <div class="layui-input-block">
             <input type="number" name="monitorPeriodMinute" value="15" placeholder="請輸入監控週期" class="layui-input">
         </div>
     </div>
-
     <div class="layui-form-item">
         <label class="layui-form-label">國家</label>
         <div class="layui-input-block">
@@ -72,21 +99,18 @@
             </select>
         </div>
     </div>
-
     <div class="layui-form-item">
         <label class="layui-form-label">地址</label>
         <div class="layui-input-block">
             <input type="text" name="address" placeholder="請輸入地址" class="layui-input">
         </div>
     </div>
-
     <div class="layui-form-item">
         <label class="layui-form-label">經度</label>
         <div class="layui-input-block">
             <input type="number" name="longitude" value="0" placeholder="請輸入經度" class="layui-input">
         </div>
     </div>
-
     <div class="layui-form-item">
         <label class="layui-form-label">緯度</label>
         <div class="layui-input-block">
@@ -94,42 +118,27 @@
         </div>
     </div>
 
-    <!-- Kraken 選擇欄位 -->
+    <!-- 使用 Select2 的綁定 Kraken 欄位 -->
     <div class="layui-form-item">
         <label class="layui-form-label">綁定Kraken</label>
-        <div class="layui-input-block" id="krakenSelections">
-            <div class="kraken-selection-row">
-                <div class="kraken-select-container">
-                    <select name="iotDeviceIds[]" lay-search class="kraken-select">
-                        <option value="">請選擇Kraken</option>
-                    </select>
-                </div>
-                <div class="kraken-buttons" style="display: inline-flex; align-items: center;">
-                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary add-kraken"><i class="layui-icon">&#xe654;</i></button>
-                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary remove-kraken"><i class="layui-icon">&#xe640;</i></button>
-                </div>
-            </div>
+        <div class="layui-input-block">
+            <select name="iotDeviceIds[]" id="krakenSelect" multiple="multiple" lay-ignore class="layui-hide"></select>
         </div>
     </div>
 
-    <style>
-        .kraken-selection-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .kraken-select-container {
-            flex: 1;
-            margin-right: 5px;
-        }
-        .kraken-select-container .layui-form-select {
-            width: 100%;
-        }
-        .kraken-buttons {
-            margin-top: 0;
-            vertical-align: middle;
-        }
-    </style>
+<script>
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form,
+            layer = layui.layer;
+        
+        // 初始化 Select2（移到 form.render() 之前）
+        initializeKrakenSelect();
+        
+        // 渲染 Layui 表單元素
+        form.render();
+    });
+</script>
+
     <!-- 客戶選擇欄位 -->
     <div class="layui-form-item">
         <label class="layui-form-label">綁定客戶</label>
@@ -154,140 +163,118 @@
     </div>
 </div>
 
-<!-- 所有 JavaScript -->
+<!-- Add jQuery before Select2 and Layui -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Layui JS -->
 <script src="../../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+
 <script>
-layui.use(['form', 'layer'], function () {
-    var form = layui.form,
-        layer = layui.layer,
-        $ = layui.$;
-
-    // 存儲所有可用的 Kraken 數據
-    var krakenMap = new Map();
-    
-    // 載入 Kraken 列表
-    $.ajax({
-        url: '/api/v1/kraken/listKrakenData',
-        type: 'GET',
-        success: function(res) {
-            res.forEach(function(item) {
-                krakenMap.set(item.iot_device_id, {
-                    id: item.iot_device_id,
-                    text: item.iot_device_id + " (" + item.name + ")"
-                });
-            });
-            updateKrakenOptions($('.kraken-select').first());
-        }
-    });
-
-    // 更新選擇框的選項
-    function updateKrakenOptions($select) {
-        $select.find('option:not(:first)').remove();
-        krakenMap.forEach(function(value) {
-            $select.append(new Option(value.text, value.id));
-        });
-        form.render('select');
-    }
-
-    // 添加新的選擇行
-    $(document).on('click', '.add-kraken', function() {
-        var $newRow = $('.kraken-selection-row').first().clone();
-        $newRow.find('select').val('');
-        $('#krakenSelections').append($newRow);
-        updateKrakenOptions($newRow.find('select'));
-    });
-
-    // 刪除選擇行
-    $(document).on('click', '.remove-kraken', function() {
-        var $row = $(this).closest('.kraken-selection-row');
-        var selectedValue = $row.find('select').val();
+    layui.use(['form', 'layer'], function () {  // Remove jquery from here since we're using standalone jQuery
+        var form = layui.form,
+            layer = layui.layer;
+        // Use global jQuery ($) instead of layui.jquery
         
-        // 如果有選中的值，將其添加回 krakenMap
-        if (selectedValue) {
-            var $select = $row.find('select');
-            var text = $select.find('option:selected').text();
-            krakenMap.set(selectedValue, {
-                id: selectedValue,
-                text: text
+        // 存儲 Kraken 數據
+        var krakenMap = new Map();
+
+        // 初始化 Select2
+        function initializeKrakenSelect() {
+            $('#krakenSelect').select2({
+                placeholder: '請選擇Kraken',
+                allowClear: true,
+                width: '100%',
+                dropdownCssClass: 'layui-select-dropdown',
+                language: 'zh-TW'
+            }).on('select2:open', function() {
+                // 確保下拉選單正確顯示
+                setTimeout(function() {
+                    $('.select2-results__options').css('max-height', '200px');
+                }, 0);
             });
+            console.log('Select2 初始化完成');
         }
-        
-        // 如果不是最後一行，則刪除
-        if ($('.kraken-selection-row').length > 1) {
-            $row.remove();
-            // 更新所有選擇框
-            $('.kraken-select').each(function() {
-                updateKrakenOptions($(this));
+
+        // 更新 Select2 選項
+        function updateKrakenSelect() {
+            var $select = $('#krakenSelect');
+            $select.empty();
+            
+            // 將 Map 轉換為陣列並排序
+            var options = Array.from(krakenMap.values()).sort((a, b) => a.text.localeCompare(b.text));
+            
+            // 添加所有 Kraken 選項
+            options.forEach(function(option) {
+                $select.append(new Option(option.text, option.id, false, false));
             });
-        }
-    });
-
-    // 監聽選擇框變化
-    $(document).on('change', '.kraken-select', function() {
-        var $select = $(this);
-        var previousValue = $select.data('previous-value');
-        var currentValue = $select.val();
-
-        // 如果有之前選擇的值，將其加回 krakenMap
-        if (previousValue) {
-            var text = $select.find('option[value="' + previousValue + '"]').text();
-            krakenMap.set(previousValue, {
-                id: previousValue,
-                text: text
-            });
+            
+            console.log('更新選項數量：', options.length);
+            $select.trigger('change');
         }
 
-        // 如果選擇了新的值，從 krakenMap 中移除
-        if (currentValue) {
-            krakenMap.delete(currentValue);
-        }
-
-        // 儲存當前選擇的值
-        $select.data('previous-value', currentValue);
-
-        // 更新所有選擇框
-        $('.kraken-select').each(function() {
-            if (this !== $select[0]) {
-                updateKrakenOptions($(this));
-            }
-        });
-    });
-
-    // 修改提交處理
-    form.on('submit(saveBtn)', function (data) {
-        var formData = data.field;
-        
-        // 收集所有選中的 Kraken ID
-        var iotDeviceIds = [];
-        $('.kraken-select').each(function() {
-            var value = $(this).val();
-            if (value) {
-                iotDeviceIds.push(value);
-            }
-        });
-        
-        // 更新 formData 中的 iotDeviceIds
-        formData.iotDeviceIds = iotDeviceIds;
-
+        // 從 API 載入 Kraken 數據
         $.ajax({
-            url: '/api/v1/factory/add',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
-            success: function (res) {
-                layer.msg('新增成功', function () {
-                    var index = parent.layer.getFrameIndex(window.name);
-                    parent.layer.close(index);
-                    parent.location.reload();
-                });
+            url: '/api/v1/kraken/listKrakenData',
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                console.log('API 返回數據：', res);
+                if (res && Array.isArray(res)) {
+                    krakenMap.clear();
+                    res.forEach(function(item) {
+                        krakenMap.set(item.iot_device_id, {
+                            id: item.iot_device_id,
+                            text: item.iot_device_id + " (" + item.name + ")"
+                        });
+                    });
+                    updateKrakenSelect();
+                    console.log('Kraken 數據載入完成，數量：', krakenMap.size);
+                    
+                    // 添加調試信息
+                    console.log('Select2 當前數據：', $('#krakenSelect').select2('data'));
+                    console.log('krakenMap 大小：', krakenMap.size);
+                }
             },
-            error: function (xhr) {
-                layer.msg('新增失敗：' + xhr.responseText);
+            error: function(xhr) {
+                console.error('API 錯誤：', xhr);
+                layer.msg('載入 Kraken 數據失敗');
             }
         });
-        return false;
-    });
-});
+
+        // 等待文檔完全載入後初始化 Select2
+        $(document).ready(function() {
+            initializeKrakenSelect();
+        });
+
+		// 表單提交
+		form.on('submit(saveBtn)', function(data) {
+			var formData = data.field;
+			formData['iotDeviceIds'] = $('#krakenSelect').val() || [];
+			console.log('提交的數據：', formData);
+
+			$.ajax({
+				url: '/api/v1/factory/add',
+				type: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify(formData),
+				success: function(res) {
+					layer.msg('新增成功', function() {
+						var index = parent.layer.getFrameIndex(window.name);
+						parent.layer.close(index);
+						parent.location.reload();
+					});
+				},
+				error: function(xhr) {
+					layer.msg('新增失敗：' + xhr.responseText);
+				}
+			});
+			return false;
+		});
+
+		// 渲染 Layui 表單元素
+		form.render();
+	});
 </script>
 </body>
 </html>
