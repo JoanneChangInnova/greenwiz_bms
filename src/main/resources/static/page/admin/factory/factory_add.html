@@ -11,6 +11,24 @@
         body {
             background-color: #ffffff;
         }
+        .kraken-selection-row {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .kraken-selection-row:last-child {
+            margin-bottom: 0;
+        }
+        .kraken-select-container {
+            flex: 1;
+            margin-right: 5px;
+        }
+        .kraken-select-container .layui-form-select {
+            width: 100%;
+        }
+        .kraken-buttons {
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -79,13 +97,39 @@
     <!-- Kraken 選擇欄位 -->
     <div class="layui-form-item">
         <label class="layui-form-label">綁定Kraken</label>
-        <div class="layui-input-block">
-            <select name="iotDeviceIds" lay-search>
-                <option value="">請選擇Kraken</option>
-            </select>
+        <div class="layui-input-block" id="krakenSelections">
+            <div class="kraken-selection-row">
+                <div class="kraken-select-container">
+                    <select name="iotDeviceIds[]" lay-search class="kraken-select">
+                        <option value="">請選擇Kraken</option>
+                    </select>
+                </div>
+                <div class="kraken-buttons" style="display: inline-flex; align-items: center;">
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary add-kraken"><i class="layui-icon">&#xe654;</i></button>
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary remove-kraken"><i class="layui-icon">&#xe640;</i></button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <style>
+        .kraken-selection-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .kraken-select-container {
+            flex: 1;
+            margin-right: 5px;
+        }
+        .kraken-select-container .layui-form-select {
+            width: 100%;
+        }
+        .kraken-buttons {
+            margin-top: 0;
+            vertical-align: middle;
+        }
+    </style>
     <!-- 客戶選擇欄位 -->
     <div class="layui-form-item">
         <label class="layui-form-label">綁定客戶</label>
@@ -118,39 +162,118 @@ layui.use(['form', 'layer'], function () {
         layer = layui.layer,
         $ = layui.$;
 
-    // 載入Kraken列表
+    // 存儲所有可用的 Kraken 數據
+    var krakenMap = new Map();
+    
+    // 載入 Kraken 列表
     $.ajax({
         url: '/api/v1/kraken/listKrakenData',
         type: 'GET',
         success: function(res) {
-            var select = $('select[name="iotDeviceIds"]');
             res.forEach(function(item) {
-                select.append(new Option(item.iot_device_id + " (" + item.name + ")", item.iot_device_id));
+                krakenMap.set(item.iot_device_id, {
+                    id: item.iot_device_id,
+                    text: item.iot_device_id + " (" + item.name + ")"
+                });
             });
-            form.render('select');
+            updateKrakenOptions($('.kraken-select').first());
         }
     });
 
-    // 載入使用者列表
-    $.ajax({
-        url: '/api/v1/user/listAllCustomers',
-        type: 'GET',
-        success: function(res) {
-            var select = $('select[name="userIds"]');
-            res.forEach(function(item) {
-                select.append(new Option(item.username + " (" + item.email + ")", item.id));
+    // 更新選擇框的選項
+    function updateKrakenOptions($select) {
+        $select.find('option:not(:first)').remove();
+        krakenMap.forEach(function(value) {
+            $select.append(new Option(value.text, value.id));
+        });
+        form.render('select');
+    }
+
+    // 添加新的選擇行
+    $(document).on('click', '.add-kraken', function() {
+        var $newRow = $('.kraken-selection-row').first().clone();
+        $newRow.find('select').val('');
+        $('#krakenSelections').append($newRow);
+        updateKrakenOptions($newRow.find('select'));
+    });
+
+    // 刪除選擇行
+    $(document).on('click', '.remove-kraken', function() {
+        var $row = $(this).closest('.kraken-selection-row');
+        var selectedValue = $row.find('select').val();
+        
+        // 如果有選中的值，將其添加回 krakenMap
+        if (selectedValue) {
+            var $select = $row.find('select');
+            var text = $select.find('option:selected').text();
+            krakenMap.set(selectedValue, {
+                id: selectedValue,
+                text: text
             });
-            form.render('select');
+        }
+        
+        // 如果不是最後一行，則刪除
+        if ($('.kraken-selection-row').length > 1) {
+            $row.remove();
+            // 更新所有選擇框
+            $('.kraken-select').each(function() {
+                updateKrakenOptions($(this));
+            });
         }
     });
 
-    // 監聽提交
+    // 監聽選擇框變化
+    $(document).on('change', '.kraken-select', function() {
+        var $select = $(this);
+        var previousValue = $select.data('previous-value');
+        var currentValue = $select.val();
+
+        // 如果有之前選擇的值，將其加回 krakenMap
+        if (previousValue) {
+            var text = $select.find('option[value="' + previousValue + '"]').text();
+            krakenMap.set(previousValue, {
+                id: previousValue,
+                text: text
+            });
+        }
+
+        // 如果選擇了新的值，從 krakenMap 中移除
+        if (currentValue) {
+            krakenMap.delete(currentValue);
+        }
+
+        // 儲存當前選擇的值
+        $select.data('previous-value', currentValue);
+
+        // 更新所有選擇框
+        $('.kraken-select').each(function() {
+            if (this !== $select[0]) {
+                updateKrakenOptions($(this));
+            }
+        });
+    });
+
+    // 修改提交處理
     form.on('submit(saveBtn)', function (data) {
+        var formData = data.field;
+        
+        // 收集所有選中的 Kraken ID
+        var iotDeviceIds = [];
+        $('.kraken-select').each(function() {
+            var value = $(this).val();
+            if (value) {
+                iotDeviceIds.push(value);
+            }
+        });
+        
+        // 更新 formData 中的 iotDeviceIds
+        formData.iotDeviceIds = iotDeviceIds;
+
         $.ajax({
             url: '/api/v1/factory/add',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(data.field),
+            data: JSON.stringify(formData),
             success: function (res) {
                 layer.msg('新增成功', function () {
                     var index = parent.layer.getFrameIndex(window.name);
