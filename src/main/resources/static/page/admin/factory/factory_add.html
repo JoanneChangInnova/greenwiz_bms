@@ -41,7 +41,7 @@
             float: none;
             position: relative;
         }
-        
+
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             position: absolute;
             left: 6px;
@@ -126,19 +126,6 @@
         </div>
     </div>
 
-<script>
-    layui.use(['form', 'layer'], function () {
-        var form = layui.form,
-            layer = layui.layer;
-        
-        // 初始化 Select2（移到 form.render() 之前）
-        initializeKrakenSelect();
-        
-        // 渲染 Layui 表單元素
-        form.render();
-    });
-</script>
-
     <!-- 客戶選擇欄位 -->
     <div class="layui-form-item">
         <label class="layui-form-label">綁定客戶</label>
@@ -170,12 +157,12 @@
 <!-- Layui JS -->
 <script src="../../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
 
+<!-- 前面的 HTML 和 CSS 保持不變 -->
 <script>
-    layui.use(['form', 'layer'], function () {  // Remove jquery from here since we're using standalone jQuery
+    layui.use(['form', 'layer'], function () {
         var form = layui.form,
             layer = layui.layer;
-        // Use global jQuery ($) instead of layui.jquery
-        
+
         // 存儲 Kraken 數據
         var krakenMap = new Map();
 
@@ -188,7 +175,6 @@
                 dropdownCssClass: 'layui-select-dropdown',
                 language: 'zh-TW'
             }).on('select2:open', function() {
-                // 確保下拉選單正確顯示
                 setTimeout(function() {
                     $('.select2-results__options').css('max-height', '200px');
                 }, 0);
@@ -200,16 +186,17 @@
         function updateKrakenSelect() {
             var $select = $('#krakenSelect');
             $select.empty();
-            
+
             // 將 Map 轉換為陣列並排序
             var options = Array.from(krakenMap.values()).sort((a, b) => a.text.localeCompare(b.text));
-            
+
             // 添加所有 Kraken 選項
             options.forEach(function(option) {
                 $select.append(new Option(option.text, option.id, false, false));
             });
-            
+
             console.log('更新選項數量：', options.length);
+            console.log('添加的選項：', options);
             $select.trigger('change');
         }
 
@@ -223,15 +210,13 @@
                 if (res && Array.isArray(res)) {
                     krakenMap.clear();
                     res.forEach(function(item) {
-                        krakenMap.set(item.iot_device_id, {
-                            id: item.iot_device_id,
-                            text: item.iot_device_id + " (" + item.name + ")"
+                        krakenMap.set(item.iotDeviceId, {
+                            id: item.iotDeviceId,
+                            text: "id:" + item.iotDeviceId + " (" + item.name + ")"
                         });
                     });
                     updateKrakenSelect();
                     console.log('Kraken 數據載入完成，數量：', krakenMap.size);
-                    
-                    // 添加調試信息
                     console.log('Select2 當前數據：', $('#krakenSelect').select2('data'));
                     console.log('krakenMap 大小：', krakenMap.size);
                 }
@@ -247,34 +232,50 @@
             initializeKrakenSelect();
         });
 
-		// 表單提交
-		form.on('submit(saveBtn)', function(data) {
-			var formData = data.field;
-			formData['iotDeviceIds'] = $('#krakenSelect').val() || [];
-			console.log('提交的數據：', formData);
+        // 表單提交
+        form.on('submit(saveBtn)', function(data) {
+            // 創建新的提交數據物件
+            var submitData = {
+                name: data.field.name,
+                utcOffset: data.field.utcOffset,
+                maxKwh: parseInt(data.field.maxKwh),
+                monitorPeriodMinute: parseInt(data.field.monitorPeriodMinute),
+                country: data.field.country,
+                address: data.field.address,
+                longitude: parseFloat(data.field.longitude),
+                latitude: parseFloat(data.field.latitude),
+                userIds: data.field.userIds ? data.field.userIds : null,
+                comment: data.field.comment,
+                // 將字串陣列轉換為數字陣列
+                iotDeviceIds: ($('#krakenSelect').val() || []).map(id => parseInt(id))
+            };
 
-			$.ajax({
-				url: '/api/v1/factory/add',
-				type: 'POST',
-				contentType: 'application/json',
-				data: JSON.stringify(formData),
-				success: function(res) {
-					layer.msg('新增成功', function() {
-						var index = parent.layer.getFrameIndex(window.name);
-						parent.layer.close(index);
-						parent.location.reload();
-					});
-				},
-				error: function(xhr) {
-					layer.msg('新增失敗：' + xhr.responseText);
-				}
-			});
-			return false;
-		});
+            console.log('Select2 選中的值：', $('#krakenSelect').val());
+            console.log('提交的數據：', submitData);
+            console.log('JSON 字串：', JSON.stringify(submitData));
 
-		// 渲染 Layui 表單元素
-		form.render();
-	});
+            $.ajax({
+                url: '/api/v1/factory/add',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(submitData),
+                success: function(res) {
+                    layer.msg('新增成功', function() {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                        parent.location.reload();
+                    });
+                },
+                error: function(xhr) {
+                   handleErrorResponse(xhr);
+                }
+            });
+            return false;
+        });
+
+        // 渲染 Layui 表單元素
+        form.render();
+    });
 </script>
 </body>
 </html>

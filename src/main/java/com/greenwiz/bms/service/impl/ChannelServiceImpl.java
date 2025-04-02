@@ -34,4 +34,9 @@ public class ChannelServiceImpl extends BaseDomainServiceImpl<Long, Channel> imp
     public Page<Channel> findAll(Example<Channel> example, PageRequest pageable) {
         return jpaRepository.findAll(example, pageable);
     }
+
+    @Override
+    public List<Channel> findByIotDeviceIdIn(List<Long> krakenIds) {
+        return jpaRepository.findByIotDeviceIdIn(krakenIds);
+    }
 }

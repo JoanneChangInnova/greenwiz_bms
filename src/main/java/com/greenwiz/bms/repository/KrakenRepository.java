@@ -14,4 +14,7 @@ public interface KrakenRepository extends JpaRepository<Kraken, Long> {
 
     @Query("SELECT new com.greenwiz.bms.controller.data.kraken.KrakenData(k.id, k.name) FROM Kraken k")
     List<KrakenData> findAllKrakenData();
+
+    List<Kraken> findByIdIn(List<Long> iotDeviceIds);
+    List<Kraken> findByFactoryIdIsNull();
 }

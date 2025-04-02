@@ -55,11 +55,11 @@ public class KrakenController {
     }
 
     /**
-     * 列出所有kraken ID, kraken name
+     * 列出所有未綁定 Factory 的 kraken ID, kraken name
      */
     @GetMapping("/listKrakenData")
     public List<KrakenData> listKrakenData() {
-        return krakenFacade.listKrakenData();
+        return krakenFacade.listUnboundKrakenData();
     }
 
 }

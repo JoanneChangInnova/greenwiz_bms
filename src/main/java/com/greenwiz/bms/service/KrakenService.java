@@ -16,4 +16,12 @@ public interface KrakenService extends BaseDomainService<Long, Kraken> {
     Kraken getByName(String name);
 
     List<KrakenData> findAllKrakenData();
+
+    List<Kraken> findByIdIn(List<Long> iotDeviceIds);
+
+    /**
+     * 查詢未綁定工廠的 Kraken 列表
+     */
+    List<Kraken> findByFactoryIdIsNull();
+
 }

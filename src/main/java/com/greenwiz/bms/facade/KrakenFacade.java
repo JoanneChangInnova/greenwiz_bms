@@ -62,4 +62,13 @@ public class KrakenFacade {
         List<KrakenData> krakenList = krakenService.findAllKrakenData();
         return krakenList;
     }
+
+    /**
+     * 獲取未綁定工廠的 Kraken 列表
+     */
+    public List<KrakenData> listUnboundKrakenData() {
+        return krakenService.findByFactoryIdIsNull().stream()
+                .map(KrakenData::convertToKrakenData)
+                .collect(Collectors.toList());
+    }
 }

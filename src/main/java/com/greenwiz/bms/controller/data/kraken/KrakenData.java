@@ -1,16 +1,26 @@
 package com.greenwiz.bms.controller.data.kraken;
 
+import com.greenwiz.bms.entity.Kraken;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class KrakenData {
-
-    private Long iot_device_id;
-
+    private Long iotDeviceId;
     private String name;
 
-    public KrakenData(Long id, String name) {
-        this.iot_device_id = id;  // 將資料庫的 id 賦值給 iot_device_id
-        this.name = name;
+    /**
+     * 將 Kraken 實體轉換為 KrakenData
+     */
+    public static KrakenData convertToKrakenData(Kraken kraken) {
+        if (kraken == null) {
+            return null;
+        }
+        
+        return KrakenData.builder()
+                .iotDeviceId(kraken.getId())
+                .name(kraken.getName())
+                .build();
     }
 }

@@ -93,7 +93,7 @@ public class ChannelFacade {
      * 新增檢驗
      * 編輯時檢驗需跳過自己（只有factory_id變動時才需檢驗/或exists的channel不是自己)
      */
-    private void validateChannelNameDuplicateInFactory(Long factoryId, String channelName) {
+    public void validateChannelNameDuplicateInFactory(Long factoryId, String channelName) {
         if (factoryId == null) {
             return;
         }

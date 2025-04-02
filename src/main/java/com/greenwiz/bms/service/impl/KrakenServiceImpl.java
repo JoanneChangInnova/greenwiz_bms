@@ -35,4 +35,14 @@ public class KrakenServiceImpl extends BaseDomainServiceImpl<Long, Kraken> imple
     public List<KrakenData> findAllKrakenData() {
         return jpaRepository.findAllKrakenData();
     }
+
+    @Override
+    public List<Kraken> findByIdIn(List<Long> iotDeviceIds) {
+        return jpaRepository.findByIdIn(iotDeviceIds);
+    }
+
+    @Override
+    public List<Kraken> findByFactoryIdIsNull() {
+        return jpaRepository.findByFactoryIdIsNull();
+    }
 }

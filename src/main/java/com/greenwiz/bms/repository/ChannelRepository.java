@@ -11,4 +11,6 @@ public interface ChannelRepository extends JpaRepository<Channel, Long> {
     boolean existsByFactoryIdAndChannelName(Long factoryId, String channelName);
 
     List<Channel> findByIotDeviceIdOrderByAddrAsc(Long iotDeviceId);
+
+    List<Channel> findByIotDeviceIdIn(List<Long> krakenIds);
 }

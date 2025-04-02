@@ -14,4 +14,6 @@ public interface ChannelService extends BaseDomainService<Long, Channel> {
     List<Channel> findByIotDeviceIdOrderByAddrAsc(Long iotDeviceId);
 
     Page<Channel> findAll(Example<Channel> example, PageRequest pageable);
+
+    List<Channel> findByIotDeviceIdIn(List<Long> krakenIds);
 }
