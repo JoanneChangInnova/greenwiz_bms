@@ -41,15 +41,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // 驗證 Token
             if (jwtUtils.validateToken(token)) {
                 // 從 Token 中提取用戶信息
-                String email = jwtUtils.getEmailFromJwtToken(token);
-                ThreadLocalUtils.setUser(email);
+                ThreadLocalUtils.User user = jwtUtils.getUserFromJwtToken(token);
+                ThreadLocalUtils.setUser(user);
 
                 // 從 Token 獲取角色，轉換為 Spring Security 的 GrantedAuthority
                 List<SimpleGrantedAuthority> roles = jwtUtils.getRolesFromJwtToken(token);
 
                 // 創建認證對象並設置到 SecurityContext
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(email, null, roles);
+                        new UsernamePasswordAuthenticationToken(user.getId(), null, roles);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
                 logger.info("無效的 JWT Token");

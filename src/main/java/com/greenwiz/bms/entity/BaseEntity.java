@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 public class BaseEntity {
 
     /**
-     * 建立資料的使用者 email
+     * 建立資料的使用者 id
      */
-    private String createUser;
+    private Long createUser;
 
     /**
      * 最後修改時間
@@ -30,20 +30,20 @@ public class BaseEntity {
     private LocalDateTime dtCreate;
 
     /**
-     * 修改資料的使用者 email
+     * 修改資料的使用者 id
      */
-    private String modifyUser;
+    private Long modifyUser;
 
     @PrePersist
     private void onPrePersist() {
-        setCreateUser(ThreadLocalUtils.getUser());
-        setModifyUser(ThreadLocalUtils.getUser());
+        setCreateUser(ThreadLocalUtils.getUser().getId());
+        setModifyUser(ThreadLocalUtils.getUser().getId());
         setDtCreate(LocalDateTime.now());
     }
 
     @PreUpdate
     private void insertModifyUser() {
-        setModifyUser(ThreadLocalUtils.getUser());
+        setModifyUser(ThreadLocalUtils.getUser().getId());
     }
 
 

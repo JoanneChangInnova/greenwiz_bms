@@ -4,6 +4,8 @@ import java.security.Key;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.greenwiz.bms.enumeration.UserRole;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -40,13 +42,13 @@ public class JwtUtils {
     /**
      * 生成 JWT Token
      *
-     * @param email Email
+     * @param userId
      * @param roles 角色列表
      * @return JWT Token
      */
-    public String generateToken(String email, List<String> roles) {
+    public String generateToken(Long userId, List<String> roles) {
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(String.valueOf(userId))
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_MS))
@@ -67,6 +69,21 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    /**
+     * 從 JWT Token 中解析 userId
+     *
+     * @param token JWT Token
+     * @return userId
+     */
+    public Long getUserIdFromJwtToken(String token) {
+        return Long.parseLong(Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject());
     }
 
     /**
@@ -105,6 +122,24 @@ public class JwtUtils {
             log.info("Invalid JWT: {}", e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * 從 JWT Token 中解析用戶信息
+     */
+    public ThreadLocalUtils.User getUserFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        ThreadLocalUtils.User user = new ThreadLocalUtils.User();
+        user.setId(Long.parseLong(claims.getSubject()));
+        List<String> roles = claims.get("roles", List.class);
+        user.setRole(UserRole.valueOf(roles.get(0))); // 假設每個用戶只有一個角色
+
+        return user;
     }
 
     public String extractJwtFromCookie(HttpServletRequest request) {

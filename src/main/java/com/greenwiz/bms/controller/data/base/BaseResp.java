@@ -16,13 +16,13 @@ public class BaseResp {
         setDtModify(baseEntity.getDtModify());
     }
 
-    private String createUser;
+    private Long createUser;
 
 
     private LocalDateTime dtCreate;
 
 
-    private String modifyUser;
+    private Long modifyUser;
 
 
     private LocalDateTime dtModify;

@@ -60,7 +60,7 @@ public class AuthController {
             throw new BmsException("用戶名或密碼錯誤");
         }
 
-        String token = jwtUtils.generateToken(user.getEmail(), Collections.singletonList(user.getRole().name()));
+        String token = jwtUtils.generateToken(user.getId(), Collections.singletonList(user.getRole().name()));
 
         // 設置 HttpOnly Cookie
         Cookie cookie = new Cookie(jwtCookieName, token);
@@ -111,8 +111,8 @@ public class AuthController {
             throw new BmsException("未登錄或 Token 無效");
         }
 
-        String email = jwtUtils.getEmailFromJwtToken(token);
-        User user = userService.findByEmail(email);
+        Long id = jwtUtils.getUserIdFromJwtToken(token);
+        User user = userService.findByPk(id);
         if (user == null) {
             throw new BmsException("不存在用戶");
         }

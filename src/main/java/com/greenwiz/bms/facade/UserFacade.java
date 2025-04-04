@@ -128,7 +128,7 @@ public class UserFacade {
      */
     public List<UserData> listParentInfo(UserRole userRole) {
         // 獲取當前操作員的用戶
-        User operator = findUserByEmailOrFail(ThreadLocalUtils.getUser());
+        User operator = findUserByIdOrFail(ThreadLocalUtils.getUser().getId());
 
         List<User> userList;
 
@@ -152,6 +152,14 @@ public class UserFacade {
 
     private User findUserByEmailOrFail(String email){
         User user = userService.findByEmail(email);
+        if(user == null){
+            throw new BmsException("User不存在");
+        }
+        return user;
+    }
+
+    private User findUserByIdOrFail(Long id){
+        User user = userService.findByPk(id);
         if(user == null){
             throw new BmsException("User不存在");
         }
