@@ -2,6 +2,7 @@ package com.greenwiz.bms.controller;
 
 import com.greenwiz.bms.controller.data.base.LayuiTableResp;
 import com.greenwiz.bms.controller.data.factory.AddFactoryReq;
+import com.greenwiz.bms.controller.data.factory.ListFactoryData;
 import com.greenwiz.bms.controller.data.factory.ListFactoryReq;
 import com.greenwiz.bms.controller.data.factory.UpdateFactoryReq;
 import com.greenwiz.bms.controller.data.kraken.KrakenData;
@@ -11,11 +12,13 @@ import com.greenwiz.bms.facade.KrakenFacade;
 import com.greenwiz.bms.facade.UserFactoryFacade;
 import com.greenwiz.bms.service.FactoryService;
 import com.greenwiz.bms.utils.ThreadLocalUtils;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,13 +39,20 @@ public class FactoryController {
     private UserFactoryFacade userFactoryFacade;
 
     @PostMapping("/add")
+    @Transactional(Transactional.TxType.REQUIRED)
     public ResponseEntity<?> addFactory(@Valid @RequestBody AddFactoryReq request) {
         factoryFacade.addFactory(request);
         return ResponseEntity.ok("新增成功");
     }
 
+//    @PostMapping("/list")
+//    public LayuiTableResp<Factory> getFactoryList(@RequestBody ListFactoryReq request) {
+//        Page<Factory> factories = factoryFacade.getFactoryList(request, ThreadLocalUtils.getUser().getRole());
+//        return LayuiTableResp.success(factories.getTotalElements(), factories.getContent());
+//    }
+
     @PostMapping("/list")
-    public LayuiTableResp<Factory> getFactoryList(@RequestBody ListFactoryReq request) {
+    public LayuiTableResp<ListFactoryData> getFactoryList(@RequestBody ListFactoryReq request) {
         Page<Factory> factories = factoryFacade.getFactoryList(request, ThreadLocalUtils.getUser().getRole());
         return LayuiTableResp.success(factories.getTotalElements(), factories.getContent());
     }

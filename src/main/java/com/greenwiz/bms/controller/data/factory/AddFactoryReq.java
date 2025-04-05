@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -88,5 +89,5 @@ public class AddFactoryReq extends RequestJson {
     /**
      * Factory綁定的使用者，可選多筆，由User /listAllCustomers取得清單
      */
-    private List<Long> userIds;
+    private Set<Long> userIds;
 }

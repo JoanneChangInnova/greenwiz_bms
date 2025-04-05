@@ -1,6 +1,7 @@
 package com.greenwiz.bms.facade;
 
 import com.greenwiz.bms.controller.data.factory.AddFactoryReq;
+import com.greenwiz.bms.controller.data.factory.ListFactoryData;
 import com.greenwiz.bms.controller.data.factory.ListFactoryReq;
 import com.greenwiz.bms.controller.data.factory.UpdateFactoryReq;
 import com.greenwiz.bms.entity.Channel;
@@ -41,7 +42,7 @@ public class FactoryFacade {
     private FactoryService factoryService;
 
     @Autowired
-    private UserFactoryService userFactoryService;
+    private UserFactoryFacade userFactoryFacade;
 
     /**
      * 新增工廠並綁定 Kraken 設備
@@ -66,6 +67,10 @@ public class FactoryFacade {
         // 只有當有設備需要綁定時才更新綁定關係
         if (!CollectionUtils.isEmpty(krakenList)) {
             updateDeviceBindings(savedFactory, krakenList, channelList);
+        }
+
+        if(!CollectionUtils.isEmpty(addFactoryReq.getUserIds())){
+            userFactoryFacade.updateUserFactoryBindings(savedFactory.getId(), addFactoryReq.getUserIds());
         }
     }
 
@@ -221,15 +226,15 @@ public class FactoryFacade {
 
     }
 
-    public Page<Factory> getFactoryList(ListFactoryReq listFactoryReq, UserRole role) {
-        /**
-         * ADMIN可以看所有的factory list
-         * AGENT只能看user_factory中user_id為自己群組的factory:
-         * user_id為自己 = user.parent_id = 登入者id
-         * AGENT: 先找出 user.parent_id = 登入者id 代表找出所有安裝商的user，例如id 2,3，再繼續找出user.parent_id = 2, 3 的客戶
-         * 這些客戶的 id 才去 user_factory 找資料
-         *
-         */
+    /**
+     * ADMIN可以看所有的factory list
+     * AGENT只能看user_factory中user_id為自己群組的factory:
+     * user_id為自己 = user.parent_id = 登入者id
+     * AGENT: 先找出 user.parent_id = 登入者id 代表找出所有安裝商的user，例如id 2,3，再繼續找出user.parent_id = 2, 3 的客戶
+     * 這些客戶的 id 才去 user_factory 找資料
+     *
+     */
+    public Page<ListFactoryData> getFactoryList(ListFactoryReq listFactoryReq, UserRole role) {
         ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues()
                 .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains());
         Factory factory = new Factory();
