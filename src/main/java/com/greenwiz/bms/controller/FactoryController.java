@@ -52,7 +52,7 @@ public class FactoryController {
 //    }
 
     @PostMapping("/list")
-    public LayuiTableResp<ListFactoryData> getFactoryList(@RequestBody ListFactoryReq request) {
+    public LayuiTableResp<Factory> getFactoryList(@RequestBody ListFactoryReq request) {
         Page<Factory> factories = factoryFacade.getFactoryList(request, ThreadLocalUtils.getUser().getRole());
         return LayuiTableResp.success(factories.getTotalElements(), factories.getContent());
     }

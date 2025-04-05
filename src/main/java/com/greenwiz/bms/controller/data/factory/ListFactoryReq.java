@@ -6,14 +6,8 @@ import lombok.Data;
 @Data
 public class ListFactoryReq extends PageReq {
 
-    /**
-     * 工廠名稱
-     */
-    private String name;
-
-    private Long userId;
-
-    private Long krakenId;
-
-    private Long factoryId;
+    private String name;        // 對應 Factory.name
+    private Long userId;        // 對應 UserFactory.userId
+    private Long krakenId;      // 對應 IotDevice.id
+    private Long factoryId;     // 對應 Factory.id
 }

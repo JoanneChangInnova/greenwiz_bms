@@ -234,7 +234,7 @@ public class FactoryFacade {
      * 這些客戶的 id 才去 user_factory 找資料
      *
      */
-    public Page<ListFactoryData> getFactoryList(ListFactoryReq listFactoryReq, UserRole role) {
+    public Page<Factory> getFactoryList(ListFactoryReq listFactoryReq, UserRole role) {
         ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues()
                 .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains());
         Factory factory = new Factory();
@@ -248,4 +248,5 @@ public class FactoryFacade {
 
         return null;
     }
+
 }

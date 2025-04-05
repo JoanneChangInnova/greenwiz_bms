@@ -1,5 +1,6 @@
 package com.greenwiz.bms.entity;
 
+import com.greenwiz.bms.enumeration.Country;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,7 +33,7 @@ public class Factory extends BaseEntity {
     private Short monitorPeriodMinute;
 
     @Column(name = "country", length = 3)
-    private String country;
+    private Country country;
 
     @Column(name = "address", length = 1024)
     private String address;
