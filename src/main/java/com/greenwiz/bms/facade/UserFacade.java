@@ -276,7 +276,7 @@ public class UserFacade {
         return userService.getUserDataByUserId(userId);
     }
 
-    private CreateModifyUser buildCreateModifyUser(Long createUser, Long modifyUser) {
+    public CreateModifyUser buildCreateModifyUser(Long createUser, Long modifyUser) {
         CreateModifyUser createModifyUser = new CreateModifyUser();
 
         // 查詢 createUser 的資訊

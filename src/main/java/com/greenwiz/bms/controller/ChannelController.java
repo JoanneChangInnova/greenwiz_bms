@@ -2,6 +2,7 @@ package com.greenwiz.bms.controller;
 
 import com.greenwiz.bms.controller.data.base.LayuiTableResp;
 import com.greenwiz.bms.controller.data.channel.AddChannelReq;
+import com.greenwiz.bms.controller.data.channel.ListChannelData;
 import com.greenwiz.bms.controller.data.channel.ListChannelReq;
 import com.greenwiz.bms.controller.data.channel.UpdateChannelReq;
 import com.greenwiz.bms.controller.data.kraken.ListKrakenReq;
@@ -35,8 +36,8 @@ public class ChannelController {
     }
 
     @PostMapping("/list")
-    public LayuiTableResp<Channel> getKrakenList(@RequestBody ListChannelReq request) {
-        Page<Channel> channels = channelFacade.getChannelList(request);
+    public LayuiTableResp<ListChannelData> getKrakenList(@RequestBody ListChannelReq request) {
+        Page<ListChannelData> channels = channelFacade.getChannelList(request);
         return LayuiTableResp.success(channels.getTotalElements(), channels.getContent());
     }
     @GetMapping("/{id}")

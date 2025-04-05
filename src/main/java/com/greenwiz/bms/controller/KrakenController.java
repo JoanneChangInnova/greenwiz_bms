@@ -1,10 +1,7 @@
 package com.greenwiz.bms.controller;
 
 import com.greenwiz.bms.controller.data.base.LayuiTableResp;
-import com.greenwiz.bms.controller.data.kraken.AddKrakenReq;
-import com.greenwiz.bms.controller.data.kraken.KrakenData;
-import com.greenwiz.bms.controller.data.kraken.ListKrakenReq;
-import com.greenwiz.bms.controller.data.kraken.UpdateKrakenReq;
+import com.greenwiz.bms.controller.data.kraken.*;
 import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.facade.KrakenFacade;
 import com.greenwiz.bms.service.KrakenService;
@@ -37,8 +34,8 @@ public class KrakenController {
     }
 
     @PostMapping("/list")
-    public LayuiTableResp<Kraken> getKrakenList(@RequestBody ListKrakenReq request) {
-        Page<Kraken> krakens = krakenFacade.getKrakenList(request);
+    public LayuiTableResp<ListKrakenData> getKrakenList(@RequestBody ListKrakenReq request) {
+        Page<ListKrakenData> krakens = krakenFacade.getKrakenList(request);
         return LayuiTableResp.success(krakens.getTotalElements(), krakens.getContent());
     }
 

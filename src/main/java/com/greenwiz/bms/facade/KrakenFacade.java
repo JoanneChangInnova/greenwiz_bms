@@ -1,9 +1,6 @@
 package com.greenwiz.bms.facade;
 
-import com.greenwiz.bms.controller.data.kraken.AddKrakenReq;
-import com.greenwiz.bms.controller.data.kraken.KrakenData;
-import com.greenwiz.bms.controller.data.kraken.ListKrakenReq;
-import com.greenwiz.bms.controller.data.kraken.UpdateKrakenReq;
+import com.greenwiz.bms.controller.data.kraken.*;
 import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.service.KrakenService;
@@ -13,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,7 +25,10 @@ public class KrakenFacade {
     @Autowired
     private KrakenService krakenService;
 
-    public Page<Kraken> getKrakenList(ListKrakenReq listKrakenReq) {
+    @Autowired
+    private UserFacade userFacade;
+
+    public Page<ListKrakenData> getKrakenList(ListKrakenReq listKrakenReq) {
         ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues()
                 .withMatcher("krakenModel", ExampleMatcher.GenericPropertyMatchers.contains())
                 .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
@@ -36,8 +37,21 @@ public class KrakenFacade {
         Kraken kraken = new Kraken();
         BeanUtils.copyProperties(listKrakenReq, kraken);
         Example<Kraken> example = Example.of(kraken, matcher);
-        //加上時間條件 轉換成Spec
-        return krakenService.getKrakenPageBySpecification(example, listKrakenReq.getPageable());
+        
+        // 獲取原始分頁數據
+        Page<Kraken> krakenPage = krakenService.getKrakenPageBySpecification(example, listKrakenReq.getPageable());
+        
+        // 轉換為 ListKrakenData 並設置 createModifyUser
+        List<ListKrakenData> krakenDataList = krakenPage.getContent().stream()
+                .map(k -> {
+                    ListKrakenData data = new ListKrakenData();
+                    BeanUtils.copyProperties(k, data);
+                    data.setCreateModifyUser(userFacade.buildCreateModifyUser(k.getCreateUser(), k.getModifyUser()));
+                    return data;
+                })
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(krakenDataList, krakenPage.getPageable(), krakenPage.getTotalElements());
     }
 
     public void addKraken(AddKrakenReq request) {

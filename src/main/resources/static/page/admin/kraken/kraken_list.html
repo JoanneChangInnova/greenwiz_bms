@@ -133,7 +133,16 @@
                 {field: 'dtInstall', width: 180, title: '安裝時間'},
                 {field: 'dtModify', width: 180, title: '修改時間'},
                 {field: 'modifyUser', width: 100, title: '修改者'},
-                {field: 'createUser', width: 100, title: '建立者'},
+                {field: 'dtCreate', width: 180, title: '建立時間', templet: function (d) {
+                        return d.dtCreate ? new Date(d.dtCreate).toLocaleString() : '未知';
+                    }},
+                {title: '建立者', width: 180, templet: function(d) {
+                        return d.createModifyUser.createUserInfo;
+                }},
+                {title: '修改者', width: 180, templet: function(d) {
+                        return d.createModifyUser.modifyUserInfo;
+                }},
+
             ]],
             toolbar: '#toolbarDemo',
             defaultToolbar: ['filter', 'exports', 'print'],

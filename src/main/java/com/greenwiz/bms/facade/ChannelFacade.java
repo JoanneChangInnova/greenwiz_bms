@@ -1,6 +1,7 @@
 package com.greenwiz.bms.facade;
 
 import com.greenwiz.bms.controller.data.channel.AddChannelReq;
+import com.greenwiz.bms.controller.data.channel.ListChannelData;
 import com.greenwiz.bms.controller.data.channel.ListChannelReq;
 import com.greenwiz.bms.controller.data.channel.UpdateChannelReq;
 import com.greenwiz.bms.entity.Channel;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +32,30 @@ public class ChannelFacade {
     @Autowired
     private KrakenService krakenService;
 
+    @Autowired
+    private UserFacade userFacade;
+
+    public Page<ListChannelData> getChannelList(ListChannelReq listChannelReq) {
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues();
+        Channel channel = new Channel();
+        BeanUtils.copyProperties(listChannelReq, channel);
+        Example<Channel> example = Example.of(channel, matcher);
+        
+        // 獲取原始分頁數據
+        Page<Channel> channelPage = channelService.findAll(example, listChannelReq.getPageable());
+        
+        // 轉換為 ListChannelData 並設置 createModifyUser
+        List<ListChannelData> channelDataList = channelPage.getContent().stream()
+                .map(ch -> {
+                    ListChannelData data = new ListChannelData();
+                    BeanUtils.copyProperties(ch, data);
+                    data.setCreateModifyUser(userFacade.buildCreateModifyUser(ch.getCreateUser(), ch.getModifyUser()));
+                    return data;
+                })
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(channelDataList, channelPage.getPageable(), channelPage.getTotalElements());
+    }
 
     public void addChannel(AddChannelReq req) {
         Channel channel = new Channel();
@@ -101,14 +127,6 @@ public class ChannelFacade {
             throw new BmsException(
                     "工廠ID " + factoryId + " 已存在相同的通道代號，請確認kraken ID 和 通道代號 是否設置正確");
         }
-    }
-
-    public Page<Channel> getChannelList(ListChannelReq listChannelReq) {
-        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues();
-        Channel channel = new Channel();
-        BeanUtils.copyProperties(listChannelReq, channel);
-        Example<Channel> example = Example.of(channel, matcher);
-        return channelService.findAll(example, listChannelReq.getPageable());
     }
 
     public void updateChannel(Long id, UpdateChannelReq request) {
