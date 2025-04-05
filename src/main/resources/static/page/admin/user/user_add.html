@@ -193,12 +193,11 @@
                     success: function(data) {
                         console.log("成功調用 API:", data);
 
-                        // 將返回的數據添加到 parentId 的選項中
+                        // 使用後端返回的 displayText
                         data.forEach(function(item) {
-                            select.append(new Option(item.username + " (" + item.email + ")", item.id));
+                            select.append(new Option(item.displayText, item.id));
                         });
 
-                        // 重新渲染 select 元素，確保 layui 框架正確顯示
                         form.render('select');
                     },
                     error: function() {
@@ -211,31 +210,29 @@
 
 
         // 監聽表單提交
+        // 表單提交事件
         form.on('submit(saveBtn)', function (data) {
-            console.log("提交數據:", data.field);
-
             $.ajax({
                 url: '/api/v1/user/add',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data.field),
                 success: function (response, textStatus, xhr) {
-                    console.log("返回數據:", response);
                     if (xhr.status === 201) {
-                        layer.alert('用戶新增成功', {title: '提示'}, function () {
-                            // 成功後跳轉到用戶列表頁面
-                            window.location.href = 'user_list.html';
+                        layer.alert('新增用戶成功', {title: '提示'}, function (index) {
+                            layer.close(index);
+                            // 修改這裡的跳轉方式
+                            window.location.replace('user_list.html');
                         });
                     } else {
-                        layer.alert('用戶新增失敗', {title: '錯誤'});
+                        layer.alert('新增失敗', {title: '錯誤'});
                     }
                 },
                 error: function (xhr) {
                     handleErrorResponse(xhr);
                 }
             });
-
-            return false; // 阻止默認提交行為
+            return false;
         });
     });
 </script>

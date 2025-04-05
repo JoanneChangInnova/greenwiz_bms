@@ -190,20 +190,15 @@
             $("#dtModify").val(data.dtModify);
 
             // 獲取 parentData，並動態生成下拉框選項
-            var parentData = data.parentData; // 單一管理者數據
+            var parentData = data.parentData;
             var select = $("#parentId");
-            select.empty(); // 清空選項
-            select.append(new Option("請選擇管理者", "")); // 添加默認選項
+            select.empty();
+            select.append(new Option("請選擇管理者", ""));
 
             if (parentData) {
-                // 插入單一管理者數據為選項
-                var option = new Option(
-                        parentData.username + " (" + parentData.email + ")", // 顯示文本
-                        parentData.id // 選項值
-                );
+                // 使用後端返回的 displayText
+                var option = new Option(parentData.displayText, parentData.id);
                 select.append(option);
-
-                // 設置選中值
                 $("#parentId").val(parentData.id);
             }
 
@@ -235,12 +230,11 @@
                     success: function(data) {
                         console.log("成功調用 API:", data);
 
-                        // 將返回的數據添加到 parentId 的選項中
+                        // 使用後端返回的 displayText
                         data.forEach(function(item) {
-                            select.append(new Option(item.username + " (" + item.email + ")", item.id));
+                            select.append(new Option(item.displayText, item.id));
                         });
 
-                        // 重新渲染 select 元素，確保 layui 框架正確顯示
                         form.render('select');
                     },
                     error: function() {
