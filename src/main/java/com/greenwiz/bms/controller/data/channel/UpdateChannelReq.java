@@ -17,7 +17,6 @@ public class UpdateChannelReq extends RequestJson {
     @NotNull(message = "kraken ID不能為空")
     private Long iotDeviceId;
 
-    @NotNull(message = "工廠ID不能為空")
     private Long factoryId;
 
     @NotBlank(message = "名稱不能為空")

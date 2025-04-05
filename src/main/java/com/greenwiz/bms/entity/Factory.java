@@ -23,13 +23,13 @@ public class Factory extends BaseEntity {
     private String name;
 
     @Column(name = "utc_offset", nullable = false, length = 6)
-    private String utcOffset = "+00:00";
+    private String utcOffset;
 
     @Column(name = "max_kwh", nullable = false)
-    private Float maxKwh = 100f;
+    private Float maxKwh;
 
     @Column(name = "monitor_period_minute", nullable = false)
-    private Short monitorPeriodMinute = 15;
+    private Short monitorPeriodMinute;
 
     @Column(name = "country", length = 3)
     private String country;
@@ -38,10 +38,10 @@ public class Factory extends BaseEntity {
     private String address;
 
     @Column(name = "longitude", precision = 9, scale = 6)
-    private BigDecimal longitude = BigDecimal.ZERO;
+    private BigDecimal longitude;
 
     @Column(name = "latitude", precision = 9, scale = 6)
-    private BigDecimal latitude = BigDecimal.ZERO;
+    private BigDecimal latitude;
 
     @Column(name = "comment", length = 2048)
     private String comment;

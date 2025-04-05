@@ -6,12 +6,18 @@ import com.greenwiz.bms.controller.data.factory.UpdateFactoryReq;
 import com.greenwiz.bms.entity.Channel;
 import com.greenwiz.bms.entity.Factory;
 import com.greenwiz.bms.entity.Kraken;
+import com.greenwiz.bms.enumeration.Country;
+import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.service.ChannelService;
 import com.greenwiz.bms.service.FactoryService;
 import com.greenwiz.bms.service.KrakenService;
+import com.greenwiz.bms.service.UserFactoryService;
+import com.greenwiz.bms.utils.ThreadLocalUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -33,6 +39,9 @@ public class FactoryFacade {
 
     @Autowired
     private FactoryService factoryService;
+
+    @Autowired
+    private UserFactoryService userFactoryService;
 
     /**
      * 新增工廠並綁定 Kraken 設備
@@ -181,6 +190,10 @@ public class FactoryFacade {
     private Factory saveFactory(AddFactoryReq addFactoryReq) {
         Factory factory = new Factory();
         BeanUtils.copyProperties(addFactoryReq, factory);
+        Country country = addFactoryReq.getCountry();
+        if (country != null) {
+            factory.setCountry(country.name());
+        }
         factory.setFactoryUuid(UUID.randomUUID());
         return factoryService.saveAndFlush(factory);
     }
@@ -203,11 +216,31 @@ public class FactoryFacade {
         });
     }
 
-    public Page<Factory> getFactoryList(ListFactoryReq request) {
-        return null;
-    }
 
     public void updateFactory(Long id, UpdateFactoryReq request) {
 
+    }
+
+    public Page<Factory> getFactoryList(ListFactoryReq listFactoryReq, UserRole role) {
+        /**
+         * ADMIN可以看所有的factory list
+         * AGENT只能看user_factory中user_id為自己群組的factory:
+         * user_id為自己 = user.parent_id = 登入者id
+         * AGENT: 先找出 user.parent_id = 登入者id 代表找出所有安裝商的user，例如id 2,3，再繼續找出user.parent_id = 2, 3 的客戶
+         * 這些客戶的 id 才去 user_factory 找資料
+         *
+         */
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues()
+                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains());
+        Factory factory = new Factory();
+        factory.setId(listFactoryReq.getFactoryId());
+        factory.setName(listFactoryReq.getName());
+        Example<Factory> example = Example.of(factory, matcher);
+
+        if(role == UserRole.ADMIN){
+            return factoryService.getFactoryPageBySpecification(example, listFactoryReq.getPageable());
+        }
+
+        return null;
     }
 }
