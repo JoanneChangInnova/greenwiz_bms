@@ -1,4 +1,5 @@
 package com.greenwiz.bms.config;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,8 +42,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()   // 放行認證相關接口
-                        .requestMatchers("/captcha/**").permitAll()       // 放行驗證碼生成
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/captcha/**").permitAll()
                         .requestMatchers("/","login.html", "/css/**", "/js/**", "/images/**", "/lib/**").permitAll()
 //                        不做權限控管時打開以下：
 //                        .requestMatchers("/**","/index.html", "/page/index.html", "/css/**", "/js/**", "/images/**",
@@ -52,11 +53,21 @@ public class SecurityConfig {
 //                        控管權限打開以下：
                         .requestMatchers("/page/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/page/agent/**").hasAuthority("AGENT")
-                        .anyRequest().authenticated()                     // 其他接口需認證
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login.html")) // 未認證跳轉到登錄頁
-                        .accessDeniedHandler(accessDeniedHandler) // 無權訪問時跳轉到自定義的 403 頁面
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // 區分 API 請求和頁面請求
+                            if (request.getRequestURI().startsWith("/api/")) {
+                                response.setContentType("application/json;charset=UTF-8");
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.getWriter().write("{\"code\":401,\"message\":\"請重新登入\"}");
+                            } else {
+                                // 非 API 請求則重定向到登入頁
+                                response.sendRedirect("/login.html");
+                            }
+                        })
+                        .accessDeniedHandler(accessDeniedHandler)
                 )
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp
