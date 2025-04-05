@@ -32,12 +32,6 @@
               "href": "page/admin/device/channel_list.html",
               "icon": "fa fa-file-text",
               "target": "_self"
-            },
-            {
-              "title": "批量新增",
-              "href": "/page/table.html",
-              "icon": "fa fa-file-text",
-              "target": "_self"
             }
           ]
         },
