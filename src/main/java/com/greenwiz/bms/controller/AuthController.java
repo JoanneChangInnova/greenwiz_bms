@@ -2,12 +2,12 @@ package com.greenwiz.bms.controller;
 
 import com.greenwiz.bms.controller.data.auth.LoginRequest;
 import com.greenwiz.bms.controller.data.auth.LoginResponse;
-import com.greenwiz.bms.controller.data.user.ChangePasswordRequest;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.facade.UserFacade;
 import com.greenwiz.bms.service.UserService;
 import com.greenwiz.bms.utils.JwtUtils;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +16,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.Cookie;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
 
 /**
  * @author Johnny 2025/1/10

@@ -16,12 +16,10 @@
 <body>
 <div class="layui-form layuimini-form">
     <div class="layui-form-item">
-
         <div class="layui-form-item">
             <label class="layui-form-label required">用戶ID</label>
             <div class="layui-input-block">
-                <input type="text" name="id" lay-verify="required" class="layui-input"
-                       id="id" readonly>
+                <input type="text" name="id" lay-verify="required" class="layui-input" id="id" readonly>
             </div>
         </div>
 
@@ -45,119 +43,109 @@
             </div>
         </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label required">用戶管理者</label>
-        <div class="layui-input-block">
-            <select name="parentId" lay-verify="required" id="parentId" lay-verify="required" lay-search="{caseSensitive:false, fuzzy: true}">
-                <option value="">請選擇管理者</option>
-                <!-- 動態載入 API 返回的數據 -->
-            </select>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">用戶管理者</label>
+            <div class="layui-input-block">
+                <select name="parentId" lay-verify="required" id="parentId" lay-verify="required" lay-search="{caseSensitive:false, fuzzy: true}">
+                    <option value="">請選擇管理者</option>
+                    <!-- 動態載入 API 返回的數據 -->
+                </select>
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">信箱</label>
-        <div class="layui-input-block">
-            <input type="email" name="email" lay-verify="email" placeholder="請輸入電子郵件地址" value="" class="layui-input" id="email">
+        <div class="layui-form-item">
+            <label class="layui-form-label">信箱</label>
+            <div class="layui-input-block">
+                <input type="email" name="email" lay-verify="email" placeholder="請輸入電子郵件地址" value="" class="layui-input" id="email">
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">公司名稱</label>
-        <div class="layui-input-block">
-            <input type="text" name="company" placeholder="請輸入公司名稱" value="" class="layui-input" id="company" >
+        <div class="layui-form-item">
+            <label class="layui-form-label">公司名稱</label>
+            <div class="layui-input-block">
+                <input type="text" name="company" placeholder="請輸入公司名稱" value="" class="layui-input" id="company">
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">公司聯絡人</label>
-        <div class="layui-input-block">
-            <input type="text" name="contact" placeholder="請輸入聯絡人名稱" value="" class="layui-input"  id="contact" >
+        <div class="layui-form-item">
+            <label class="layui-form-label">公司聯絡人</label>
+            <div class="layui-input-block">
+                <input type="text" name="contact" placeholder="請輸入聯絡人名稱" value="" class="layui-input" id="contact">
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">電話國碼</label>
-        <div class="layui-input-block">
-            <input type="text" name="phoneCountryCode" placeholder="請輸入電話國碼" value="" class="layui-input" id="phoneCountryCode">
+        <div class="layui-form-item">
+            <label class="layui-form-label">電話國碼</label>
+            <div class="layui-input-block">
+                <input type="text" name="phoneCountryCode" placeholder="請輸入電話國碼" value="" class="layui-input" id="phoneCountryCode">
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">電話號碼</label>
-        <div class="layui-input-block">
-            <input type="text" name="phoneNumber" placeholder="請輸入電話號碼" value="" class="layui-input" id="phoneNumber" >
+        <div class="layui-form-item">
+            <label class="layui-form-label">電話號碼</label>
+            <div class="layui-input-block">
+                <input type="text" name="phoneNumber" placeholder="請輸入電話號碼" value="" class="layui-input" id="phoneNumber">
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">國家</label>
-        <div class="layui-input-block">
-            <select name="country" lay-verify="required"  id="country">
-                <option value="">請選擇國家</option>
-                <option value="TWN">台灣</option>
-                <option value="MYS">馬來西亞</option>
-            </select>
+        <div class="layui-form-item">
+            <label class="layui-form-label">國家</label>
+            <div class="layui-input-block">
+                <select name="country" lay-verify="required" id="country">
+                    <option value="">請選擇國家</option>
+                    <option value="TWN">台灣</option>
+                    <option value="MYS">馬來西亞</option>
+                </select>
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">地址</label>
-        <div class="layui-input-block">
-            <input type="text" name="address" placeholder="請輸入地址" value="" class="layui-input"  id="address" >
+        <div class="layui-form-item">
+            <label class="layui-form-label">地址</label>
+            <div class="layui-input-block">
+                <input type="text" name="address" placeholder="請輸入地址" value="" class="layui-input" id="address">
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">工廠</label>
-        <div class="layui-input-block">
-            <select name="factoryId" id="factoryId">
-                <option value="">請選擇工廠</option>
-                <!-- 動態載入 API 返回的數據 -->
-            </select>
+        <div class="layui-form-item">
+            <label class="layui-form-label">最大設備數量</label>
+            <div class="layui-input-block">
+                <select name="maxDevice" id="maxDevice">
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                    <option value="30">30</option>
+                    <option value="35">35</option>
+                    <option value="40">40</option>
+                    <option value="45">45</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">最大設備數量</label>
-        <div class="layui-input-block">
-            <select name="maxDevice"  id="maxDevice" >
-                <option value="20">20</option>
-                <option value="25">25</option>
-                <option value="30">30</option>
-                <option value="35">35</option>
-                <option value="40">40</option>
-                <option value="45">45</option>
-                <option value="50">50</option>
-            </select>
+        <div class="layui-form-item">
+            <label class="layui-form-label">語言偏好</label>
+            <div class="layui-input-block">
+                <select name="language" id="language">
+                    <option value="CHT">繁體中文</option>
+                    <option value="ENG">英文</option>
+                </select>
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">語言偏好</label>
-        <div class="layui-input-block">
-            <select name="language" id="language">
-                <option value="CHT">繁體中文</option>
-                <option value="ENG">英文</option>
-            </select>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用戶狀態</label>
+            <div class="layui-input-block">
+                <input type="radio" name="state" value=0 title="待審">
+                <input type="radio" name="state" value=1 title="開通">
+                <input type="radio" name="state" value=2 title="封鎖">
+            </div>
         </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">用戶狀態</label>
-        <div class="layui-input-block">
-            <input type="radio" name="state" value=0 title="待審">
-            <input type="radio" name="state" value=1 title="開通">
-            <input type="radio" name="state" value=2 title="封鎖">
-        </div>
-    </div>
+        <input type="hidden" name="dtModify" class="layui-input" id="dtModify">  <!-- 修改時間 -->
 
-    <input type="hidden" name="dtModify" class="layui-input" id="dtModify">  <!-- 修改時間 -->
-
-    <div class="layui-form-item">
-        <div class="layui-input-block">
-            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">確認保存</button>
-<!--            <button class="layui-btn layui-btn-primary" id="cancelBtn" layuimini-tab-close="current">取消</button>-->
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">確認保存</button>
+            </div>
         </div>
     </div>
 </div>
@@ -168,82 +156,96 @@
     layui.use(['form', 'layer'], function () {
         var form = layui.form, layer = layui.layer, $ = layui.$;
         var userId = new URLSearchParams(window.location.search).get('id'); // 取得 URL 中的用戶 ID
+        var allParentInfo = {}; // 用於儲存所有角色的 ParentInfo
+        var originalParentId = null; // 用於儲存原始的 parentId
 
-        // 從後端 API 獲取用戶資料
-        $.get('/api/v1/user/' + userId, function (data) {
-            // 這裡假設後端返回的是用戶的詳細資料
-            $("#id").val(data.id);
-            $("#username").val(data.username);
-            $("#role").val(data.role); // 假設角色是 1、2 或 3
-	        $("#email").val(data.email);
-	        $("#company").val(data.company);
-	        $("#contact").val(data.contact);
-	        $("#phoneCountryCode").val(data.phoneCountryCode);
-	        $("#phoneNumber").val(data.phoneNumber);
-	        $("#country").val(data.country);
-	        $("#address").val(data.address);
-	        $("#factoryId").val(data.factoryId);
-	        $("#maxDevice").val(data.maxDevice);
-	        $("#language").val(data.language);
-            $("#state").val(data.state);
-            $("input[name='state'][value='" + data.state + "']").prop("checked", true); // 自動勾選對應的 radio 按鈕
-            $("#dtModify").val(data.dtModify);
+        // 頁面載入時，獲取所有角色的 ParentInfo
+        $.get('/api/v1/user/listAllParentInfo', function (data) {
+            allParentInfo = data; // 儲存到變數中
+            console.log("所有角色的 ParentInfo:", allParentInfo);
 
-            // 獲取 parentData，並動態生成下拉框選項
-            var parentData = data.parentData;
-            var select = $("#parentId");
-            select.empty();
-            select.append(new Option("請選擇管理者", ""));
-
-            if (parentData) {
-                // 使用後端返回的 displayText
-                var option = new Option(parentData.displayText, parentData.id);
-                select.append(option);
-                $("#parentId").val(parentData.id);
-            }
-
-            // 重新渲染表單
-            form.render('select');
-	        form.render(); // 渲染表單
+            // 載入用戶資料
+            loadUserData();
+        }).fail(function () {
+            layer.msg('無法載入管理者資料，請重試');
         });
 
-        // 當角色選擇改變時，動態載入管理者選單
-        form.on('select(role)', function(data) {
-            console.log("角色選擇改變:", data.value);
-            var userRole = data.value; // 取得選中的角色值
+        // 載入用戶資料
+        function loadUserData() {
+            $.get('/api/v1/user/' + userId, function (data) {
+                $("#id").val(data.id);
+                $("#username").val(data.username);
+                $("#role").val(data.role);
+                $("#email").val(data.email);
+                $("#company").val(data.company);
+                $("#contact").val(data.contact);
+                $("#phoneCountryCode").val(data.phoneCountryCode);
+                $("#phoneNumber").val(data.phoneNumber);
+                $("#country").val(data.country);
+                $("#address").val(data.address);
+                $("#maxDevice").val(data.maxDevice);
+                $("#language").val(data.language);
+                $("#state").val(data.state);
+                $("input[name='state'][value='" + data.state + "']").prop("checked", true);
+                $("#dtModify").val(data.dtModify);
 
-            // 清空 parentId 選項
-            var select = $("select[name='parentId']");
+                // 設置 parentId 下拉選單，保留原始功能
+                var select = $("#parentId");
+                select.empty();
+                select.append(new Option("請選擇管理者", ""));
+
+                // 保留原始 parentData 的顯示
+                if (data.parentData) {
+                    var option = new Option(data.parentData.displayText, data.parentData.id);
+                    select.append(option);
+                    $("#parentId").val(data.parentData.id);
+                    originalParentId = data.parentData.id; // 儲存原始 parentId
+                }
+
+                // 如果有角色，則根據角色載入 parentId 選項
+                var userRole = $("#role").val();
+                if (userRole && allParentInfo[userRole]) {
+                    updateParentOptions(userRole, true); // 保留原始 parentId
+                }
+
+                form.render('select');
+                form.render();
+            }).fail(function () {
+                layer.msg('無法載入用戶資料，請重試');
+            });
+        }
+
+        // 根據角色更新 parentId 下拉選單
+        function updateParentOptions(userRole, keepOriginal) {
+            var select = $("#parentId");
+            var currentValue = keepOriginal ? $("#parentId").val() : null; // 如果需要保留原始值，則使用當前值
             select.empty();
             select.append(new Option("請選擇管理者", ""));
 
-            if (userRole) {
-                // 構造請求數據
-                var requestData = JSON.stringify({ userRole: userRole });
-
-                // 發送 POST 請求到後端，傳遞 userRole 參數
-                $.ajax({
-                    url: '/api/v1/user/listParentInfo',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: requestData,
-                    success: function(data) {
-                        console.log("成功調用 API:", data);
-
-                        // 使用後端返回的 displayText
-                        data.forEach(function(item) {
-                            select.append(new Option(item.displayText, item.id));
-                        });
-
-                        form.render('select');
-                    },
-                    error: function() {
-                        // 如果請求失敗，顯示錯誤信息
-                        alert('無法加載選項，請重試');
-                    }
+            // 從 allParentInfo 中獲取對應角色的 ParentInfo
+            if (userRole && allParentInfo[userRole]) {
+                allParentInfo[userRole].forEach(function (item) {
+                    select.append(new Option(item.displayText, item.id));
                 });
             }
+
+            // 如果需要保留原始 parentId，則設置回去
+            if (keepOriginal && currentValue && select.find("option[value='" + currentValue + "']").length > 0) {
+                $("#parentId").val(currentValue);
+            } else if (!keepOriginal && originalParentId && select.find("option[value='" + originalParentId + "']").length > 0) {
+                $("#parentId").val(originalParentId); // 恢復原始 parentId
+            }
+
+            form.render('select');
+        }
+
+        // 當角色選擇改變時，從 allParentInfo 中獲取資料
+        form.on('select(role)', function (data) {
+            console.log("角色選擇改變:", data.value);
+            var userRole = data.value;
+            updateParentOptions(userRole, false); // 角色改變時不保留當前選擇，恢復原始 parentId
         });
+
         // 表單提交事件
         form.on('submit(saveBtn)', function (data) {
             console.log("提交數據:", data.field);
@@ -267,14 +269,9 @@
                 }
             });
 
-            return false; // 阻止默認提交行為
+            return false;
         });
-
-    // // 綁定取消按鈕事件
-    // $('#cancelBtn').on('click', function () {
-    //     miniTab.deleteCurrentByIframe();
-    // });
-     });
+    });
 </script>
 </body>
 </html>

@@ -32,6 +32,7 @@ public class Factory extends BaseEntity {
     @Column(name = "monitor_period_minute", nullable = false)
     private Short monitorPeriodMinute;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "country", length = 3)
     private Country country;
 

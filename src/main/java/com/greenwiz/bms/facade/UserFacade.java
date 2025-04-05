@@ -13,6 +13,7 @@ import com.greenwiz.bms.utils.ValidationUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -58,8 +61,31 @@ public class UserFacade {
             newUser.setState(UserState.APPROVED); // 管理員新增，默認狀態：開通
         }
 
+        Long userId = userService.getNextUserId();
+        newUser.setId(userId);
+
+        assignAgentIdByRole(newUser, userId);
+
         return userService.save(newUser);
     }
+
+    private void assignAgentIdByRole(User user, Long userId) {
+        if (user.getRole() == UserRole.AGENT) {
+            user.setAgentId(userId);
+        } else if (user.getRole() == UserRole.INSTALLER) {
+            if (user.getParentId() == null) {
+                throw new BmsException("上層管理者不可為空");
+            }
+            user.setAgentId(user.getParentId());
+        } else if (user.getRole() == UserRole.CUSTOMER) {
+            if (user.getParentId() == null) {
+                throw new BmsException("上層管理者不可為空");
+            }
+            Long agentId = userService.findAgentIdByUserId(user.getParentId());
+            user.setAgentId(agentId);
+        }
+    }
+
 
     /**
      *  管理員可看到所有用戶
@@ -114,8 +140,28 @@ public class UserFacade {
         }
 
         BeanUtils.copyProperties(updateUserReq, user);
+        Long oldAgentId = user.getAgentId();
+        assignAgentIdByRole(user, user.getId());
+        updateCustomersAgentIdIfInstaller(user, oldAgentId);
         return userService.save(user);
     }
+
+    /**
+     * 若INSTALLER更新上層管理者，即更新parent_id,
+     * 則其 agentId 也改變，且 INSTALLER 底下的 CUSTOMER 的 agentId 也需一同改變
+     * 使用悲觀鎖鎖定 customer，避免更新衝突。
+     */
+    @Transactional(Transactional.TxType.REQUIRED)
+    public void updateCustomersAgentIdIfInstaller(User user, Long oldAgentId) {
+        if (!Objects.equals(oldAgentId, user.getAgentId()) && user.getRole() == UserRole.INSTALLER) {
+            List<User> customers = userService.findCustomersWithLockByAgentId(oldAgentId);
+            for (User customer : customers) {
+                customer.setAgentId(user.getAgentId());
+            }
+            userService.saveAllAndFlush(customers);
+        }
+    }
+
 
     /**
      * 管理員可申請任何角色帳號：

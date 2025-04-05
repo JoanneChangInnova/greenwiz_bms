@@ -13,6 +13,8 @@ import java.util.List;
 
 public interface UserService extends BaseDomainService<Long, User> {
 
+    Long getNextUserId();
+
     /**
      * 分頁列出用戶
      * @param pageReq 分頁請求參數
@@ -54,4 +56,10 @@ public interface UserService extends BaseDomainService<Long, User> {
 
 
     List<UserData> findAllUserDataByRoleCustomer();
+
+    Long findAgentIdByUserId(Long userId);
+
+    List<User> findByAgentIdAndUserRole(Long agentId, UserRole userRole);
+
+    List<User> findCustomersWithLockByAgentId(Long oldAgentId);
 }

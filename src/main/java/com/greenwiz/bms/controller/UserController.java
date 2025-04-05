@@ -4,10 +4,12 @@ import com.greenwiz.bms.controller.data.base.LayuiTableResp;
 import com.greenwiz.bms.controller.data.base.PageReq;
 import com.greenwiz.bms.controller.data.user.*;
 import com.greenwiz.bms.entity.User;
+import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.facade.UserFacade;
 import com.greenwiz.bms.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -34,6 +38,20 @@ public class UserController {
         return userFacade.listParentInfo(request.getUserRole());
     }
 
+    @GetMapping("/listAllParentInfo")
+    public Map<String, List<UserData>> listAllParentInfo() {
+        Map<String, List<UserData>> allParentInfo = new HashMap<>();
+
+        // 使用 UserRole 枚舉遍歷所有角色
+        for (UserRole role : UserRole.values()) {
+            List<UserData> parentInfo = userFacade.listParentInfo(role);
+            allParentInfo.put(String.valueOf(role.getValue()), parentInfo);
+        }
+
+        return allParentInfo;
+    }
+
+    @Transactional(Transactional.TxType.REQUIRED)
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@Valid @RequestBody AddUserReq addUserReq) {
         User addedUser = userFacade.addUser(addUserReq);
@@ -47,6 +65,7 @@ public class UserController {
     }
 
 
+    @Transactional(Transactional.TxType.REQUIRED)
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody @Valid UpdateUserReq updateUserReq) {
         userFacade.updateUser(updateUserReq);

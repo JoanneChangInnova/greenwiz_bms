@@ -30,6 +30,11 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
     private PasswordEncoder passwordEncoder;
 
     @Override
+    public Long getNextUserId() {
+        return jpaRepository.getNextUserId();
+    }
+
+    @Override
     public Page<User> listUser(PageReq pageReq) {
         Sort.Direction direction = Sort.Direction.fromString(pageReq.getDirection());
         Pageable pageable = PageRequest.of(pageReq.getPage(), pageReq.getSize(), direction, pageReq.getSortBy());
@@ -77,5 +82,20 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
 
     public List<UserData> findAllUserDataByRoleCustomer() {
         return jpaRepository.findAllUserDataByRoleCustomer();
+    }
+
+    @Override
+    public Long findAgentIdByUserId(Long userId) {
+        return jpaRepository.findAgentIdByUserId(userId);
+    }
+
+    @Override
+    public List<User> findByAgentIdAndUserRole(Long agentId, UserRole userRole) {
+        return jpaRepository.findByAgentIdAndRole(agentId, userRole);
+    }
+
+    @Override
+    public List<User> findCustomersWithLockByAgentId(Long oldAgentId) {
+        return jpaRepository.findCustomersWithLockByAgentId(oldAgentId);
     }
 }

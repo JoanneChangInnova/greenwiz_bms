@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class User extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
@@ -27,6 +26,13 @@ public class User extends BaseEntity {
      * 父帳號 ID，對應其他用戶的 ID
      */
     private Long parentId;
+
+    /**
+     * 代理商 ID，除了ADMIN其他角色必填
+     * 同一個代理商底下的 安裝商和用戶，其agentId相同，
+     * 方便查找出同一群組（同一個代理商）的所有用戶id
+     */
+    private Long agentId;
 
     /**
      * 電子郵件地址

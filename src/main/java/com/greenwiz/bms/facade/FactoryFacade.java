@@ -197,7 +197,7 @@ public class FactoryFacade {
         BeanUtils.copyProperties(addFactoryReq, factory);
         Country country = addFactoryReq.getCountry();
         if (country != null) {
-            factory.setCountry(country.name());
+            factory.setCountry(country);
         }
         factory.setFactoryUuid(UUID.randomUUID());
         return factoryService.saveAndFlush(factory);
