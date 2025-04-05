@@ -1,13 +1,10 @@
 package com.greenwiz.bms.service;
 
 import com.greenwiz.bms.controller.data.base.PageReq;
-import com.greenwiz.bms.controller.data.user.AddUserReq;
 import com.greenwiz.bms.controller.data.user.UserData;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.enumeration.UserRole;
 import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -62,4 +59,6 @@ public interface UserService extends BaseDomainService<Long, User> {
     List<User> findByAgentIdAndUserRole(Long agentId, UserRole userRole);
 
     List<User> findCustomersWithLockByAgentId(Long oldAgentId);
+
+    UserData getUserDataByUserId(Long userId);
 }

@@ -13,7 +13,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface UserRepository  extends JpaRepository<User,Long> {
@@ -25,7 +24,7 @@ public interface UserRepository  extends JpaRepository<User,Long> {
 
     List<User> findByParentIdIn(List<Long> parentIds);
 
-    @Query("SELECT new com.greenwiz.bms.controller.data.user.UserData(u.id, u.email, u.username) FROM User u WHERE u" +
+    @Query("SELECT new com.greenwiz.bms.controller.data.user.UserData(u.id, u.username, u.email) FROM User u WHERE u" +
             ".role = 3")
     List<UserData> findAllUserDataByRoleCustomer();
 
@@ -43,4 +42,8 @@ public interface UserRepository  extends JpaRepository<User,Long> {
             @QueryHint(name = "javax.persistence.lock.timeout", value = "3000") // 3秒
     })
     List<User> findCustomersWithLockByAgentId(@Param("agentId") Long agentId);
+
+    @Query("SELECT new com.greenwiz.bms.controller.data.user.UserData(u.id, u.username, u.email) FROM User u WHERE u" +
+            ".id = :userId")
+    UserData getUserDataByUserId(Long userId);
 }

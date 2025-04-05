@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -88,16 +87,15 @@ public class UserFacade {
 
 
     /**
-     *  管理員可看到所有用戶
-     *  其他角色只可看到parentId為自己的用戶 (尚未實作）
+     * 管理員可看到所有用戶
+     * 其他角色只可看到parentId為自己的用戶 (尚未實作）
      */
     public Page<UserListData> listUser(PageReq pageReq) {
         // 1. 獲取用戶分頁結果
         Page<User> userPage = userService.listUser(pageReq);
 
         // 2. 提取 parentIds（去重）
-        List<Long> parentIds = userPage.getContent().stream()
-                .map(User::getParentId) // 提取 parentId
+        List<Long> parentIds = userPage.getContent().stream().map(User::getParentId) // 提取 parentId
                 .filter(parentId -> parentId != null) // 過濾掉空值
                 .distinct() // 去重
                 .collect(Collectors.toList());
@@ -107,20 +105,19 @@ public class UserFacade {
 
         // 4. 將父帳號信息轉換為 Map<parentId, parentUserInfo>
         Map<Long, String> parentInfoMap = parentList.stream()
-                .collect(Collectors.toMap(
-                        User::getId,
-                        user -> user.getUsername() + " (" + user.getEmail() + ")"
-                ));
+                .collect(Collectors.toMap(User::getId, user -> user.getUsername() + " (" + user.getEmail() + ")"));
 
-        // 5. 使用 BeanUtils.copyProperties 簡化屬性賦值
-        List<UserListData> userListData = userPage.getContent().stream()
-                .map(user -> {
-                    UserListData data = new UserListData();
-                    BeanUtils.copyProperties(user, data); // 自動拷貝相同名稱的屬性
-                    data.setParentUserInfo(parentInfoMap.getOrDefault(user.getParentId(), "無")); // 手動設置額外字段
-                    return data;
-                })
-                .collect(Collectors.toList());
+        // 5. 轉換 User 為 UserListData，並設置 createModifyUser
+        List<UserListData> userListData = userPage.getContent().stream().map(user -> {
+            UserListData data = new UserListData();
+            BeanUtils.copyProperties(user, data); // 自動拷貝相同名稱的屬性
+            data.setParentUserInfo(parentInfoMap.getOrDefault(user.getParentId(), "無")); // 設置 parentUserInfo
+
+            // 設置 createModifyUser
+            data.setCreateModifyUser(buildCreateModifyUser(data.getCreateUser(), data.getModifyUser()));
+
+            return data;
+        }).collect(Collectors.toList());
 
         // 6. 返回轉換後的分頁結果
         return new PageImpl<>(userListData, userPage.getPageable(), userPage.getTotalElements());
@@ -129,12 +126,12 @@ public class UserFacade {
     public User updateUser(UpdateUserReq updateUserReq) {
         User user = userService.findByPk(updateUserReq.getId());
 
-        ValidationUtils.validateVersion(updateUserReq.getDtModify(),user.getDtModify());
+        ValidationUtils.validateVersion(updateUserReq.getDtModify(), user.getDtModify());
 
         //用戶名稱若修改，檢查是否已有同名用戶
-        if(!updateUserReq.getEmail().equals(user.getEmail())){
+        if (!updateUserReq.getEmail().equals(user.getEmail())) {
             User userByEmail = userService.findByEmail(updateUserReq.getEmail());
-            if(userByEmail != null){
+            if (userByEmail != null) {
                 throw new BmsException("Email已存在，請選擇其他Email");
             }
         }
@@ -165,10 +162,10 @@ public class UserFacade {
 
     /**
      * 管理員可申請任何角色帳號：
-     *  - 角色為管理員 -> 上層findByRole0
-     *  - 角色為代理商 -> 上層findByRole0
-     *  - 角色為安裝商 -> 上層findByRole1
-     *  - 角色為客戶   -> 上層findByRole2
+     * - 角色為管理員 -> 上層findByRole0
+     * - 角色為代理商 -> 上層findByRole0
+     * - 角色為安裝商 -> 上層findByRole1
+     * - 角色為客戶   -> 上層findByRole2
      * 代理商只能申請安裝商：上層只能填代理商自己
      * 安裝商可申請客戶，但需上層代理商或管理員審核：上層填安裝商自己
      */
@@ -191,22 +188,20 @@ public class UserFacade {
         }
 
         // 將 userList 轉換為 ParentData 列表
-        return userList.stream()
-                .map(user -> new UserData(user.getId(), user.getUsername(), user.getEmail()))
-                .toList();
+        return userList.stream().map(user -> new UserData(user.getId(), user.getUsername(), user.getEmail())).toList();
     }
 
-    private User findUserByEmailOrFail(String email){
+    private User findUserByEmailOrFail(String email) {
         User user = userService.findByEmail(email);
-        if(user == null){
+        if (user == null) {
             throw new BmsException("User不存在");
         }
         return user;
     }
 
-    private User findUserByIdOrFail(Long id){
+    private User findUserByIdOrFail(Long id) {
         User user = userService.findByPk(id);
-        if(user == null){
+        if (user == null) {
             throw new BmsException("User不存在");
         }
         return user;
@@ -218,18 +213,18 @@ public class UserFacade {
             throw new BmsException("找不到此用戶，id:" + id);
         }
         User parentUser = userService.findByPk(user.getParentId());
-        if(parentUser == null){
+        if (parentUser == null) {
             throw new BmsException("找不到管理者用戶，id:" + id);
         }
         UserData parentData = new UserData(parentUser.getId(), parentUser.getUsername(), parentUser.getEmail());
         GetUserData getUserData = new GetUserData();
-        BeanUtils.copyProperties(user,getUserData);
+        BeanUtils.copyProperties(user, getUserData);
         getUserData.setParentData(parentData);
         return getUserData;
     }
 
-    public void changePassword(String oldPassword, String newPassword,
-                               HttpServletRequest httpRequest, HttpServletResponse response) {
+    public void changePassword(String oldPassword, String newPassword, HttpServletRequest httpRequest,
+                               HttpServletResponse response) {
         // 取得當前用戶資訊
         String token = jwtUtils.extractJwtFromCookie(httpRequest);
         if (token == null || !jwtUtils.validateToken(token)) {
@@ -275,5 +270,31 @@ public class UserFacade {
 
     public List<UserData> listUserDataByUserRoleCustomer() {
         return userService.findAllUserDataByRoleCustomer();
+    }
+
+    public UserData getUserDataByuserId(Long userId) {
+        return userService.getUserDataByUserId(userId);
+    }
+
+    private CreateModifyUser buildCreateModifyUser(Long createUser, Long modifyUser) {
+        CreateModifyUser createModifyUser = new CreateModifyUser();
+
+        // 查詢 createUser 的資訊
+        if (createUser != null) {
+            UserData createUserData = getUserDataByuserId(createUser);
+            createModifyUser.setCreateUserInfo(createUserData != null ? createUserData.getDisplayText() : "無");
+        } else {
+            createModifyUser.setCreateUserInfo("無");
+        }
+
+        // 查詢 modifyUser 的資訊
+        if (modifyUser != null) {
+            UserData modifyUserData = getUserDataByuserId(modifyUser);
+            createModifyUser.setModifyUserInfo(modifyUserData != null ? modifyUserData.getDisplayText() : "無");
+        } else {
+            createModifyUser.setModifyUserInfo("無");
+        }
+
+        return createModifyUser;
     }
 }

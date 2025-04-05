@@ -98,4 +98,9 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
     public List<User> findCustomersWithLockByAgentId(Long oldAgentId) {
         return jpaRepository.findCustomersWithLockByAgentId(oldAgentId);
     }
+
+    @Override
+    public UserData getUserDataByUserId(Long userId) {
+        return jpaRepository.getUserDataByUserId(userId);
+    }
 }

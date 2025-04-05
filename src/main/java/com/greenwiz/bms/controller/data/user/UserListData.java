@@ -10,4 +10,5 @@ public class UserListData extends BaseUser {
      */
     private String parentUserInfo;
 
+    private CreateModifyUser createModifyUser;
 }
