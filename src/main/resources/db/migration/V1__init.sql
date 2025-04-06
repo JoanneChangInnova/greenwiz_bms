@@ -2,7 +2,7 @@ CREATE SEQUENCE USER_SEQ
     INCREMENT BY 1
     MINVALUE 1
     MAXVALUE 2147483647
-    START 1
+    START 2
     CACHE 1
 	NOCYCLE;
 
@@ -105,19 +105,7 @@ CREATE TABLE IF NOT EXISTS `iot_device` (
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-# CREATE TABLE IF NOT EXISTS `monitor_channel` (
-#  `channel_id` BIGINT UNSIGNED NOT NULL,
-#  `device_model` VARCHAR(100) NULL COMMENT 'monitor設備型號，METSEPM2220,METSEPM1125HCL05RD,IEM2455-230V-100A,SPM80000-60,SPM301-60,SPM1,SW1100-1P3W,SW3200-010,STD640,SMT660',
-#  `monitor_type` VARCHAR(50) NOT NULL COMMENT 'breaker type監測相位，1P+N, 2P, 2P+N, 3P, 3P+N',
-#  PRIMARY KEY (`channel_id`)
-# );
-#
-# CREATE TABLE IF NOT EXISTS `controller_channel` (
-# `channel_id` BIGINT UNSIGNED NOT NULL,
-# `device_model` VARCHAR(100) NULL COMMENT 'controller設備型號，SWB,CX-IR0001S,AMA-Fans',
-# `control_type` VARCHAR(50) NULL COMMENT '控制類型，CX-IR0001S:Auto,Only Air,Strong Air,OFF; AMA-Fans:1,2,3,OFF; SWB:ON,OFF',
-# `temperature` SMALLINT UNSIGNED NULL COMMENT '溫度，僅CX-IR0001S需填，值16~30',
-# PRIMARY KEY (`channel_id`)
-# );
-
+INSERT INTO `user`
+(id, create_user, dt_create, dt_modify, username, modify_user, address, parent_id, agent_id, company, contact, country, email, `language`, `level`, max_device, password, phone_country_code, phone_number, `role`, state)
+VALUES(1, 1, '2025-04-07 01:20:35.810', '2025-04-07 01:20:35.812', 'admin', 1, '', 1, NULL, '', '', 'TWN',
+'admin@email.com', 'CHT', NULL, 20, '{bcrypt}$2a$10$bIFhwJ23EwUhX2eflJ0cQuS.mboZ7/0s3KW1Ve/.1PHyOy6uX5rbW', '', '', 0, 1);

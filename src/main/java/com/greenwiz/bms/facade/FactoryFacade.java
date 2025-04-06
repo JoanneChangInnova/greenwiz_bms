@@ -227,11 +227,12 @@ public class FactoryFacade {
     }
 
     /**
-     * ADMIN可以看所有的factory list
-     * AGENT只能看user_factory中user_id為自己群組的factory:
-     * user_id為自己 = user.parent_id = 登入者id
-     * AGENT: 先找出 user.parent_id = 登入者id 代表找出所有安裝商的user，例如id 2,3，再繼續找出user.parent_id = 2, 3 的客戶
-     * 這些客戶的 id 才去 user_factory 找資料
+     * 如果 UserRole 是
+     * ADMIM :
+     * 可以看所有的factory list，直接select all factory list
+     * AGENT :
+     * 搜尋 agent_id = ThreadLocalUtils.getUser().getId() And role = 3 的 UserIds
+     * 再到 UserFactory 找符合這些
      *
      */
     public Page<Factory> getFactoryList(ListFactoryReq listFactoryReq, UserRole role) {
