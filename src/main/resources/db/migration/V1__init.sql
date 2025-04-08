@@ -33,28 +33,26 @@ UNIQUE KEY `unique_email` (`email`) COMMENT '唯一約束，防止重複的email
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用戶表';
 
 CREATE TABLE IF NOT EXISTS `channel` (
-`id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主鍵，唯一標識每個通道',
-`factory_id` BIGINT UNSIGNED NULL COMMENT '工廠 ID，關聯工廠資料表的主鍵',
-`iot_device_id` BIGINT UNSIGNED NULL COMMENT '關聯iot_device表的主鍵',
-`addr` TINYINT UNSIGNED NULL COMMENT 'Modbus 地址，值範圍 1~30，同一個kraken內不可重複',
-`name` VARCHAR(50) DEFAULT NULL COMMENT '名稱',
-`channel_name` VARCHAR(20) NULL COMMENT '通道代號，格式為四層結構，第一層必為大寫英文字母A~Z，各層用 - 符號連接，二至四層可為01~99數字，例如A-01-99-99，第二層亦可為M，例如A-M，Z-M，同一個工廠內通道代號不可重複。',
-`device_type`  VARCHAR(20) NULL COMMENT '設備類型，controller, monitor',
-`device_model` VARCHAR(100) NULL COMMENT '設備型號，
-Monitor:METSEPM2220,METSEPM1125HCL05RD,IEM2455-230V-100A,SPM80000-60,SPM301-60,SPM1,SW1100-1P3W,SW3200-010,STD640,SMT660
-Controller:SWB,CX-IR0001S,AMA-Fans',
-`function_mode` VARCHAR(50) NULL COMMENT '功能模式，monitor:1P+N/2P/2P+N/3P/3P+N; controller不填',
-`statistics_in_ov` BOOLEAN NULL COMMENT '是否為總用電通道，值為 TRUE 或 FALSE',
-`state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:offline, 1:online',
-`description` VARCHAR(50) DEFAULT NULL COMMENT '描述',
-`dt_modify` DATETIME NULL COMMENT '修改時間',
-`dt_create` DATETIME NULL COMMENT '創建時間',
-`create_user` BIGINT NULL COMMENT '建立資料的使用者 id',
-`modify_user` BIGINT NULL COMMENT '修改資料的使用者 id',
-PRIMARY KEY (`id`),
-UNIQUE KEY `unique_iot_device_addr` (`iot_device_id`, `addr`) COMMENT '唯一約束，防止重複的iot_device_id和addr',
-UNIQUE KEY `unique_factory_channel_name` (`factory_id`, `channel_name`) COMMENT '唯一約束，防止重複的factory_id和channel_name'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通道表，存儲通道相關信息';
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主鍵，唯一標識每個通道',
+    `factory_id` BIGINT UNSIGNED NULL COMMENT '工廠 ID，關聯工廠資料表的主鍵',
+    `iot_device_id` BIGINT UNSIGNED NULL COMMENT '關聯iot_device表的主鍵',
+    `addr` TINYINT UNSIGNED NULL COMMENT 'Modbus 地址，值範圍 1~30，同一個kraken內不可重複',
+    `name` VARCHAR(50) DEFAULT NULL COMMENT '名稱',
+    `channel_name` VARCHAR(20) NULL COMMENT '通道代號，格式為四層結構，例如 A-M、A-01-99-99',
+    `device_type` VARCHAR(50) NULL COMMENT '設備類型，例如 controller, monitor, switch 等',
+    `device_model` VARCHAR(100) NULL COMMENT '設備型號',
+    `function_mode` VARCHAR(50) NULL COMMENT '功能模式，monitor:1P+N/2P 等；controller 不填',
+    `statistics_in_ov` BOOLEAN NULL COMMENT '是否為總用電通道',
+    `state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:offline, 1:online',
+    `description` VARCHAR(50) DEFAULT NULL COMMENT '描述',
+    `dt_modify` DATETIME NULL COMMENT '修改時間',
+    `dt_create` DATETIME NULL COMMENT '創建時間',
+    `create_user` BIGINT NULL COMMENT '建立資料的使用者 id',
+    `modify_user` BIGINT NULL COMMENT '修改資料的使用者 id',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_iot_device_addr` (`iot_device_id`, `addr`) COMMENT '唯一約束，防止重複的iot_device_id和addr',
+    UNIQUE KEY `unique_factory_channel_name` (`factory_id`, `channel_name`) COMMENT '唯一約束，防止重複的factory_id和channel_name'
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通道表，存儲通道相關信息';
 
 CREATE TABLE IF NOT EXISTS `factory` (
  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主鍵',

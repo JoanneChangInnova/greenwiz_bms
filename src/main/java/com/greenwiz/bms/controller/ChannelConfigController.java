@@ -14,7 +14,7 @@ import java.util.Map;
  * @author Johnny 2025/4/8
  */
 @RestController
-@RequestMapping("/api/V1/channel-config")
+@RequestMapping("/api/v1/channel-config")
 @RequiredArgsConstructor
 public class ChannelConfigController {
 
@@ -27,5 +27,14 @@ public class ChannelConfigController {
     public List<ChannelTypeDeviceModelDTO> getChannelTypeWithModels() {
         return channelConfigService.getChannelTypeWithDeviceModels();
     }
+
+    /**
+     * 取得所有 channelType（用於設備類型下拉選單）
+     */
+    @GetMapping("/channel-types")
+    public List<Map<String, Object>> getAllChannelTypes() {
+        return channelConfigService.getAllChannelTypesSimple();
+    }
+
 
 }

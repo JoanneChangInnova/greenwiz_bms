@@ -11,7 +11,21 @@ public enum DeviceType {
     /**
      * 監視器 (Monitor)。
      */
-    MONITOR;
+    MONITOR,
+    /**
+     * 開關類型控制器。
+     */
+    SWITCH,
+
+    /**
+     * 紅外線控制器。
+     */
+    IR_CONTROL,
+
+    /**
+     * AMA 技術類型控制器。
+     */
+    AMA_TECH;
 
 
 }

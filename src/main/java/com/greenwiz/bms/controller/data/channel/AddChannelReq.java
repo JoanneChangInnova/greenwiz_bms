@@ -3,6 +3,7 @@ package com.greenwiz.bms.controller.data.channel;
 import com.greenwiz.bms.controller.data.base.RequestJson;
 import com.greenwiz.bms.enumeration.DeviceType;
 import com.greenwiz.bms.enumeration.State;
+import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.utils.ValidationUtils;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -42,8 +43,13 @@ public class AddChannelReq extends RequestJson {
 
     @Override
     protected void validate() throws RuntimeException {
+        if (deviceType == null) {
+            throw new BmsException("設備類型不能為空");
+        }
+
         ValidationUtils.validateChannelName(channelName);
         ValidationUtils.validateDeviceModel(deviceType, deviceModel);
-        ValidationUtils.validateFunctionMode(deviceModel, functionMode);
+        ValidationUtils.validateFunctionMode(deviceType.name(), functionMode); // 因為方法接收 String
     }
+
 }

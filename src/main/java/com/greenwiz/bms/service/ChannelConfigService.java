@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,4 +42,16 @@ public class ChannelConfigService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    public List<Map<String, Object>> getAllChannelTypesSimple() {
+        return channelTypeRepository.findAll().stream()
+                .map(ct -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("channelTypeId", ct.getId());
+                    map.put("name", ct.getName());
+                    return map;
+                })
+                .collect(Collectors.toList());
+    }
+
 }
