@@ -1,5 +1,6 @@
 package com.greenwiz.bms.enumeration;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
@@ -25,10 +26,21 @@ public enum UserRole {
         this.value = value;
     }
 
-    public static UserRole fromValue(Integer value) {
-        for (UserRole role : UserRole.values()) {
-            if (role.getValue().equals(value)) {
-                return role;
+    @JsonCreator
+    public static UserRole fromValue(Object value) {
+        if (value instanceof Integer) {
+            Integer intValue = (Integer) value;
+            for (UserRole role : UserRole.values()) {
+                if (role.getValue().equals(intValue)) {
+                    return role;
+                }
+            }
+        } else if (value instanceof String) {
+            Integer intValue = Integer.parseInt((String) value);
+            for (UserRole role : UserRole.values()) {
+                if (role.getValue().equals(intValue)) {
+                    return role;
+                }
             }
         }
         throw new IllegalArgumentException("找不到對應的角色值: " + value);

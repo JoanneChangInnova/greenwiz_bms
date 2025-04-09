@@ -32,6 +32,25 @@
                         </div>
                     </div>
                     <div class="layui-inline">
+                        <label class="layui-form-label">擁有者角色</label>
+                        <div class="layui-input-inline">
+                            <select name="userRole" lay-filter="roleSelect">
+                                <option value="">請選擇角色</option>
+                                <option value="0">管理者</option>
+                                <option value="1">代理商</option>
+                                <option value="2">安裝商</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">擁有者</label>
+                        <div class="layui-input-inline">
+                            <select name="userId" id="userSelect">
+                                <option value="">請先選擇角色</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
                         <label class="layui-form-label">狀態</label>
                         <div class="layui-input-inline">
                             <select name="state">
@@ -66,18 +85,6 @@
                                 <input type="text" name="dtInstall" class="layui-input" placeholder="yyyy-MM-dd" id="dtInstall">
                             </div>
                         </div>
-                    <div class="layui-inline">
-                        <label class="layui-form-label">建立者</label>
-                        <div class="layui-input-inline">
-                            <input type="text" name="createUser" autocomplete="off" class="layui-input" placeholder="請輸入建立者">
-                        </div>
-                    </div>
-                    <div class="layui-inline">
-                        <label class="layui-form-label">修改者</label>
-                        <div class="layui-input-inline">
-                            <input type="text" name="modifyUser" autocomplete="off" class="layui-input" placeholder="請輸入修改者">
-                        </div>
-                    </div>
                     <div class="layui-inline">
                         <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
                             <i class="layui-icon"></i> 搜 尋
@@ -153,15 +160,16 @@
 
         // 加載數據函數
         function loadTableData(page, size, filters) {
-            // 構建查詢參數，直接對應 ListKrakenReq 的結構
+            // 構建查詢參數
             var queryParams = {
-                page: page , // 後端 PageReq 的 page 是從 0 開始的
+                page: page,
                 size: size,
-                sortBy: 'id', // 默認排序字段
-                direction: 'asc', // 默認升序
+                sortBy: 'id',
+                direction: 'asc',
                 id: filters.id || null,
                 factoryId: filters.factoryId || null,
                 userId: filters.userId || null,
+                userRole: filters.userRole || null,  // 直接使用原始值，不進行轉換
                 krakenModel: filters.krakenModel || null,
                 factoryIotSerial: filters.factoryIotSerial || null,
                 name: filters.name || null,
@@ -210,7 +218,8 @@
 
         // 搜索功能
         form.on('submit(data-search-btn)', function (data) {
-            // 使用表單字段作為過濾條件，直接對應 ListKrakenReq 的屬性
+               console.log('提交的原始數據:', data.field);
+            // 使用表單字段作為過濾條件
             loadTableData(1, 10, data.field);
             return false;
         });
@@ -268,6 +277,34 @@
             }
         });
 
+
+        // 在 loadTableData 函數中的 queryParams 已經包含了 userId 和 userRole，不需要修改
+        // 監聽角色選擇
+        form.on('select(roleSelect)', function(data) {
+            if (!data.value) return;
+            
+            var roleValue = Number(data.value);
+            
+            // 根據選擇的角色獲取用戶列表
+            $.ajax({
+                url: '/api/v1/user/list/by-role/' + roleValue,
+                method: 'GET',
+                success: function(response) {
+                    var userSelect = $('#userSelect');
+                    userSelect.empty();
+                    userSelect.append('<option value="">請先選擇角色</option>');
+                    
+                    response.forEach(function(user) {
+                        userSelect.append(new Option(user.displayText, user.id));
+                    });
+                    
+                    form.render('select');
+                },
+                error: function(xhr) {
+                    layer.msg('獲取用戶列表失敗');
+                }
+            });
+        });
 
         // 監聽整行點擊事件
         table.on('row(krakenTableFilter)', function (obj) {
