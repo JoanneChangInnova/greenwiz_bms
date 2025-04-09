@@ -96,4 +96,10 @@ public class UserController {
         List<UserData> userDatas = userFacade.listUserDataByUserRoleCustomer();
         return userDatas;
     }
+
+    @GetMapping("/list/by-role/{role}")
+    public ResponseEntity<List<UserData>> listUsersByRole(@PathVariable Integer role) {
+        List<UserData> users = userService.findByRole(UserRole.fromValue(role));
+        return ResponseEntity.ok(users);
+    }
 }

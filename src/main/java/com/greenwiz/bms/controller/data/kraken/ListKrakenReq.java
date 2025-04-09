@@ -1,6 +1,7 @@
 package com.greenwiz.bms.controller.data.kraken;
 
 import com.greenwiz.bms.controller.data.base.PageReq;
+import com.greenwiz.bms.enumeration.KrakenState;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ public class ListKrakenReq extends PageReq {
     private String krakenModel;
     private Integer factoryIotSerial;
     private String name;
-    private Integer state;
+    private KrakenState state;
     private String fwVer;
     private LocalDate dtInstall;
     private String createUser;

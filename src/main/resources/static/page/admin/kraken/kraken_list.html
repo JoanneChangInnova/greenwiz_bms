@@ -36,8 +36,9 @@
                         <div class="layui-input-inline">
                             <select name="state">
                                 <option value="">請選擇狀態</option>
-                                <option value="0">啟用</option>
-                                <option value="1">停用</option>
+                                <option value="0">庫存</option>
+                                <option value="1">運行中</option>
+                                <option value="2">斷線</option>
                             </select>
                         </div>
                     </div>
@@ -95,6 +96,7 @@
         <script type="text/html" id="toolbarDemo">
             <div class="layui-btn-container">
                 <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="add"> 新增設備 </button>
+                <button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="assign"> 派發 </button>
             </div>
         </script>
 
@@ -107,7 +109,7 @@
     </div>
 </div>
 <script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
-
+<script src="/js/comm.js" charset="utf-8"></script>
 <script>
     layui.use(['form', 'table', 'laypage', 'laydate'], function () {
         var $ = layui.jquery,
@@ -127,12 +129,11 @@
                 {field: 'krakenModel', width: 120, title: '型號別'},
                 {field: 'factoryIotSerial', width: 150, title: '產品序號'},
                 {field: 'state', width: 100, title: '狀態', templet: function (d) {
-                        return d.state === 0 ? '啟用' : '停用';
-                    }},
+                    return KrakenUtils.getStateText(d.state);
+                }},
                 {field: 'fwVer', width: 120, title: '韌體版本'},
                 {field: 'dtInstall', width: 180, title: '安裝時間'},
                 {field: 'dtModify', width: 180, title: '修改時間'},
-                {field: 'modifyUser', width: 100, title: '修改者'},
                 {field: 'dtCreate', width: 180, title: '建立時間', templet: function (d) {
                         return d.dtCreate ? new Date(d.dtCreate).toLocaleString() : '未知';
                     }},
@@ -235,10 +236,34 @@
                     shadeClose: true,
                     area: ['80%', '80%'],
                     content: '/page/admin/kraken/kraken_add.html'
-
                 });
                 $(window).on("resize", function () {
                     layer.full(index);
+                });
+            } else if (obj.event === 'assign') {
+                var checkStatus = table.checkStatus('krakenTableId');
+                if (checkStatus.data.length === 0) {
+                    layer.msg('請選擇要派發的設備');
+                    return;
+                }
+            
+                // 檢查選中設備的狀態
+                var invalidKrakens = checkStatus.data.filter(item => item.state !== 0);
+                if (invalidKrakens.length > 0) {
+                    var invalidIds = invalidKrakens.map(item => item.id).join(', ');
+                    layer.msg('Kraken ID: ' + invalidIds + ' 非庫存狀態，不可派發');
+                    return;
+                }
+            
+                // 保存選中的設備 ID
+                window.selectedKrakenIds = checkStatus.data.map(item => item.id);
+                
+                // 打開派發視窗
+                layer.open({
+                    title: '派發設備',
+                    type: 2,
+                    area: ['500px', '300px'],
+                    content: '/page/admin/kraken/kraken_assign.html'
                 });
             }
         });

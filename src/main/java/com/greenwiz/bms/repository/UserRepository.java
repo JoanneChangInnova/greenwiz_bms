@@ -43,6 +43,10 @@ public interface UserRepository  extends JpaRepository<User,Long> {
     })
     List<User> findCustomersWithLockByAgentId(@Param("agentId") Long agentId);
 
+    @Query("SELECT new com.greenwiz.bms.controller.data.user.UserData(u.id, u.username, u.email) " +
+           "FROM User u WHERE u.role = :role")
+    List<UserData> findUserDataByRole(@Param("role") UserRole role);
+
     @Query("SELECT new com.greenwiz.bms.controller.data.user.UserData(u.id, u.username, u.email) FROM User u WHERE u" +
             ".id = :userId")
     UserData getUserDataByUserId(Long userId);

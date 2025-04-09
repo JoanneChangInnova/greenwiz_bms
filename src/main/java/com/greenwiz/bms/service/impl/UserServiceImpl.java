@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implements UserService {
@@ -102,5 +103,10 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
     @Override
     public UserData getUserDataByUserId(Long userId) {
         return jpaRepository.getUserDataByUserId(userId);
+    }
+
+    @Override
+    public List<UserData> findByRole(UserRole role) {
+        return jpaRepository.findUserDataByRole(role);
     }
 }

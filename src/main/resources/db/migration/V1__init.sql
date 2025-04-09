@@ -76,6 +76,24 @@ CREATE TABLE IF NOT EXISTS `factory` (
  UNIQUE KEY (`factory_uuid`) COMMENT '唯一約束，防止重複的工廠 UUID'
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工廠基本信息表';
 
+CREATE TABLE IF NOT EXISTS `iot_device` (
+`id` bigint unsigned NOT NULL AUTO_INCREMENT,
+`factory_id` BIGINT UNSIGNED NULL COMMENT '工廠 ID，關聯工廠表的主鍵',
+`owner_id` BIGINT UNSIGNED NULL COMMENT '用戶 ID，關聯用戶表的主鍵',
+`owner_role_id` TINYINT UNSIGNED NULL COMMENT '用戶角色代碼: 0:admin, 1:agent, 2:installer, 3:customer',
+`kraken_model` varchar(64) NOT NULL COMMENT '型號別',
+`factory_iot_serial` INT unsigned NOT NULL COMMENT '產品序號',
+`name` VARCHAR(100) DEFAULT NULL COMMENT '設備名稱',
+`state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:庫存/ 1:運行中/ 2:斷線',
+`fw_ver` char(16) NULL COMMENT '韌體版本',
+`dt_install` DATE NULL COMMENT '設備安裝時間',
+`dt_modify` DATETIME NULL COMMENT '修改時間',
+`dt_create` DATETIME NULL COMMENT '創建時間',
+`create_user` BIGINT NULL COMMENT '建立資料的使用者 id',
+`modify_user` BIGINT NULL COMMENT '修改資料的使用者 id',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `user_factory`(
  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主鍵',
  `user_id` BIGINT UNSIGNED NOT NULL COMMENT '用戶 ID，關聯用戶表的主鍵',
@@ -88,24 +106,86 @@ CREATE TABLE IF NOT EXISTS `user_factory`(
  UNIQUE KEY `unique_user_factory` (`user_id`, `factory_id`) COMMENT '保證同一用戶和工廠的關係不重複'
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用戶與工廠關係表';
 
-CREATE TABLE IF NOT EXISTS `iot_device` (
-`id` bigint unsigned NOT NULL AUTO_INCREMENT,
-`factory_id` BIGINT UNSIGNED NULL COMMENT '工廠 ID，關聯工廠表的主鍵',
-`user_id` BIGINT UNSIGNED NULL COMMENT '用戶 ID，關聯用戶表的主鍵',
-`kraken_model` varchar(64) NOT NULL COMMENT '型號別',
-`factory_iot_serial` INT unsigned NOT NULL COMMENT '產品序號',
-`name` VARCHAR(100) DEFAULT NULL COMMENT '設備名稱',
-`state` TINYINT UNSIGNED NOT NULL COMMENT '狀態，0:啟用, 1:停用',
-`fw_ver` char(16) NULL COMMENT '韌體版本',
-`dt_install` DATE NULL COMMENT '設備安裝時間',
-`dt_modify` DATETIME NULL COMMENT '修改時間',
-`dt_create` DATETIME NULL COMMENT '創建時間',
-`create_user` BIGINT NULL COMMENT '建立資料的使用者 id',
-`modify_user` BIGINT NULL COMMENT '修改資料的使用者 id',
-PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 第一筆用戶，登入用
 INSERT INTO `user`
 (id, create_user, dt_create, dt_modify, username, modify_user, address, parent_id, agent_id, company, contact, country, email, `language`, `level`, max_device, password, phone_country_code, phone_number, `role`, state)
 VALUES(1, 1, '2025-04-07 01:20:35.810', '2025-04-07 01:20:35.812', 'admin', 1, '', 1, NULL, '', '', 'TWN',
 'admin@email.com', 'CHT', NULL, 20, '{bcrypt}$2a$10$bIFhwJ23EwUhX2eflJ0cQuS.mboZ7/0s3KW1Ve/.1PHyOy6uX5rbW', '', '', 0, 1);
+
+
+
+-- epower_os_v1.device_model definition
+
+CREATE TABLE `device_model` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL COMMENT 'Monitor:METSEPM2220,METSEPM1125HCL05RD,IEM2455-230V-100A,SPM80000-60,SPM301-60,SPM1,SW1100-1P3W,SW3200-010,STD640,SMT660, Controller:SWB,CX-IR0001S,AMA-Fans',
+  `channel_type_id` bigint(20) unsigned NOT NULL DEFAULT 0 COMMENT '0: monitor, otherwise: controller',
+  `option_setting` longtext DEFAULT NULL COMMENT '{"sets":["set1", "set2", "set3"],"conditions":["10", "15", "20", "25", "30"]}',
+  `control_method` longtext DEFAULT NULL COMMENT '{"on":["set1","set2","set3","off"],"auto":{"on":null,"timer":{"set1":"","set2":"","set3":""},"signal":"consumption","off":null},"timer":["set1","set2","set3","off"],"offline":["set1","set2","set3","off","timer"]}',
+  `option_cmd` longtext DEFAULT NULL COMMENT '細項資料，monitor: {"detectorType":數值}; controller CX-IR0001S: {"temperature": 16~30}',
+  `dt_create` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='設備型號，\r\nMonitor:METSEPM2220,METSEPM1125HCL05RD,IEM2455-230V-100A,SPM80000-60,SPM301-60,SPM1,SW1100-1P3W,SW3200-010,STD640,SMT660\r\nController:SWB,CX-IR0001S,AMA-Fans';
+
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(1, 'METSEPM2220', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(2, 'METSEPM1125HCL05RD', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(3, 'IEM2455-230V-100A', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(4, 'SPM80000-60', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(5, 'SPM301-60', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(6, 'SPM1', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(7, 'SW1100-1P3W', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(8, 'SW3200-010', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(9, 'STD640', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(10, 'SMT660', 0, NULL, NULL, '{"1P+N":"", "2P":"", "2P+N":"", "3P":"", "3P+N":""}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(11, 'SWB', 1, NULL, '{"on":null,"auto":{"timer":null,"signal":"consumption","off":null},"timer":["on","off"],"offline":["on","off","timer"]}', '{"on":[], "off":[]}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(12, 'CX-IR0001S', 2, '{"sets":["set1", "set2", "set3"],"conditions":["10", "15", "20", "25", "30"]}', '{"on":["set1","set2","set3","off"],"auto":{"on":null,"timer":{"set1":"","set2":"","set3":""},"signal":"consumption","off":null},"timer":["set1","set2","set3","off"],"offline":["set1","set2","set3","off","timer"]}', '{"on":[], "off":[], "set1":[], "set2":[], "set3":[]}', '2025-03-18 18:58:22.000');
+INSERT INTO device_model
+(id, name, channel_type_id, option_setting, control_method, option_cmd, dt_create)
+VALUES(13, 'AMA-Fans', 3, '{"sets":["set1","set2","set3"],"conditions":{"power":["on","off"],"speed":[0,10,20,30,40,50,60,70,80,90,100],"rotation":["forware","reversal"],"light":["on","off"],"auto":[true,false]}}', '{"on":["set1","set2","set3","off"],"auto":{"on":null,"timer":{"set1":"","set2":"","set3":""},"signal":"consumption","off":null},"timer":["set1","set2","set3","off"],"offline":["set1","set2","set3","off","timer"]}', '{"on":[], "off":[], "set1":[], "set2":[], "set3":[]}', '2025-03-18 18:58:22.000');
+
+-- epower_os_v1.channel_type definition
+
+CREATE TABLE `channel_type` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `description` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='\r\n';
+
+INSERT INTO channel_type
+(id, name, description)
+VALUES(0, 'monitor', '');
+INSERT INTO channel_type
+(id, name, description)
+VALUES(1, 'Switch', '');
+INSERT INTO channel_type
+(id, name, description)
+VALUES(2, 'IR Control', '');
+INSERT INTO channel_type
+(id, name, description)
+VALUES(3, 'AMA Tech', '');

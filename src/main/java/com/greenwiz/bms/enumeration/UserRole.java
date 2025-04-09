@@ -24,4 +24,13 @@ public enum UserRole {
     UserRole(Integer value) {
         this.value = value;
     }
+
+    public static UserRole fromValue(Integer value) {
+        for (UserRole role : UserRole.values()) {
+            if (role.getValue().equals(value)) {
+                return role;
+            }
+        }
+        throw new IllegalArgumentException("找不到對應的角色值: " + value);
+    }
 }

@@ -1,5 +1,8 @@
 package com.greenwiz.bms.controller.data.kraken;
 
+import com.greenwiz.bms.enumeration.KrakenState;
+import com.greenwiz.bms.enumeration.UserRole;
+import com.greenwiz.bms.utils.ThreadLocalUtils;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -10,6 +13,10 @@ import java.time.LocalDateTime;
 public class UpdateKrakenReq {
     private Long id;
 
+    private Long userId;
+
+    private UserRole userRole;
+
     @NotBlank(message = "型號別不能為空")
     private String krakenModel;
 
@@ -19,7 +26,7 @@ public class UpdateKrakenReq {
     private String name;
 
     @NotNull(message = "狀態不能為空")
-    private Integer state;
+    private KrakenState state;
 
     private String fwVer;
 

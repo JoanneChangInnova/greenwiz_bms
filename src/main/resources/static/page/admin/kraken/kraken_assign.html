@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>派發設備</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../../lib/layui-v2.6.3/css/layui.css" media="all">
+</head>
+<body>
+    <div class="layui-form" lay-filter="assignForm" style="padding: 20px;">
+        <div class="layui-form-item">
+            <label class="layui-form-label">派發角色</label>
+            <div class="layui-input-block">
+                <select name="role" lay-filter="roleSelect">
+                    <option value="">請選擇角色</option>
+                    <option value="1">代理商</option>
+                    <option value="2">安裝商</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">派發對象</label>
+            <div class="layui-input-block">
+                <select name="userId" id="userSelect">
+                    <option value="">請先選擇角色</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item" style="text-align: center;">
+            <button class="layui-btn" lay-submit lay-filter="assignSubmit">確認派發</button>
+        </div>
+    </div>
+
+    <script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script src="/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+    <script src="/js/comm.js" charset="utf-8"></script>
+    <script>
+        layui.use(['form', 'layer'], function () {
+            var form = layui.form,
+                layer = layui.layer,
+                $ = layui.$;
+
+            // 獲取父窗口傳遞的設備 ID
+            var krakenIds = parent.selectedKrakenIds;
+            
+            // 監聽角色選擇
+            form.on('select(roleSelect)', function(data) {
+                if (!data.value) return;
+                
+                var roleValue = Number(data.value);  // 明確轉換為數字類型
+                console.log("轉換後的角色值:", roleValue);
+                console.log("轉換後的角色值類型:", typeof roleValue);
+                
+                // 根據選擇的角色獲取用戶列表
+                $.ajax({
+                    url: '/api/v1/user/list/by-role/' + roleValue,  // 直接將數字放在 URL 路徑中
+                    method: 'GET',
+                    success: function(response) {
+                        console.log("API 響應:", response);
+                        var userSelect = $('#userSelect');
+                        userSelect.empty();
+                        userSelect.append('<option value="">請選擇用戶</option>');
+                        
+                        // 直接使用 response，因為後端直接返回了數組
+                        response.forEach(function(item) {
+                            userSelect.append(new Option(item.displayText, item.id));
+                        });
+                        
+                        form.render('select');
+                    },
+                    error: function(xhr) {
+                        console.log("API 錯誤:", xhr);  // 查看錯誤信息
+                        layer.msg('獲取用戶列表失敗');
+                    }
+                });
+            });
+            
+            // 監聽提交
+            form.on('submit(assignSubmit)', function(data) {
+                $.ajax({
+                    url: '/api/v1/kraken/assign',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        krakenIds: krakenIds,
+                        userId: data.field.userId
+                    }),
+                    success: function(res) {
+                        layer.msg('派發成功');
+                        // 關閉當前視窗並刷新父頁面
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                        parent.loadTableData(1, 10, {});
+                    },
+                    error: function() {
+                        layer.msg('派發失敗');
+                    }
+                });
+                
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -105,3 +105,29 @@ function resetFunctionMode() {
     $('#functionModeContainer').hide();
     $('#functionMode, #functionModeSelect').empty().append('<option value="">請選擇功能模式</option>');
 }
+
+/**
+ * Kraken 相關工具方法
+ */
+const KrakenUtils = {
+    getStateText: function(state) {
+        switch(parseInt(state)) {
+            case 0:
+                return '庫存';
+            case 1:
+                return '運行中';
+            case 2:
+                return '斷線';
+            default:
+                return '未知狀態';
+        }
+    },
+    
+    getStateOptions: function() {
+        return [
+            {value: 0, text: '庫存'},
+            {value: 1, text: '運行中'},
+            {value: 2, text: '斷線'}
+        ];
+    }
+};

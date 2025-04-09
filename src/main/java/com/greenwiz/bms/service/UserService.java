@@ -7,6 +7,7 @@ import com.greenwiz.bms.enumeration.UserRole;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface UserService extends BaseDomainService<Long, User> {
 
@@ -61,4 +62,6 @@ public interface UserService extends BaseDomainService<Long, User> {
     List<User> findCustomersWithLockByAgentId(Long oldAgentId);
 
     UserData getUserDataByUserId(Long userId);
+
+    List<UserData> findByRole(UserRole role);
 }
