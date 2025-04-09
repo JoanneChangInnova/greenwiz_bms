@@ -3,15 +3,9 @@
 <head>
     <meta charset="utf-8">
     <title>編輯 Channel</title>
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="../../../lib/layui-v2.6.3/css/layui.css" media="all">
-    <style>
-        body {
-            background-color: #ffffff;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../../../lib/layui-v2.6.3/css/layui.css">
+    <style> body { background-color: #ffffff; } </style>
 </head>
 <body>
 <div class="layui-form layuimini-form">
@@ -49,10 +43,8 @@
     <div class="layui-form-item">
         <label class="layui-form-label required">設備類型</label>
         <div class="layui-input-block">
-            <select name="deviceType" id="deviceType" lay-verify="required" lay-filter="deviceType">
+            <select name="channelType" id="channelType" lay-verify="required" lay-filter="channelType">
                 <option value="">請選擇設備類型</option>
-                <option value="CONTROLLER">Controller</option>
-                <option value="MONITOR">Monitor</option>
             </select>
         </div>
     </div>
@@ -60,11 +52,11 @@
     <div class="layui-form-item">
         <label class="layui-form-label">設備型號</label>
         <div class="layui-input-block">
-            <select name="deviceModel" id="deviceModel" lay-verify="required" lay-filter="deviceModel"></select>
+            <select name="deviceModel" id="deviceModel" lay-verify="required"></select>
         </div>
     </div>
 
-    <div class="layui-form-item" id="functionModeContainer" style="display: none;">
+    <div class="layui-form-item" id="functionModeWrapper" style="display: none;">
         <label class="layui-form-label">功能模式</label>
         <div class="layui-input-block">
             <select name="functionMode" id="functionMode">
@@ -89,8 +81,8 @@
         <div class="layui-input-block">
             <select name="state" id="state" lay-verify="required">
                 <option value="">請選擇狀態</option>
-                <option value=0>離線</option>
-                <option value=1>上線</option>
+                <option value="0">離線</option>
+                <option value="1">上線</option>
             </select>
         </div>
     </div>
@@ -109,86 +101,140 @@
     </div>
 </div>
 
-<script src="../../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
-<script src="/js/comm.js" charset="utf-8"></script>
+<script src="../../../lib/layui-v2.6.3/layui.js"></script>
 <script>
+    const monitorFunctionModes = ["1P+N", "2P", "2P+N", "3P", "3P+N"];
+    let channelTypeDeviceModelMap = [];
+    const id = new URLSearchParams(location.search).get("id");
+
     layui.use(['form', 'layer'], function () {
-        var form = layui.form,
-            layer = layui.layer,
-            $ = layui.$;
-    
-        var id = new URLSearchParams(location.search).get("id");
-    
-        // 根據設備類型變更設備型號選單
-        form.on('select(deviceType)', function (data) {
-            updateDeviceModelOptions(form, data.value);
-        });
-    
-        // 初始化表單內容
-        $.get('/api/v1/channel/' + id, function (res) {
-            if (res) {
-                $("#dtModify").val(res.dtModify);  // 新增這行
-                $("#channelId").val(res.id);
-                $("#factoryId").val(res.factoryId);
-                $("#iotDeviceId").val(res.iotDeviceId);
-                $("#name").val(res.name);
-                $("#channelName").val(res.channelName);
-                $("#state").val(res.state);
-                $("#description").val(res.description);
-                $("#statisticsInOv").val(res.statisticsInOv.toString());
-                
-                // 設置設備類型並更新相關選項
-                $("#deviceType").val(res.deviceType);
-                updateDeviceModelOptions(form, res.deviceType);
-                
-                // 設置設備型號和功能模式的值
-                $("#deviceModel").val(res.deviceModel);
-                if (res.deviceType === 'MONITOR') {
-                    $("#functionMode").val(res.functionMode);
-                }
-                
-                form.render('select');
+        const form = layui.form, layer = layui.layer, $ = layui.$;
+
+        function validateChannelName(name) {
+            return /^[A-Z](-((M)|([0-9]{2}))){1,3}$/.test(name);
+        }
+
+        function fetchDeviceModelMap(callback) {
+            $.get('/api/v1/channel-config/device-models/grouped', function (res) {
+                channelTypeDeviceModelMap = res;
+                if (typeof callback === 'function') callback();
+            });
+        }
+
+        function loadChannelTypes(callback) {
+            $.get('/api/v1/channel-config/channel-types', function (res) {
+                const $select = $('#channelType');
+                $select.empty().append('<option value="">請選擇設備類型</option>');
+                res.forEach(item => {
+                    $select.append(`<option value="${item.channelTypeId}" data-name="${item.name.toUpperCase()}">${item.name}</option>`);
+                });
+                if (typeof callback === 'function') callback();
+            });
+        }
+
+        function updateDeviceModelOptions(deviceTypeName, selectedModel) {
+            const $ = layui.$;
+            const $select = $('#deviceModel');
+            $select.empty().append('<option value="">請選擇設備型號</option>');
+
+            const found = channelTypeDeviceModelMap.find(item => item.name.toUpperCase() === deviceTypeName);
+            if (found) {
+                found.deviceModels.forEach(model => {
+                    const selected = model === selectedModel ? 'selected' : '';
+                    $select.append(`<option value="${model}" ${selected}>${model}</option>`);
+                });
+            }
+
+            form.render('select');
+        }
+
+        function updateFunctionModeOptions(visible, selectedMode) {
+            const $wrapper = $('#functionModeWrapper');
+            const $select = $('#functionMode');
+            if (visible) {
+                $wrapper.show();
+                $select.empty().append('<option value="">請選擇功能模式</option>');
+                monitorFunctionModes.forEach(mode => {
+                    const selected = mode === selectedMode ? 'selected' : '';
+                    $select.append(`<option value="${mode}" ${selected}>${mode}</option>`);
+                });
             } else {
-                layer.alert('獲取數據失敗', {title: '錯誤'});
+                $wrapper.hide();
+                $select.empty().append('<option value=""></option>');
             }
+            form.render('select');
+        }
+
+        form.on('select(channelType)', function (data) {
+            const selectedOption = $(`#channelType option[value="${data.value}"]`);
+            const deviceTypeName = selectedOption.data("name");
+
+            updateDeviceModelOptions(deviceTypeName, '');
+            updateFunctionModeOptions(deviceTypeName === 'MONITOR', '');
         });
-    
-        // 監聽提交
+
         form.on('submit(saveBtn)', function (data) {
-            if (data.field.deviceType === 'CONTROLLER') {
-                data.field.functionMode = null;
-            }
-    
-            var channelName = data.field.channelName;
-            if (!validateChannelName(channelName)) {
-                layer.alert('通道代號格式不正確，請使用大寫字母或格式如 A-99-99-99！', {title: '錯誤'});
+            if (!validateChannelName(data.field.channelName)) {
+                layer.alert('通道代號格式錯誤，請參考範例 A-01-99-99', { title: '錯誤' });
                 return false;
             }
-    
+
+            // 非 MONITOR 自動帶空字串
+            const selectedChannelTypeText = $('#channelType option:selected').data("name");
+            if (selectedChannelTypeText !== 'MONITOR') {
+                data.field.functionMode = "";
+            }
+
             $.ajax({
                 url: '/api/v1/channel/update/' + id,
                 type: 'PUT',
                 contentType: 'application/json',
                 data: JSON.stringify(data.field),
-                success: function (response, textStatus, xhr) {
-                    if (xhr.status === 200) {
-                        layer.alert('Channel 修改成功', {title: '提示'}, function () {
-                            var index = parent.layer.getFrameIndex(window.name);
-								parent.layer.close(index);
-								// 返回並重新加載 channel 列表頁面
-							     window.open('channel_list.html', '_self');
-
-                        });
-                    } else {
-                        layer.alert('Channel 修改失敗', {title: '錯誤'});
-                    }
+                success: function () {
+                    layer.alert('Channel 修改成功', { title: '提示' }, function () {
+                        const index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                        window.open('channel_list.html', '_self');
+                    });
                 },
                 error: function (xhr) {
-                    handleErrorResponse(xhr);
+                    layer.alert('Channel 修改失敗', { title: '錯誤' });
                 }
             });
-    
+
             return false;
+        });
+
+        // 初始化流程
+        loadChannelTypes(() => {
+            fetchDeviceModelMap(() => {
+                $.get('/api/v1/channel/' + id, function (res) {
+                    if (!res) return layer.alert("獲取資料失敗");
+
+                    $("#dtModify").val(res.dtModify);
+                    $("#channelId").val(res.id);
+                    $("#factoryId").val(res.factoryId);
+                    $("#iotDeviceId").val(res.iotDeviceId);
+                    $("#name").val(res.name);
+                    $("#channelName").val(res.channelName);
+                    $("#state").val(res.state);
+                    $("#description").val(res.description);
+                    $("#statisticsInOv").val(res.statisticsInOv.toString());
+
+                    const $typeSelect = $('#channelType');
+                    const foundOption = $typeSelect.find('option').filter(function () {
+                        return $(this).text() === res.deviceType || $(this).data('name') === res.deviceType;
+                    });
+
+                    if (foundOption.length > 0) {
+                        $typeSelect.val(foundOption.val());
+                        updateDeviceModelOptions(foundOption.data('name'), res.deviceModel);
+                        updateFunctionModeOptions(res.deviceType === 'MONITOR', res.functionMode);
+                    }
+
+                    form.render('select');
+                });
+            });
         });
     });
 </script>

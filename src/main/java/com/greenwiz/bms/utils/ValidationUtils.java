@@ -32,11 +32,26 @@ public class ValidationUtils {
     }
 
     /** 驗證設備型號是否合法 */
+//    public static void validateDeviceModel(DeviceType deviceType, String deviceModel) {
+//        boolean isValid = switch (deviceType) {
+//            case MONITOR -> Arrays.stream(DeviceModel.Monitor.values())
+//                    .anyMatch(m -> m.getDeviceModel().equals(deviceModel));
+//            case CONTROLLER -> Arrays.stream(DeviceModel.Controller.values())
+//                    .anyMatch(c -> c.getDeviceModel().equals(deviceModel));
+//        };
+//
+//        if (!isValid) {
+//            throw new BmsException("設備型號 [" + deviceModel + "] 不屬於設備類型 [" + deviceType + "]");
+//        }
+//    }
     public static void validateDeviceModel(DeviceType deviceType, String deviceModel) {
+        if (deviceType == null) {
+            throw new BmsException("設備類型不能為空");
+        }
         boolean isValid = switch (deviceType) {
             case MONITOR -> Arrays.stream(DeviceModel.Monitor.values())
                     .anyMatch(m -> m.getDeviceModel().equals(deviceModel));
-            case CONTROLLER -> Arrays.stream(DeviceModel.Controller.values())
+            case CONTROLLER, SWITCH, IR_CONTROL, AMA_TECH -> Arrays.stream(DeviceModel.Controller.values())
                     .anyMatch(c -> c.getDeviceModel().equals(deviceModel));
         };
 
@@ -48,13 +63,20 @@ public class ValidationUtils {
     /** 驗證功能模式是否合法 */
     public static void validateFunctionMode(String deviceType, String functionMode) {
         // 只有當 deviceType 為 "MONITOR" 時，才進行功能模式驗證
-        if ("MONITOR".equalsIgnoreCase(deviceType)) {
-            boolean isValid = Arrays.stream(com.greenwiz.bms.enumeration.functionMode.Monitor.values())
-                    .anyMatch(f -> f.getFunctionMode().equals(functionMode));
+        // 如果是非 MONITOR，不驗證功能模式（例如 CONTROLLER）
+        if (!"MONITOR".equalsIgnoreCase(deviceType)) {
+            return; // 只驗證 MONITOR
+        }
 
-            if (!isValid) {
-                throw new BmsException("功能模式 [" + functionMode + "] 不符合設備類型 [" + deviceType + "]");
-            }
+        if (functionMode == null || functionMode.isBlank()) {
+            return; // 空值允許跳過驗證
+        }
+
+        boolean isValid = Arrays.stream(com.greenwiz.bms.enumeration.functionMode.Monitor.values())
+                .anyMatch(f -> f.getFunctionMode().equals(functionMode));
+
+        if (!isValid) {
+            throw new BmsException("功能模式 [" + functionMode + "] 不符合設備類型 [" + deviceType + "]");
         }
     }
 
