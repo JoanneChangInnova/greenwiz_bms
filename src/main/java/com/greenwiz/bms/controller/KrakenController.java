@@ -59,4 +59,11 @@ public class KrakenController {
         return krakenFacade.listUnboundKrakenData();
     }
 
+    @PostMapping("/assign")
+    public ResponseEntity<?> assignKraken(@RequestBody AssignKrakenReq request) {
+        krakenFacade.assignKraken(request);
+        return ResponseEntity.ok("派發成功");
+    }
+
+
 }

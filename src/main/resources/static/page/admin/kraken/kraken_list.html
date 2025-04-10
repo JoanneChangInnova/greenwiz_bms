@@ -150,7 +150,9 @@
                 {title: '修改者', width: 180, templet: function(d) {
                         return d.createModifyUser.modifyUserInfo;
                 }},
-
+                {title: '擁有者', width: 180, templet: function(d) {
+                        return d.ownerUserInfo;
+                }},
             ]],
             toolbar: '#toolbarDemo',
             defaultToolbar: ['filter', 'exports', 'print'],

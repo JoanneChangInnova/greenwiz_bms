@@ -11,4 +11,9 @@ public class ListKrakenData extends Kraken {
 
     private CreateModifyUser createModifyUser;
 
+    /**
+     * owner userName + (email)
+     */
+    private String ownerUserInfo = "";
+
 }

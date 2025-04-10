@@ -85,14 +85,18 @@
                     contentType: 'application/json',
                     data: JSON.stringify({
                         krakenIds: krakenIds,
-                        userId: data.field.userId
+                        userId: data.field.userId,
+                        userRole: parseInt(data.field.role)  // 新增 userRole 參數
                     }),
                     success: function(res) {
-                        layer.msg('派發成功');
-                        // 關閉當前視窗並刷新父頁面
-                        var index = parent.layer.getFrameIndex(window.name);
-                        parent.layer.close(index);
-                        parent.loadTableData(1, 10, {});
+                        layer.msg('派發成功', {
+                            time: 1000,
+                            end: function() {
+                                var index = parent.layer.getFrameIndex(window.name);
+                                parent.layer.close(index);
+                                parent.location.href = '/page/admin/kraken/kraken_list.html';
+                            }
+                        });
                     },
                     error: function() {
                         layer.msg('派發失敗');
