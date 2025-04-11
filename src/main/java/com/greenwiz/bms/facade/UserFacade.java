@@ -2,10 +2,12 @@ package com.greenwiz.bms.facade;
 
 import com.greenwiz.bms.controller.data.base.PageReq;
 import com.greenwiz.bms.controller.data.user.*;
+import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.enumeration.UserState;
 import com.greenwiz.bms.exception.BmsException;
+import com.greenwiz.bms.service.KrakenService;
 import com.greenwiz.bms.service.UserService;
 import com.greenwiz.bms.utils.JwtUtils;
 import com.greenwiz.bms.utils.ThreadLocalUtils;
@@ -37,6 +39,9 @@ public class UserFacade {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private KrakenService krakenService;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -134,6 +139,21 @@ public class UserFacade {
             if (userByEmail != null) {
                 throw new BmsException("Email已存在，請選擇其他Email");
             }
+        }
+
+        //用戶角色若修改，檢查用戶是否有綁定kraken，若有，kraken的userRole也要更改，不可更改成CUSTOMER
+        if (!updateUserReq.getRole().equals(user.getRole())) {
+            List<Kraken> krakens = krakenService.findByUserId(user.getId());
+            if (!krakens.isEmpty()) {
+                if (updateUserReq.getRole() == UserRole.CUSTOMER) {
+                    throw new BmsException("請先解除綁定kraken，才可將角色更改成CUSTOMER");
+                }
+                for (Kraken kraken : krakens) {
+                    kraken.setUserId(updateUserReq.getId());
+                    kraken.setUserRole(updateUserReq.getRole());
+                }
+            }
+            krakenService.saveAll(krakens);
         }
 
         BeanUtils.copyProperties(updateUserReq, user);

@@ -17,4 +17,6 @@ public interface KrakenRepository extends JpaRepository<Kraken, Long> {
 
     List<Kraken> findByIdIn(List<Long> iotDeviceIds);
     List<Kraken> findByFactoryIdIsNull();
+
+    List<Kraken> findByUserId(Long id);
 }

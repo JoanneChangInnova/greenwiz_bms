@@ -24,4 +24,5 @@ public interface KrakenService extends BaseDomainService<Long, Kraken> {
      */
     List<Kraken> findByFactoryIdIsNull();
 
+    List<Kraken> findByUserId(Long id);
 }
