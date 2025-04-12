@@ -4,6 +4,7 @@ import com.greenwiz.bms.controller.data.kraken.KrakenData;
 import com.greenwiz.bms.entity.Kraken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,4 +20,7 @@ public interface KrakenRepository extends JpaRepository<Kraken, Long> {
     List<Kraken> findByFactoryIdIsNull();
 
     List<Kraken> findByUserId(Long id);
+
+    @Query("SELECT new com.greenwiz.bms.controller.data.kraken.KrakenData(k.id, k.name) FROM Kraken k WHERE k.userId IN :userIds AND k.factoryId IS NULL")
+    List<KrakenData> findByUserIdInAndFactoryIdIsNull(@Param("userIds") List<Long> userIds);
 }

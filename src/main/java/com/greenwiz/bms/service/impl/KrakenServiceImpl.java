@@ -50,4 +50,12 @@ public class KrakenServiceImpl extends BaseDomainServiceImpl<Long, Kraken> imple
     public List<Kraken> findByUserId(Long id) {
         return jpaRepository.findByUserId(id);
     }
+
+    @Override
+    public List<KrakenData> findByUserIdsAndFactoryIdIsNull(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return List.of();
+        }
+        return jpaRepository.findByUserIdInAndFactoryIdIsNull(userIds);
+    }
 }

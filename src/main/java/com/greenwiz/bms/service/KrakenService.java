@@ -25,4 +25,11 @@ public interface KrakenService extends BaseDomainService<Long, Kraken> {
     List<Kraken> findByFactoryIdIsNull();
 
     List<Kraken> findByUserId(Long id);
+
+    /**
+     * 查詢指定用戶列表中未綁定工廠的 Kraken
+     * @param userIds 用戶ID列表
+     * @return 未綁定工廠的 Kraken 資料列表
+     */
+    List<KrakenData> findByUserIdsAndFactoryIdIsNull(List<Long> userIds);
 }

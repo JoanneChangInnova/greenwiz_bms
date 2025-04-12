@@ -47,4 +47,7 @@ public class Factory extends BaseEntity {
 
     @Column(name = "comment", length = 2048)
     private String comment;
+
+    @Column(name = "agent_id", nullable = false)
+    private Long agentId;
 }

@@ -109,4 +109,9 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
     public List<UserData> findByRole(UserRole role) {
         return jpaRepository.findUserDataByRole(role);
     }
+
+    @Override
+    public List<User> findByAgentId(Long agentId) {
+        return jpaRepository.findByAgentId(agentId);
+    }
 }

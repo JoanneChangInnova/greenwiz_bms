@@ -50,4 +50,6 @@ public interface UserRepository  extends JpaRepository<User,Long> {
     @Query("SELECT new com.greenwiz.bms.controller.data.user.UserData(u.id, u.username, u.email) FROM User u WHERE u" +
             ".id = :userId")
     UserData getUserDataByUserId(Long userId);
+
+    List<User> findByAgentId(Long agentId);
 }

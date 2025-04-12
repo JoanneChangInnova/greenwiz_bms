@@ -116,6 +116,14 @@
             <input type="number" name="latitude" value="0" placeholder="請輸入緯度" class="layui-input">
         </div>
     </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">代理商</label>
+        <div class="layui-input-block">
+            <select name="agentId" lay-verify="required" lay-reqtext="代理商不能為空" lay-filter="agentSelect" lay-search>
+                <option value="">請選擇代理商</option>
+            </select>
+        </div>
+    </div>
     <!-- 使用 Select2 的綁定 Kraken 欄位 -->
     <div class="layui-form-item">
         <label class="layui-form-label">綁定Kraken</label>
@@ -149,6 +157,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <!-- Layui JS -->
 <script src="../../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/js/comm.js" charset="utf-8"></script>
 
 <script>
     layui.use(['form', 'layer'], function () {
@@ -158,6 +167,7 @@
 		// 存儲 Kraken 和 Customer 數據
 		var krakenMap = new Map();
 		var customerMap = new Map();
+        var agentMap = new Map();
 
 		// 初始化 Select2 通用函數
 		function initializeSelect2($element, placeholder) {
@@ -178,6 +188,8 @@
 		// 更新 Select2 選項通用函數
 		function updateSelectOptions($select, dataMap) {
 			$select.empty();
+            // 添加預設的空選項作為 placeholder
+            $select.append(new Option('', '', false, false));
 			var options = Array.from(dataMap.values()).sort((a, b) => a.text.localeCompare(b.text));
 			options.forEach(function(option) {
 				$select.append(new Option(option.text, option.id, false, false));
@@ -187,27 +199,33 @@
 		}
 
 		// 載入 Kraken 數據
-		function loadKrakenData() {
+		function loadKrakenData(agentId) {
+			if (!agentId) {
+				$('#krakenSelect').empty().trigger('change');
+				return;
+			}
+
 			$.ajax({
-				url: '/api/v1/kraken/listKrakenData',
+				url: '/api/v1/kraken/listKrakenData/' + agentId,
 				type: 'GET',
-				dataType: 'json',
-				success: function(res) {
-					console.log('Kraken API 返回數據：', res);
-					if (res && Array.isArray(res)) {
-						krakenMap.clear();
-						res.forEach(function(item) {
+				success: function(data) {
+					krakenMap.clear();
+					if (data && data.length > 0) {
+						data.forEach(function(item) {
 							krakenMap.set(item.iotDeviceId, {
 								id: item.iotDeviceId,
-								text: "id:" + item.iotDeviceId + " (" + item.name + ")"
+								text: item.displayText
 							});
 						});
 						updateSelectOptions($('#krakenSelect'), krakenMap);
+					} else {
+						layer.msg('尚無Kraken可綁定，請先派發', {icon: 0});
+						$('#krakenSelect').empty().trigger('change');
 					}
 				},
 				error: function(xhr) {
-					console.error('Kraken API 錯誤：', xhr);
-					layer.msg('載入 Kraken 數據失敗');
+					console.error('載入Kraken數據失敗:', xhr);
+					layer.msg('載入Kraken數據失敗', {icon: 2});
 				}
 			});
 		}
@@ -238,16 +256,41 @@
 			});
 		}
 
-		// 處理錯誤回應
-		function handleErrorResponse(xhr) {
-			console.error('提交錯誤：', xhr);
-			layer.msg('新增失敗，請稍後再試');
-		}
+        // 載入代理商數據
+        function loadAgentData() {
+            $.ajax({
+                url: '/api/v1/user/list/by-role/1',
+                type: 'GET',
+                success: function(res) {
+                    var $agentSelect = $('select[name="agentId"]');
+                    $agentSelect.empty().append('<option value="">請選擇代理商</option>');
+                    res.forEach(function(item) {
+                        $agentSelect.append(`<option value="${item.id}">${item.displayText}</option>`);
+                    });
+                    form.render('select');
+                },
+                error: function(xhr) {
+                    console.error('代理商 API 錯誤：', xhr);
+                    layer.msg('載入代理商數據失敗');
+                }
+            });
+        }
+
+        // 監聽代理商選擇
+		form.on('select(agentSelect)', function(data) {
+			console.log('選擇代理商:', data.value);
+			// 清空並重新載入 Kraken 數據
+			$('#krakenSelect').empty();
+			if (data.value) {
+				loadKrakenData(data.value);
+			}
+		});
 
 		// 表單提交
 		form.on('submit(saveBtn)', function(data) {
 			var submitData = {
 				name: data.field.name,
+                agentId: data.field.agentId,
 				utcOffset: data.field.utcOffset,
 				maxKwh: parseInt(data.field.maxKwh),
 				monitorPeriodMinute: parseInt(data.field.monitorPeriodMinute),
@@ -282,11 +325,14 @@
 
 		// 初始化
 		$(document).ready(function() {
-			initializeSelect2($('#krakenSelect'), '請選擇未被綁定的Kraken');
+			// 初始化 Select2
+			initializeSelect2($('#krakenSelect'), '請選擇Kraken');
 			initializeSelect2($('#customerSelect'), '請選擇客戶');
-			loadKrakenData();
+
+			// 載入數據
+			loadAgentData();
 			loadCustomerData();
-			form.render();
+			// 不要在這裡直接載入 Kraken 數據，等待代理商選擇後再載入
 		});
 	});
 </script>
