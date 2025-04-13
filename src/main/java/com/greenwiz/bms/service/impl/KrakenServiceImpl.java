@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class KrakenServiceImpl extends BaseDomainServiceImpl<Long, Kraken> implements KrakenService {
@@ -57,5 +59,28 @@ public class KrakenServiceImpl extends BaseDomainServiceImpl<Long, Kraken> imple
             return List.of();
         }
         return jpaRepository.findByUserIdInAndFactoryIdIsNull(userIds);
+    }
+
+    @Override
+    public Map<Long, List<Long>> findKrakenIdsByFactoryIds(List<Long> factoryIds) {
+        // 查詢所有關聯的 Kraken
+        List<Kraken> krakens = jpaRepository.findByFactoryIdIn(factoryIds);
+        
+        // 將結果轉換為 Map<工廠ID, Kraken ID列表>
+        return krakens.stream()
+                .collect(Collectors.groupingBy(
+                        Kraken::getFactoryId,
+                        Collectors.mapping(Kraken::getId, Collectors.toList())
+                ));
+    }
+
+    @Override
+    public List<Long> findByFactoryId(Long id) {
+        return jpaRepository.findByFactoryId(id);
+    }
+
+    @Override
+    public List<KrakenData> findKrakenDataByFactoryId(Long id) {
+        return jpaRepository.findKrakenDataByFactoryId(id);
     }
 }

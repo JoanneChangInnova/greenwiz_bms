@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -113,5 +114,10 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
     @Override
     public List<User> findByAgentId(Long agentId) {
         return jpaRepository.findByAgentId(agentId);
+    }
+
+    @Override
+    public List<UserData> findUserDataListByIds(List<Long> userIds) {
+        return jpaRepository.findUserDataListByIds(userIds);
     }
 }

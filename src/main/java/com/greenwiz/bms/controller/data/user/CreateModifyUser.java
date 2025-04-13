@@ -6,7 +6,7 @@ import lombok.Data;
 public class CreateModifyUser {
 
     /**
-     * createUser userName + (email)
+     *  createUser userName + (email)
      */
     private String createUserInfo = "";
 

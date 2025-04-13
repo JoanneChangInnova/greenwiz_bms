@@ -66,4 +66,11 @@ public interface UserService extends BaseDomainService<Long, User> {
     List<UserData> findByRole(UserRole role);
 
     List<User> findByAgentId(Long agentId);
+
+    /**
+     * 根據用戶ID列表查詢用戶數據
+     * @param userIds 用戶ID列表
+     * @return 用戶數據列表
+     */
+    List<UserData> findUserDataListByIds(List<Long> userIds);
 }

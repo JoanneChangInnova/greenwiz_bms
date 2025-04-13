@@ -89,6 +89,9 @@
                 {field: 'id', width: 100, title: '工廠ID'},
                 {field: 'factoryUuid', width: 220, title: 'UUID'},
                 {field: 'name', width: 150, title: '工廠名稱'},
+                {field: 'agentDisplayText', width: 150, title: '代理商'},
+                {field: 'iotDeviceIds', width: 150, title: '綁定Kraken ID'},
+                {field: 'customerIds', width: 150, title: '客戶 ID'},
                 {field: 'utcOffset', width: 100, title: '時區'},
                 {field: 'maxKwh', width: 120, title: '最大用電量'},
                 {field: 'monitorPeriodMinute', width: 150, title: '監控週期(分鐘)'},
@@ -106,8 +109,12 @@
                 {field: 'comment', width: 200, title: '備註'},
                 {field: 'dtModify', width: 160, title: '修改時間'},
                 {field: 'dtCreate', width: 160, title: '創建時間'},
-                {field: 'createUser', width: 100, title: '建立者'},
-                {field: 'modifyUser', width: 100, title: '修改者'}
+                {title: '建立者', width: 180, templet: function(d) {
+                        return d.createModifyUser.createUserInfo;
+                    }},
+                {title: '修改者', width: 180, templet: function(d) {
+                        return d.createModifyUser.modifyUserInfo;
+                    }}
             ]],
             toolbar: '#toolbarDemo',
             defaultToolbar: ['filter', 'exports', 'print'],
@@ -195,15 +202,23 @@
             }
         });
 
+        // 監聽整行點擊事件
         table.on('row(factoryTableFilter)', function (obj) {
-            var target = event.target;
-            if ($(target).parents('.layui-form-checkbox').length > 0) {
-                return;
-            }
             var data = obj.data;
-            var factoryId = data.id;
-            var editUrl = '/page/admin/factory/factory_edit.html?id=' + factoryId;
-            window.open(editUrl, '_self');
+            var index = layer.open({
+                title: '編輯工廠',
+                type: 2,
+                shade: 0.2,
+                maxmin: true,
+                shadeClose: true,
+                area: ['100%', '100%'],
+                content: '/page/admin/factory/factory_edit.html?id=' + data.id,
+                end: function() {
+                    // 當編輯頁面關閉時，重新載入數據
+                    loadTableData(1, 10, {});
+                }
+            });
+            layer.full(index);
         });
     });
 </script>

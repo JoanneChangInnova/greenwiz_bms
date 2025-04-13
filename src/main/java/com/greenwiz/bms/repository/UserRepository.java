@@ -52,4 +52,15 @@ public interface UserRepository  extends JpaRepository<User,Long> {
     UserData getUserDataByUserId(Long userId);
 
     List<User> findByAgentId(Long agentId);
+
+    /**
+     * 根據ID列表查詢用戶
+     */
+    List<User> findByIdIn(List<Long> ids);
+
+    @Query("SELECT new com.greenwiz.bms.controller.data.user.UserData(u.id, u.username, u.email) FROM User u WHERE u.id IN :userIds")
+    List<UserData> findUserDataListByIds(@Param("userIds") List<Long> userIds);
+
+    @Query("SELECT MAX(u.id) FROM User u")
+    Long findMaxId();
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface KrakenService extends BaseDomainService<Long, Kraken> {
@@ -32,4 +33,15 @@ public interface KrakenService extends BaseDomainService<Long, Kraken> {
      * @return 未綁定工廠的 Kraken 資料列表
      */
     List<KrakenData> findByUserIdsAndFactoryIdIsNull(List<Long> userIds);
+
+    /**
+     * 根據工廠ID列表查詢對應的Kraken ID列表
+     * @param factoryIds 工廠ID列表
+     * @return Map<工廠ID, Kraken ID列表>
+     */
+    Map<Long, List<Long>> findKrakenIdsByFactoryIds(List<Long> factoryIds);
+
+    List<Long> findByFactoryId(Long id);
+
+    List<KrakenData> findKrakenDataByFactoryId(Long id);
 }

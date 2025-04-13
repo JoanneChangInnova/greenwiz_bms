@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>編輯工廠</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-select/css/bootstrap-select.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+</head>
+<body>
+<div class="container mt-5">
+    <h2>編輯工廠</h2>
+    <form id="editFactoryForm" th:action="@{/factory/update}" method="post">
+        <!-- Factory ID (唯讀) -->
+        <div class="form-group">
+            <label for="factoryId">工廠 ID</label>
+            <input type="text" class="form-control" id="factoryId" name="factoryId" th:value="${factory.id}" readonly>
+        </div>
+
+        <!-- 工廠名稱 -->
+        <div class="form-group">
+            <label for="factoryName">工廠名稱</label>
+            <input type="text" class="form-control" id="factoryName" name="factoryName" th:value="${factory.factoryName}" required>
+        </div>
+
+        <!-- 工廠地址 -->
+        <div class="form-group">
+            <label for="address">工廠地址</label>
+            <input type="text" class="form-control" id="address" name="address" th:value="${factory.address}" required>
+        </div>
+
+        <!-- IoT 設備選擇 -->
+        <div class="form-group">
+            <label for="iotDeviceIds">IoT 設備</label>
+            <select class="selectpicker form-control" id="iotDeviceIds" name="iotDeviceIds" multiple data-live-search="true">
+                <option th:each="device : ${availableDevices}"
+                        th:value="${device.id}"
+                        th:text="${device.name}"
+                        th:selected="${factory.iotDeviceIds != null && factory.iotDeviceIds.contains(device.id)}">
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">更新</button>
+        <a th:href="@{/factory/list}" class="btn btn-secondary">返回</a>
+    </form>
+</div>
+
+<!-- JavaScript -->
+<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/webjars/bootstrap-select/js/bootstrap-select.min.js}"></script>
+<script>
+    $(document).ready(function() {
+        $('.selectpicker').selectpicker();
+        
+        $('#editFactoryForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                factoryId: $('#factoryId').val(),
+                factoryName: $('#factoryName').val(),
+                address: $('#address').val(),
+                iotDeviceIds: $('#iotDeviceIds').val()
+            };
+
+            $.ajax({
+                url: '/factory/update',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    if (response.success) {
+                        alert('工廠更新成功！');
+                        window.location.href = '/factory/list';
+                    } else {
+                        alert('更新失敗：' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    alert('發生錯誤：' + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

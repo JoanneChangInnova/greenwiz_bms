@@ -23,4 +23,14 @@ public interface KrakenRepository extends JpaRepository<Kraken, Long> {
 
     @Query("SELECT new com.greenwiz.bms.controller.data.kraken.KrakenData(k.id, k.name) FROM Kraken k WHERE k.userId IN :userIds AND k.factoryId IS NULL")
     List<KrakenData> findByUserIdInAndFactoryIdIsNull(@Param("userIds") List<Long> userIds);
+
+    /**
+     * 根據工廠ID列表查詢關聯的Kraken列表
+     */
+    List<Kraken> findByFactoryIdIn(List<Long> factoryIds);
+
+    List<Long> findByFactoryId(Long id);
+
+    @Query("SELECT new com.greenwiz.bms.controller.data.kraken.KrakenData(k.id, k.name) FROM Kraken k WHERE k.factoryId = :id")
+    List<KrakenData> findKrakenDataByFactoryId(Long id);
 }

@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>編輯工廠</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!-- Layui CSS -->
+    <link rel="stylesheet" href="../../../lib/layui-v2.6.3/css/layui.css" media="all">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body { background-color: #ffffff; }
+        /* 調整 Select2 樣式以匹配 Layui */
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #e6e6e6;
+            border-radius: 2px;
+            min-height: 38px;
+            height: auto;
+            background: #fff;
+            box-sizing: border-box;
+            padding: 0 30px 0 10px;
+            cursor: pointer;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+            padding: 4px 0 4px 0;
+            line-height: 36px;
+            white-space: normal;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #f2f2f2;
+            border: 1px solid #e6e6e6;
+            border-radius: 2px;
+            padding: 0 5px 0 25px;
+            margin: 2px;
+            line-height: 24px;
+            float: none;
+            position: relative;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            margin: 0;
+            padding: 0 4px;
+        }
+        .select2-container--default .select2-search--inline .select2-search__field {
+            margin-top: 3px;
+            margin-left: 0px;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+        .select2-dropdown {
+            border: 1px solid #e6e6e6;
+            border-radius: 2px;
+        }
+        .readonly-field {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+    <!-- 唯獨的工廠ID -->
+    <div class="layui-form-item">
+        <label class="layui-form-label">工廠ID</label>
+        <div class="layui-input-block">
+            <input type="text" name="id" id="id" class="layui-input readonly-field" readonly>
+        </div>
+    </div>
+    <!-- 可編輯欄位 -->
+    <div class="layui-form-item">
+        <label class="layui-form-label required">工廠名稱</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" id="name" lay-verify="required" lay-reqtext="工廠名稱不能為空" placeholder="請輸入工廠名稱" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">時區</label>
+        <div class="layui-input-block">
+            <input type="text" name="utcOffset" id="utcOffset" placeholder="請輸入時區" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">最大用電量</label>
+        <div class="layui-input-block">
+            <input type="number" name="maxKwh" id="maxKwh" placeholder="請輸入最大用電量" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">監控週期(分鐘)</label>
+        <div class="layui-input-block">
+            <input type="number" name="monitorPeriodMinute" id="monitorPeriodMinute" placeholder="請輸入監控週期" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">國家</label>
+        <div class="layui-input-block">
+            <select name="country" id="country" lay-verify="required">
+                <option value="">請選擇國家</option>
+                <option value="TWN">台灣</option>
+                <option value="MYS">馬來西亞</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">地址</label>
+        <div class="layui-input-block">
+            <input type="text" name="address" placeholder="請輸入地址" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">經度</label>
+        <div class="layui-input-block">
+            <input type="number" name="longitude" id="longitude" placeholder="請輸入經度" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">緯度</label>
+        <div class="layui-input-block">
+            <input type="number" name="latitude" id="latitude" placeholder="請輸入緯度" class="layui-input">
+        </div>
+    </div>
+    <!-- 唯獨的代理商欄位 -->
+    <div class="layui-form-item">
+        <label class="layui-form-label">代理商</label>
+        <div class="layui-input-block">
+            <input type="text" name="agentDisplayText" id="agentDisplayText" class="layui-input readonly-field" readonly>
+        </div>
+    </div>
+    <!-- 可編輯的綁定 Kraken 欄位 -->
+    <div class="layui-form-item">
+        <label class="layui-form-label">綁定Kraken</label>
+        <div class="layui-input-block">
+            <select name="iotDeviceIds[]" id="krakenSelect" multiple="multiple" lay-ignore class="layui-hide"></select>
+        </div>
+    </div>
+    <!-- 唯獨的綁定客戶欄位 -->
+    <div class="layui-form-item">
+        <label class="layui-form-label">客戶</label>
+        <div class="layui-input-block">
+            <input type="text" name="factoryCustomers" id="factoryCustomers" class="layui-input readonly-field" readonly>
+        </div>
+    </div>
+    <!-- 修改 textarea，添加 id 屬性 -->
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">備註</label>
+        <div class="layui-input-block">
+            <textarea name="comment" id="comment" placeholder="請輸入備註" class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">確認修改</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add jQuery before Select2 and Layui -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Layui JS -->
+<script src="../../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/js/comm.js" charset="utf-8"></script>
+
+<script>
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form,
+            layer = layui.layer;
+        
+        // 存儲 Kraken 數據
+        var krakenMap = new Map();
+
+        // 初始化 Select2
+        function initializeSelect2($element, placeholder) {
+            $element.select2({
+                placeholder: placeholder,
+                allowClear: true,
+                width: '100%',
+                dropdownCssClass: 'layui-select-dropdown',
+                language: 'zh-TW'
+            }).on('select2:open', function() {
+                setTimeout(function() {
+                    $('.select2-results__options').css('max-height', '200px');
+                }, 0);
+            });
+            console.log(`${placeholder} Select2 初始化完成`);
+        }
+
+        // 更新 Select2 選項
+        function updateSelectOptions($select, dataMap) {
+            var selectedValues = $select.val() || [];  // 保存當前選中的值
+            $select.empty();
+            var options = Array.from(dataMap.values()).sort((a, b) => a.text.localeCompare(b.text));
+            options.forEach(function(option) {
+                var isSelected = selectedValues.includes(option.id.toString());
+                $select.append(new Option(option.text, option.id, isSelected, isSelected));
+            });
+            $select.trigger('change');
+            console.log(`更新 ${$select.attr('id')} 選項數量：`, options.length);
+        }
+
+        // 初始化頁面數據
+        function initializeFormData(id) {
+            $.get('/api/v1/factory/' + id, function(data) {
+                console.log("取回工廠數據", data);
+                // 填充表單數據
+                $("#id").val(data.id);
+                $("#name").val(data.name);
+                $("#utcOffset").val(data.utcOffset);
+                $("#maxKwh").val(data.maxKwh);
+                $("#monitorPeriodMinute").val(data.monitorPeriodMinute);
+                $("#country").val(data.country);
+                $("#address").val(data.address);
+                $("#longitude").val(data.longitude);
+                $("#latitude").val(data.latitude);
+                $("#comment").val(data.comment);
+                $("#agentDisplayText").val(data.agentDisplayText);
+                // 修改客戶的顯示方式
+                var customerDisplayText = data.factoryCustomers ? data.factoryCustomers.map(function(customer) {
+                    return customer.displayText;
+                }).join(', ') : '';
+                $("#factoryCustomers").val(customerDisplayText);
+
+                // 重新渲染 select 元素
+                form.render('select');
+
+                // 初始化 Kraken 選擇
+                initializeSelect2($('#krakenSelect'), '請選擇Kraken');
+                
+                // 如果有綁定的 Kraken，先顯示這些數據
+                if (data.factoryKrakens && data.factoryKrakens.length > 0) {
+                    krakenMap.clear();
+                    data.factoryKrakens.forEach(function(item) {
+                        krakenMap.set(item.id, {
+                            id: item.iotDeviceId,
+                            text: item.displayText
+                        });
+                    });
+                    updateSelectOptions($('#krakenSelect'), krakenMap);
+                    // 設置選中狀態
+                    $('#krakenSelect').val(data.factoryKrakens.map(k => k.iotDeviceId)).trigger('change');
+                }
+
+                // 載入可選的 Kraken 數據
+                if (data.agentId) {
+                    loadKrakenData(data.agentId);
+                }
+
+                form.render();
+            });
+        }
+
+        // 監聽提交
+        form.on('submit(saveBtn)', function(data) {
+            data.field.iotDeviceIds = $('#krakenSelect').val() || [];
+            
+            $.ajax({
+                url: '/api/v1/factory/update/' + data.field.id,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data.field),
+                success: function(res) {
+                    if (res) {
+                        layer.msg('修改成功', {
+                            icon: 1,
+                            time: 500
+                        }, function() {
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                            parent.location.reload();
+                        });
+                    }
+                }
+            });
+            return false;
+        });
+
+        // 初始化
+        var urlParams = new URLSearchParams(window.location.search);
+        var id = urlParams.get('id');
+        if (id) {
+            initializeFormData(id);
+            loadKrakenData();
+        }
+    });
+</script>
+</body>
+</html>

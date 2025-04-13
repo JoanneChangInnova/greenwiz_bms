@@ -1,16 +1,16 @@
 package com.greenwiz.bms.controller;
 
 import com.greenwiz.bms.controller.data.base.LayuiTableResp;
-import com.greenwiz.bms.controller.data.factory.AddFactoryReq;
-import com.greenwiz.bms.controller.data.factory.ListFactoryData;
-import com.greenwiz.bms.controller.data.factory.ListFactoryReq;
-import com.greenwiz.bms.controller.data.factory.UpdateFactoryReq;
+import com.greenwiz.bms.controller.data.factory.*;
 import com.greenwiz.bms.controller.data.kraken.KrakenData;
 import com.greenwiz.bms.entity.Factory;
 import com.greenwiz.bms.facade.FactoryFacade;
 import com.greenwiz.bms.facade.KrakenFacade;
 import com.greenwiz.bms.facade.UserFactoryFacade;
 import com.greenwiz.bms.service.FactoryService;
+import com.greenwiz.bms.service.KrakenService;
+import com.greenwiz.bms.service.UserFactoryService;
+import com.greenwiz.bms.service.UserService;
 import com.greenwiz.bms.utils.ThreadLocalUtils;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/factory")
@@ -38,6 +40,15 @@ public class FactoryController {
     @Autowired
     private UserFactoryFacade userFactoryFacade;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private KrakenService krakenService;
+
+    @Autowired
+    private UserFactoryService userFactoryService;
+
     @PostMapping("/add")
     @Transactional(Transactional.TxType.REQUIRED)
     public ResponseEntity<?> addFactory(@Valid @RequestBody AddFactoryReq request) {
@@ -45,25 +56,22 @@ public class FactoryController {
         return ResponseEntity.ok("新增成功");
     }
 
-//    @PostMapping("/list")
-//    public LayuiTableResp<Factory> getFactoryList(@RequestBody ListFactoryReq request) {
-//        Page<Factory> factories = factoryFacade.getFactoryList(request, ThreadLocalUtils.getUser().getRole());
-//        return LayuiTableResp.success(factories.getTotalElements(), factories.getContent());
-//    }
-
     @PostMapping("/list")
-    public LayuiTableResp<Factory> getFactoryList(@RequestBody ListFactoryReq request) {
+    public LayuiTableResp<ListFactoryData> getFactoryList(@RequestBody ListFactoryReq request) {
         Page<Factory> factories = factoryFacade.getFactoryList(request, ThreadLocalUtils.getUser().getRole());
-        return LayuiTableResp.success(factories.getTotalElements(), factories.getContent());
+        Page<ListFactoryData> listFactoryData = ListFactoryData.convertToListFactoryData(
+            factories,
+            userService,
+            krakenService,
+            userFactoryService
+        );
+        return LayuiTableResp.success(listFactoryData.getTotalElements(), listFactoryData.getContent());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getFactory(@PathVariable Long id) {
-        Factory factory = factoryService.findByPk(id);
-        if (factory == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        return ResponseEntity.ok(factory);
+    public ResponseEntity<FactoryData> getFactory(@PathVariable Long id) {
+        FactoryData factoryData = factoryFacade.getFactory(id);
+        return ResponseEntity.ok(factoryData);
     }
 
     @PutMapping("/update/{id}")
