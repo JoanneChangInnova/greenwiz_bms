@@ -74,7 +74,8 @@ public class FactoryController {
         return ResponseEntity.ok(factoryData);
     }
 
-    @PutMapping("/update/{id}")
+    @PostMapping("/update/{id}")
+    @Transactional(Transactional.TxType.REQUIRED)
     public ResponseEntity<?> updateFactory(@PathVariable Long id, @Valid @RequestBody UpdateFactoryReq request) {
         factoryFacade.updateFactory(id, request);
         return ResponseEntity.ok("修改成功");

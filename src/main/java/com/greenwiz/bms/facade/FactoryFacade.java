@@ -79,6 +79,7 @@ public class FactoryFacade {
     }
 
     /**
+     * 新增Factory時
      * 檢查 Kraken 綁定狀態：
      * Kraken 綁定工廠前，factory_id 必須為空，若非空需要使用者去工廠編輯中，將該工廠綁定的kraken移除後，才能綁定新工廠
      */
@@ -166,21 +167,6 @@ public class FactoryFacade {
     }
 
     /**
-     * 檢查 Channel 綁定狀態
-     */
-    private void validateChannelBindings(List<Channel> channelList) {
-        List<Channel> alreadyBondFactoryChannelList =
-                channelList.stream().filter(channel -> channel.getFactoryId() != null).toList();
-
-        if (!alreadyBondFactoryChannelList.isEmpty()) {
-            String boundChannels = alreadyBondFactoryChannelList.stream()
-                    .map(channel -> String.format("Channel[id=%d, name=%s]", channel.getId(), channel.getChannelName()))
-                    .collect(Collectors.joining(", "));
-            throw new BmsException("以下 Channel 已綁定工廠: " + boundChannels);
-        }
-    }
-
-    /**
      * 保存工廠信息
      */
     private Factory saveFactory(AddFactoryReq addFactoryReq) {
@@ -234,34 +220,70 @@ public class FactoryFacade {
             throw new BmsException("工廠不存在");
         }
 
-        // 驗證並獲取 Kraken 列表
-        List<Kraken> krakenList = validateAndGetKrakenList(request.getIotDeviceIds());
+        List<KrakenData> factoryKrakens = krakenService.findKrakenDataByFactoryId(id);
+        Set<Long> oldKrakenIds = factoryKrakens.stream()
+                .map(KrakenData::getIotDeviceId)
+                .collect(Collectors.toSet());
 
+        List<Long> requestIotDeviceIds = request.getIotDeviceIds() != null ? request.getIotDeviceIds() : List.of();
+
+        // 找出要刪除的 Kraken ID（存在於 oldKrakenIds 但不在 requestIotDeviceIds 中）
+        List<Long> krakenIdsToRemove = oldKrakenIds.stream()
+                .filter(iotDeviceId -> !requestIotDeviceIds.contains(iotDeviceId))
+                .toList();
+
+        // 找出要新增的 Kraken ID（存在於 requestIotDeviceIds 但不在 oldKrakenIds 中）
+        List<Long> newKrakenIds = requestIotDeviceIds.stream()
+                .filter(iotDeviceId -> !oldKrakenIds.contains(iotDeviceId))
+                .toList();
+
+        // 處理要刪除的 Kraken，將其 factory_id 設為 null，並更新其 channel 的 factory_id
+        if (!krakenIdsToRemove.isEmpty()) {
+            List<Kraken> krakensToRemove = krakenService.findByIdIn(krakenIdsToRemove);
+            List<Channel> channelsToRemove = channelService.findByIotDeviceIdIn(krakenIdsToRemove);
+            //Map<krakenId, channelList>
+            Map<Long, List<Channel>> channelMap = channelsToRemove.stream()
+                    .collect(Collectors.groupingBy(Channel::getIotDeviceId));
+
+            for (Kraken kraken : krakensToRemove) {
+                kraken.setFactoryId(null);
+                // 更新該 Kraken 底下的 channel
+                List<Channel> channels = channelMap.get(kraken.getId());
+                if (channels != null) {
+                    channels.forEach(channel -> channel.setFactoryId(null));
+                    channelService.saveAll(channels);
+                }
+            }
+            krakenService.saveAll(krakensToRemove);
+        }
+
+        List<Kraken> newKrakenList = List.of();
         List<Channel> channelList = List.of();
-        if (!CollectionUtils.isEmpty(krakenList)) {
-            //filter krakenList not in factory
 
-            // 檢查新加入的 Kraken 是否已綁定工廠
-            validateKrakenBindings(krakenList);
-            channelList = validateAndGetChannelList(krakenList);
-            validateChannelBindings(krakenList, channelList);
-            // 檢查 channel name 唯一性
+        // 處理新增的 Kraken ID
+        if (!newKrakenIds.isEmpty()) {
+            newKrakenList = validateAndGetKrakenList(newKrakenIds);
+            // 檢查新加入的 Kraken 是否未綁定工廠
+            validateKrakenBindings(newKrakenList);
+            // 獲取並檢查新 Kraken 的 channel 是否未綁定
+            channelList = channelService.findByIotDeviceIdIn(newKrakenIds);
+            validateChannelBindings(newKrakenList, channelList);
+            // 檢查通道名稱唯一性
             validateChannelNameUniqueness(channelList);
         }
 
         // 更新工廠信息
-        BeanUtils.copyProperties(request, factory);
+        BeanUtils.copyProperties(request, factory, "country"); // 排除 country 以單獨處理
         Country country = request.getCountry();
         if (country != null) {
             factory.setCountry(country);
         }
         factoryService.save(factory);
 
-        // 更新設備綁定
-        if (!CollectionUtils.isEmpty(krakenList)) {
-            updateDeviceBindings(factory, krakenList, channelList);
+        // 更新設備綁定（僅針對新增的 Kraken）
+        if (!newKrakenList.isEmpty()) {
+            updateDeviceBindings(factory, newKrakenList, channelList);
         }
-
     }
 
     /**

@@ -113,7 +113,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">地址</label>
         <div class="layui-input-block">
-            <input type="text" name="address" placeholder="請輸入地址" class="layui-input">
+            <input type="text" name="address" id="address" placeholder="請輸入地址" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
@@ -208,6 +208,36 @@
             console.log(`更新 ${$select.attr('id')} 選項數量：`, options.length);
         }
 
+        // 載入 Kraken 數據
+        function loadKrakenData(agentId) {
+            if (!agentId) {
+                return;
+            }
+
+            $.ajax({
+                url: '/api/v1/kraken/listKrakenData/' + agentId,
+                type: 'GET',
+                success: function(res) {
+                    if (res && res.length > 0) {
+                        res.forEach(function(item) {
+                            // 只有當該 Kraken 不在 Map 中時才添加
+                            if (!krakenMap.has(item.iotDeviceId)) {
+                                krakenMap.set(item.iotDeviceId, {
+                                    id: item.iotDeviceId,
+                                    text: item.displayText
+                                });
+                            }
+                        });
+                        updateSelectOptions($('#krakenSelect'), krakenMap);
+                    }
+                },
+                error: function(xhr) {
+                    console.error('載入Kraken數據失敗:', xhr);
+                    layer.msg('載入Kraken數據失敗', {icon: 2});
+                }
+            });
+        }
+
         // 初始化頁面數據
         function initializeFormData(id) {
             $.get('/api/v1/factory/' + id, function(data) {
@@ -240,7 +270,7 @@
                 if (data.factoryKrakens && data.factoryKrakens.length > 0) {
                     krakenMap.clear();
                     data.factoryKrakens.forEach(function(item) {
-                        krakenMap.set(item.id, {
+                        krakenMap.set(item.iotDeviceId, {  // 修改這裡：使用 iotDeviceId 作為 key
                             id: item.iotDeviceId,
                             text: item.displayText
                         });
@@ -251,13 +281,13 @@
                 }
 
                 // 載入可選的 Kraken 數據
-                if (data.agentId) {
-                    loadKrakenData(data.agentId);
-                }
+                loadKrakenData(data.agentId);
 
                 form.render();
             });
         }
+
+
 
         // 監聽提交
         form.on('submit(saveBtn)', function(data) {
@@ -265,20 +295,18 @@
             
             $.ajax({
                 url: '/api/v1/factory/update/' + data.field.id,
-                type: 'PUT',
+                type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data.field),
                 success: function(res) {
-                    if (res) {
-                        layer.msg('修改成功', {
-                            icon: 1,
-                            time: 500
-                        }, function() {
-                            var iframeIndex = parent.layer.getFrameIndex(window.name);
-                            parent.layer.close(iframeIndex);
-                            parent.location.reload();
-                        });
-                    }
+                    layer.msg('修改成功', function() {
+                        var iframeIndex = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(iframeIndex);
+                        parent.location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    handleErrorResponse(xhr);
                 }
             });
             return false;
