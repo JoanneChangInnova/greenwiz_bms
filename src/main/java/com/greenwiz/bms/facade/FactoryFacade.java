@@ -9,22 +9,24 @@ import com.greenwiz.bms.controller.data.user.UserData;
 import com.greenwiz.bms.entity.Channel;
 import com.greenwiz.bms.entity.Factory;
 import com.greenwiz.bms.entity.Kraken;
+import com.greenwiz.bms.entity.UserFactory;
 import com.greenwiz.bms.enumeration.Country;
 import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.exception.BmsException;
 import com.greenwiz.bms.service.*;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -291,22 +293,59 @@ public class FactoryFacade {
      * ADMIM :
      * 可以看所有的factory list，直接select all factory list
      * AGENT :
+     * 只能看到部分工廠列表，需帶入factory_id in:
      * 搜尋 agent_id = ThreadLocalUtils.getUser().getId() And role = 3 的 UserIds
-     * 再到 UserFactory 找符合這些
+     * 再到 UserFactory 找符合這些user的 工廠ID list
      */
     public Page<Factory> getFactoryList(ListFactoryReq listFactoryReq, UserRole role) {
-        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues()
-                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains());
-        Factory factory = new Factory();
-        factory.setId(listFactoryReq.getFactoryId());
-        factory.setName(listFactoryReq.getName());
-        Example<Factory> example = Example.of(factory, matcher);
+        Specification<Factory> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
+            if (listFactoryReq.getName() != null) {
+                predicates.add(cb.like(root.get("name"), "%" + listFactoryReq.getName() + "%"));
+            }
+
+            if (listFactoryReq.getFactoryId() != null) {
+                predicates.add(cb.equal(root.get("id"), listFactoryReq.getFactoryId()));
+            }
+
+            // 查詢 userId（子查詢）
+            if (listFactoryReq.getUserId() != null) {
+                Subquery<Long> userFactorySubquery = query.subquery(Long.class);
+                Root<UserFactory> userFactoryRoot = userFactorySubquery.from(UserFactory.class);
+                userFactorySubquery.select(userFactoryRoot.get("factoryId"))
+                        .where(cb.equal(userFactoryRoot.get("userId"), listFactoryReq.getUserId()));
+                predicates.add(root.get("id").in(userFactorySubquery));
+            }
+
+            // 查詢 krakenId（子查詢）
+            if (listFactoryReq.getKrakenId() != null) {
+                Subquery<Long> iotDeviceSubquery = query.subquery(Long.class);
+                Root<Kraken> iotDeviceRoot = iotDeviceSubquery.from(Kraken.class);
+                iotDeviceSubquery.select(iotDeviceRoot.get("factoryId"))
+                        .where(cb.equal(iotDeviceRoot.get("id"), listFactoryReq.getKrakenId()));
+                predicates.add(root.get("id").in(iotDeviceSubquery));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        /**
+         * SELECT DISTINCT f.*
+         * FROM Factory f
+         * LEFT JOIN UserFactory uf ON f.id = uf.factory_id
+         * LEFT JOIN IotDevice idv ON f.id = idv.factory_id
+         * WHERE 1=1
+         *   AND (f.name LIKE CONCAT('%', :name, '%') OR :name IS NULL)
+         *   AND (f.id = :factoryId OR :factoryId IS NULL)
+         *   AND (uf.user_id = :userId OR :userId IS NULL)
+         *   AND (idv.id = :krakenId OR :krakenId IS NULL)
+         * ORDER BY f.id
+         * LIMIT :pageSize OFFSET :offset;
+         */
         if (role == UserRole.ADMIN) {
-            return factoryService.getFactoryPageBySpecification(example, listFactoryReq.getPageable());
+            return factoryService.getFactoryPageBySpecification(spec, listFactoryReq.getPageable());
         }
-
-        return null;
+        return Page.empty();
     }
 
 }

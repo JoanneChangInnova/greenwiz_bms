@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,7 +21,7 @@ public class FactoryServiceImpl extends BaseDomainServiceImpl<Long, Factory> imp
     private FactoryRepository jpaRepository;
 
     @Override
-    public Page<Factory> getFactoryPageBySpecification(Example<Factory> example, PageRequest pageable) {
-        return jpaRepository.findAll(example, pageable);
+    public Page<Factory> getFactoryPageBySpecification(Specification<Factory> spec, Pageable pageable) {
+        return jpaRepository.findAll(spec, pageable);
     }
 }
