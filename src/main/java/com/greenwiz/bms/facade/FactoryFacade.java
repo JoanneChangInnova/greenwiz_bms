@@ -1,9 +1,6 @@
 package com.greenwiz.bms.facade;
 
-import com.greenwiz.bms.controller.data.factory.AddFactoryReq;
-import com.greenwiz.bms.controller.data.factory.FactoryData;
-import com.greenwiz.bms.controller.data.factory.ListFactoryReq;
-import com.greenwiz.bms.controller.data.factory.UpdateFactoryReq;
+import com.greenwiz.bms.controller.data.factory.*;
 import com.greenwiz.bms.controller.data.kraken.KrakenData;
 import com.greenwiz.bms.controller.data.user.UserData;
 import com.greenwiz.bms.entity.Channel;
@@ -348,4 +345,11 @@ public class FactoryFacade {
         return Page.empty();
     }
 
+    public Set<FactoryBasicData> findByAgentId(Long agentId) {
+        List<Factory> factories = factoryService.findByAgentId(agentId);
+        // 將工廠轉換為 FactoryBasicData
+        return factories.stream()
+                .map(factory -> FactoryBasicData.builder().factoryId(factory.getId()).name(factory.getName()).build())
+                .collect(Collectors.toSet());
+    }
 }

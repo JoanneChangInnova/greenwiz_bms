@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.Set;
+
 /**
  * AddUserRequest 和 UpdateUserRequest 共用的欄位
  */
@@ -92,4 +94,9 @@ public class UserRequest {
      * 語言偏好，例如 CHT 或 ENG
      */
     private Language language;
+
+    /**
+     * 客戶綁定的工廠Id列表
+     */
+    Set<Long> factoryIds;
 }

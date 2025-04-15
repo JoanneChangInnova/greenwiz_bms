@@ -80,4 +80,10 @@ public class FactoryController {
         factoryFacade.updateFactory(id, request);
         return ResponseEntity.ok("修改成功");
     }
+
+    @GetMapping("/findByAgentId/{agentId}")
+    public ResponseEntity<Set<FactoryBasicData>> findByAgentId(@PathVariable Long agentId) {
+        Set<FactoryBasicData> factoryData = factoryFacade.findByAgentId(agentId);
+        return ResponseEntity.ok(factoryData);
+    }
 }

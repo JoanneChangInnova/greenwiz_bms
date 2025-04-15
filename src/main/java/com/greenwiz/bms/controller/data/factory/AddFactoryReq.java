@@ -86,11 +86,6 @@ public class AddFactoryReq extends RequestJson {
      */
     private List<Long> iotDeviceIds;
 
-    /**
-     * Factory綁定的使用者，可選多筆，由User /listAllCustomers取得清單
-     */
-    private Set<Long> userIds;
-
     @NotNull(message = "工廠所屬代理商為必填")
     private Long agentId;
 }

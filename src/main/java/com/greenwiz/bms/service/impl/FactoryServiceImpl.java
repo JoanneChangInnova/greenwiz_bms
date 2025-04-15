@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FactoryServiceImpl extends BaseDomainServiceImpl<Long, Factory> implements FactoryService {
 
@@ -23,5 +25,10 @@ public class FactoryServiceImpl extends BaseDomainServiceImpl<Long, Factory> imp
     @Override
     public Page<Factory> getFactoryPageBySpecification(Specification<Factory> spec, Pageable pageable) {
         return jpaRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public List<Factory> findByAgentId(Long agentId) {
+        return jpaRepository.findByAgentId(agentId);
     }
 }
