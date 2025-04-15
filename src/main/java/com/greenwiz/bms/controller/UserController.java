@@ -59,8 +59,8 @@ public class UserController {
     }
 
     @PostMapping("/list")
-    public LayuiTableResp<UserListData> listUser(@RequestBody PageReq pageReq) {
-        Page<UserListData> users = userFacade.listUser(pageReq);
+    public LayuiTableResp<UserListData> listUser(@RequestBody ListUserReq listUserReq) {
+        Page<UserListData> users = userFacade.listUser(listUserReq);
         return LayuiTableResp.success(users.getTotalElements(), users.getContent());
     }
 

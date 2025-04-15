@@ -26,7 +26,7 @@
         <fieldset class="table-search-fieldset">
             <legend>搜尋用戶</legend>
             <div style="margin: 10px 10px 10px 10px">
-                <form class="layui-form layui-form-pane" id="searchForm">
+                <form class="layui-form layui-form-pane" id="searchForm" lay-filter="searchForm">
                     <div class="layui-form-item">
                         <div class="layui-inline">
                             <label class="layui-form-label">用戶名稱</label>
@@ -74,7 +74,10 @@
                             </div>
                         </div>
                         <div class="layui-inline">
-                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 尋</button>
+                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 尋</button>
+                            <button type="button" class="layui-btn layui-btn-primary" id="data-clear-btn">
+                            清空
+                        </button>
                         </div>
                     </div>
                 </form>
@@ -166,13 +169,21 @@
 
         // 加載數據函數
         function loadTableData(page, size) {
+            // 獲取搜尋表單數據
+            var formData = form.val('searchForm');
+            
             $.ajax({
                 url: '/api/v1/user/list',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    page: page ,
-                    size: size
+                    page: page,
+                    size: size,
+                    username: formData.username || null,
+                    email: formData.email || null,
+                    role: formData.role || null,
+                    state: formData.state || null,
+                    country: formData.country || null
                 }),
                 success: function (res) {
                     // 更新表格數據
@@ -208,6 +219,15 @@
         form.on('submit(data-search-btn)', function (data) {
             loadTableData(1, 10);
             return false;
+        });
+
+        // 清空按鈕點擊事件
+        $('#data-clear-btn').on('click', function() {
+            // 清空表單
+            $('#searchForm')[0].reset();
+            form.render(); // 重新渲染表單
+            // 重新加載數據
+            loadTableData(1, 10);
         });
 
         // 監聽整行點擊事件

@@ -12,6 +12,7 @@ import com.greenwiz.bms.service.UserService;
 import com.greenwiz.bms.utils.JwtUtils;
 import com.greenwiz.bms.utils.ThreadLocalUtils;
 import com.greenwiz.bms.utils.ValidationUtils;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,10 +22,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -95,13 +98,48 @@ public class UserFacade {
      * 管理員可看到所有用戶
      * 其他角色只可看到parentId為自己的用戶 (尚未實作）
      */
-    public Page<UserListData> listUser(PageReq pageReq) {
-        // 1. 獲取用戶分頁結果
-        Page<User> userPage = userService.listUser(pageReq);
+    public Page<UserListData> listUser(ListUserReq listUserReq) {
+        // 1. 構建 Specification 查詢用戶分頁，處理 null 值
+        Specification<User> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-        // 2. 提取 parentIds（去重）
+            // 查詢條件：username（模糊查詢，忽略 null 或空字串）
+            if (listUserReq.getUsername() != null && !listUserReq.getUsername().trim().isEmpty()) {
+                predicates.add(cb.like(root.get("username"), "%" + listUserReq.getUsername() + "%"));
+            }
+
+            // 查詢條件：email（模糊查詢，忽略 null 或空字串）
+            if (listUserReq.getEmail() != null && !listUserReq.getEmail().trim().isEmpty()) {
+                predicates.add(cb.like(root.get("email"), "%" + listUserReq.getEmail() + "%"));
+            }
+
+            // 查詢條件：role（忽略 null）
+            if (listUserReq.getRole() != null) {
+                predicates.add(cb.equal(root.get("role"), listUserReq.getRole()));
+            }
+
+            // 查詢條件：state（忽略 null）
+            if (listUserReq.getState() != null) {
+                predicates.add(cb.equal(root.get("state"), listUserReq.getState()));
+            }
+
+            // 查詢條件：country（忽略 null）
+            if (listUserReq.getCountry() != null) {
+                predicates.add(cb.equal(root.get("country"), listUserReq.getCountry()));
+            }
+
+            // 避免重複記錄（如果有 JOIN 的話）
+            query.distinct(true);
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // 執行查詢，獲取用戶分頁結果
+        Page<User> userPage = userService.findAll(spec, listUserReq.getPageable());
+
+        // 2. 提取 上層管理者 parentIds（去重）
         List<Long> parentIds = userPage.getContent().stream().map(User::getParentId) // 提取 parentId
-                .filter(parentId -> parentId != null) // 過濾掉空值
+                .filter(Objects::nonNull) // 過濾掉空值
                 .distinct() // 去重
                 .collect(Collectors.toList());
 

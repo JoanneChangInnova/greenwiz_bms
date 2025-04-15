@@ -12,14 +12,11 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implements UserService {
@@ -38,9 +35,7 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
 
     @Override
     public Page<User> listUser(PageReq pageReq) {
-        Sort.Direction direction = Sort.Direction.fromString(pageReq.getDirection());
-        Pageable pageable = PageRequest.of(pageReq.getPage(), pageReq.getSize(), direction, pageReq.getSortBy());
-        return jpaRepository.findAll(pageable);
+        return null;
     }
 
     @Override
@@ -75,8 +70,7 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
 
     @Override
     public void updatePassword(Long userId, String encodedNewPassword) {
-        User user = jpaRepository.findById(userId)
-                .orElseThrow(() -> new BmsException("用戶不存在"));
+        User user = jpaRepository.findById(userId).orElseThrow(() -> new BmsException("用戶不存在"));
 
         user.setPassword(encodedNewPassword);
         jpaRepository.saveAndFlush(user);
@@ -119,5 +113,10 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
     @Override
     public List<UserData> findUserDataListByIds(List<Long> userIds) {
         return jpaRepository.findUserDataListByIds(userIds);
+    }
+
+    @Override
+    public Page<User> findAll(Specification<User> spec, PageRequest pageable) {
+        return jpaRepository.findAll(spec, pageable);
     }
 }

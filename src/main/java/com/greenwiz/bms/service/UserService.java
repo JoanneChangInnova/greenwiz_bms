@@ -5,6 +5,8 @@ import com.greenwiz.bms.controller.data.user.UserData;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.enumeration.UserRole;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,4 +75,6 @@ public interface UserService extends BaseDomainService<Long, User> {
      * @return 用戶數據列表
      */
     List<UserData> findUserDataListByIds(List<Long> userIds);
+
+    Page<User> findAll(Specification<User> spec, PageRequest pageable);
 }
