@@ -85,7 +85,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label required">用戶管理者</label>
         <div class="layui-input-block">
-            <select name="parentId" lay-verify="required" lay-search="{caseSensitive:false, fuzzy: true}">
+            <select name="parentId" lay-verify="required" lay-filter="parentId" lay-search="{caseSensitive:false, fuzzy: true}">
                 <option value="">請選擇管理者</option>
                 <!-- 動態載入 API 返回的數據 -->
             </select>
@@ -159,7 +159,8 @@
         </div>
     </div>
 
-    <div class="layui-form-item">
+    <!-- 使用 Select2 的綁定工廠欄位 -->
+    <div class="layui-form-item" id="factorySelectContainer">
         <label class="layui-form-label">綁定工廠</label>
         <div class="layui-input-block">
             <select name="factoryIds[]" id="factorySelect" multiple="multiple" lay-ignore class="layui-hide"></select>
@@ -198,13 +199,35 @@
     </div>
 </div>
 
+<!-- 修改 jQuery 和 Select2 的引用順序和方式 -->
+<script src="../../../lib/jquery-3.4.1/jquery-3.4.1.min.js"></script>
 <script src="../../../lib/layui-v2.6.3/layui.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="/js/comm.js" charset="utf-8"></script>
 <script>
+    // 確保 jQuery 已加載
+    $(document).ready(function() {
+        // 初始化 Select2
+        $('#factorySelect').select2({
+            placeholder: '請選擇工廠',
+            allowClear: true,
+            multiple: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return '沒有符合的選項';
+                }
+            }
+        });
+    });
+
     layui.use(['form', 'layer'], function () {
-        var form = layui.form, layer = layui.layer, $ = layui.$;
+        var form = layui.form, 
+            layer = layui.layer, 
+            $ = layui.jquery;  // 改用 layui 的 jQuery，避免衝突
+        
+        // 創建工廠數據映射
+        var factoryMap = new Map();
 
         // 自定義驗證
         form.verify({
@@ -226,6 +249,9 @@
             select.empty();
             select.append(new Option("請選擇管理者", ""));
 
+            // 隱藏工廠選擇區域
+            $("#factorySelectContainer").hide();
+            
             if (userRole) {
                 // 構造請求數據
                 var requestData = JSON.stringify({ userRole: userRole });
@@ -254,39 +280,63 @@
             }
         });
 
-        // 初始化 Select2
-        function initializeSelect2($element, placeholder) {
-            $element.select2({
-                placeholder: placeholder,
-                allowClear: true,
-                width: '100%'
-            });
-        }
+        // 使用 layui 的 form.on 方法來監聽 parentId 的變化，而不是 jQuery 的 on 方法
+        form.on('select(parentId)', function(data) {
+            console.log("用戶管理者選擇改變:", data.value);
+            var userRole = $("select[name='role']").val();
+            var parentId = data.value;
+            
+            // 清空工廠選擇
+            $('#factorySelect').empty().trigger('change');
+            
+            // 只有當角色是一般用戶(3)且選擇了用戶管理者時才顯示工廠選擇
+            if (userRole === "3" && parentId) {
+                $("#factorySelectContainer").show();
+                loadFactoryDataByInstallerId(parentId);
+            } else {
+                $("#factorySelectContainer").hide();
+            }
+        });
 
-        // 更新 Select2 選項
+        // 更新 Select2 選項通用函數
         function updateSelectOptions($select, dataMap) {
             $select.empty();
-            Object.keys(dataMap).forEach(function(key) {
-                $select.append(new Option(dataMap[key], key));
+            var options = Array.from(dataMap.values()).sort((a, b) => a.text.localeCompare(b.text));
+            options.forEach(function(option) {
+                $select.append(new Option(option.text, option.id, false, false));
             });
             $select.trigger('change');
+            console.log(`更新 ${$select.attr('id')} 選項數量：`, options.length);
         }
 
-        // 載入工廠數據
-        function loadFactoryData() {
+        // 根據安裝商ID載入工廠數據
+        function loadFactoryDataByInstallerId(installerId) {
+            if (!installerId) {
+                $('#factorySelect').empty().trigger('change');
+                return;
+            }
+
             $.ajax({
-                url: '/api/v1/factory/listFactoryData',
+                url: '/api/v1/factory/findByInstallerId/' + installerId,
                 type: 'GET',
-                success: function(res) {
-                    if (res.code === 0) {
-                        var factoryMap = {};
-                        res.data.forEach(function(factory) {
-                            factoryMap[factory.id] = factory.name;
+                success: function(data) {
+                    factoryMap.clear();
+                    if (data && data.length > 0) {
+                        data.forEach(function(item) {
+                            factoryMap.set(item.factoryId, {
+                                id: item.factoryId,
+                                text: item.displayText
+                            });
                         });
                         updateSelectOptions($('#factorySelect'), factoryMap);
+                    } else {
+                        layer.msg('該安裝商尚無綁定工廠', {icon: 0});
+                        $('#factorySelect').empty().trigger('change');
                     }
                 },
                 error: function(xhr) {
+                    console.error('載入工廠數據失敗:', xhr);
+                    layer.msg('載入工廠數據失敗', {icon: 2});
                     handleErrorResponse(xhr);
                 }
             });
@@ -321,9 +371,8 @@
             return false;
         });
 
-        // 初始化
-        initializeSelect2($('#factorySelect'), '請選擇工廠');
-        loadFactoryData();
+        // 初始隱藏工廠選擇區域
+        $("#factorySelectContainer").hide();
     });
 </script>
 </body>
