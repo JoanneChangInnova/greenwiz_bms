@@ -81,9 +81,10 @@ public class FactoryController {
         return ResponseEntity.ok("修改成功");
     }
 
-    @GetMapping("/findByAgentId/{agentId}")
-    public ResponseEntity<Set<FactoryBasicData>> findByAgentId(@PathVariable Long agentId) {
-        Set<FactoryBasicData> factoryData = factoryFacade.findByAgentId(agentId);
+    //findByInstallerId
+    @GetMapping("/findByInstallerId/{installerId}")
+    public ResponseEntity<Set<FactoryBasicData>> findByInstallerId(@PathVariable Long installerId) {
+        Set<FactoryBasicData> factoryData = factoryFacade.findByInstallerId(installerId);
         return ResponseEntity.ok(factoryData);
     }
 }

@@ -3,10 +3,7 @@ package com.greenwiz.bms.facade;
 import com.greenwiz.bms.controller.data.factory.*;
 import com.greenwiz.bms.controller.data.kraken.KrakenData;
 import com.greenwiz.bms.controller.data.user.UserData;
-import com.greenwiz.bms.entity.Channel;
-import com.greenwiz.bms.entity.Factory;
-import com.greenwiz.bms.entity.Kraken;
-import com.greenwiz.bms.entity.UserFactory;
+import com.greenwiz.bms.entity.*;
 import com.greenwiz.bms.enumeration.Country;
 import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.exception.BmsException;
@@ -72,9 +69,9 @@ public class FactoryFacade {
             updateDeviceBindings(savedFactory, krakenList, channelList);
         }
 
-        if (!CollectionUtils.isEmpty(addFactoryReq.getUserIds())) {
-            userFactoryFacade.updateUserFactoryBindings(savedFactory.getId(), addFactoryReq.getUserIds());
-        }
+//        if (!CollectionUtils.isEmpty(addFactoryReq.getUserIds())) {
+//            userFactoryFacade.updateUserFactoryBindings(savedFactory.getId(), addFactoryReq.getUserIds());
+//        }
     }
 
     /**
@@ -345,11 +342,16 @@ public class FactoryFacade {
         return Page.empty();
     }
 
-    public Set<FactoryBasicData> findByAgentId(Long agentId) {
-        List<Factory> factories = factoryService.findByAgentId(agentId);
+    public Set<FactoryBasicData> findByInstallerId(Long installerId) {
+        //find user by installerId, check if user role is installer
+        User installer = userService.findByPk(installerId);
+        if (installer.getRole() != UserRole.INSTALLER) {
+            throw new BmsException("用戶管理者非安裝商");
+        }
+        List<Factory> factories = factoryService.findByAgentId(installer.getAgentId());
         // 將工廠轉換為 FactoryBasicData
         return factories.stream()
-                .map(factory -> FactoryBasicData.builder().factoryId(factory.getId()).name(factory.getName()).build())
+                .map(factory -> FactoryBasicData.builder().factoryId(factory.getId()).name(factory.getName()).UUID(factory.getFactoryUuid()).build())
                 .collect(Collectors.toSet());
     }
 }
