@@ -37,4 +37,9 @@ public class UserFactoryServiceImpl extends BaseDomainServiceImpl<Long, UserFact
     public List<UserData> findUserDataByFactoryId(Long factoryId) {
         return jpaRepository.findUserDataByFactoryId(factoryId);
     }
+
+    @Override
+    public List<UserFactory> findByUserId(Long userId) {
+        return jpaRepository.findByUserId(userId);
+    }
 }

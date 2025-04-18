@@ -1,13 +1,16 @@
 package com.greenwiz.bms.facade;
 
 import com.greenwiz.bms.controller.data.base.PageReq;
+import com.greenwiz.bms.controller.data.factory.FactoryBasicData;
 import com.greenwiz.bms.controller.data.user.*;
 import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.enumeration.UserState;
 import com.greenwiz.bms.exception.BmsException;
+import com.greenwiz.bms.service.FactoryService;
 import com.greenwiz.bms.service.KrakenService;
+import com.greenwiz.bms.service.UserFactoryService;
 import com.greenwiz.bms.service.UserService;
 import com.greenwiz.bms.utils.JwtUtils;
 import com.greenwiz.bms.utils.ThreadLocalUtils;
@@ -27,10 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -48,6 +48,12 @@ public class UserFacade {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private UserFactoryFacade userFactoryFacade;
+
+    @Autowired
+    private FactoryService factoryService;
 
     public User addUser(AddUserReq addUserReq) {
         // 檢查用戶名是否已存在
@@ -72,6 +78,10 @@ public class UserFacade {
         newUser.setId(userId);
 
         assignAgentIdByRole(newUser, userId);
+
+        if(addUserReq.getFactoryIds() != null) {
+            userFactoryFacade.updateUserFactoryBindings(userId,addUserReq.getFactoryIds());
+        }
 
         return userService.save(newUser);
     }
@@ -278,6 +288,13 @@ public class UserFacade {
         GetUserData getUserData = new GetUserData();
         BeanUtils.copyProperties(user, getUserData);
         getUserData.setParentData(parentData);
+
+        if(user.getRole() == UserRole.CUSTOMER) {
+            Set<Long> factoryIds =
+                    userFactoryFacade.getFactoryIdsByUserId(user.getId());
+            Set<FactoryBasicData> factoryDataSet = factoryService.findFactoryBasicDataByFactoryIds(factoryIds);
+            getUserData.setFactoryData(factoryDataSet);
+        }
         return getUserData;
     }
 

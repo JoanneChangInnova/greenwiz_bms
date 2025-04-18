@@ -15,4 +15,6 @@ public interface UserFactoryService extends BaseDomainService<Long, UserFactory>
     Map<Long, List<Long>> findUserIdsByFactoryIds(List<Long> factoryIds);
 
     List<UserData> findUserDataByFactoryId(Long id);
+
+    List<UserFactory> findByUserId(Long userId);
 }

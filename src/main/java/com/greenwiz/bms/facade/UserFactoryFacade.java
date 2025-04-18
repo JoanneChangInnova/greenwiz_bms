@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserFactoryFacade {
@@ -15,14 +16,29 @@ public class UserFactoryFacade {
     @Autowired
     private UserFactoryService userFactoryService;
 
-    public void updateUserFactoryBindings(Long factoryId, Set<Long> userIds) {
+    public void updateUserFactoryBindings(Long userId, Set<Long> factoryIds) {
+        List<UserFactory> userFactories = userFactoryService.findByUserId(userId);
+        //蒐集factoryId, 與factoryIds比對，去除重複的
+        List<Long> existFactoryIds = new ArrayList<>();
+        for(UserFactory userFactory : userFactories){
+            existFactoryIds.add(userFactory.getFactoryId());
+        }
+        existFactoryIds.forEach(factoryIds::remove);
+
+        //新增未綁定的user與工廠
         List<UserFactory> userFactoryList = new ArrayList<>();
-        for(Long userId : userIds){
+        for(Long factoryId : factoryIds){
             UserFactory userFactory = new UserFactory();
             userFactory.setFactoryId(factoryId);
             userFactory.setUserId(userId);
             userFactoryList.add(userFactory);
         }
         userFactoryService.saveAllAndFlush(userFactoryList);
+    }
+
+    public Set<Long> getFactoryIdsByUserId(Long userId) {
+        return userFactoryService.findByUserId(userId).stream()
+                .map(UserFactory::getFactoryId)
+                .collect(Collectors.toSet());
     }
 }

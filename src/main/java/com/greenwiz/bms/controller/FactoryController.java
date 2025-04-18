@@ -81,7 +81,7 @@ public class FactoryController {
         return ResponseEntity.ok("修改成功");
     }
 
-    //findByInstallerId
+
     @GetMapping("/findByInstallerId/{installerId}")
     public ResponseEntity<Set<FactoryBasicData>> findByInstallerId(@PathVariable Long installerId) {
         Set<FactoryBasicData> factoryData = factoryFacade.findByInstallerId(installerId);

@@ -1,5 +1,6 @@
 package com.greenwiz.bms.service.impl;
 
+import com.greenwiz.bms.controller.data.factory.FactoryBasicData;
 import com.greenwiz.bms.entity.Factory;
 import com.greenwiz.bms.repository.FactoryRepository;
 import com.greenwiz.bms.service.FactoryService;
@@ -14,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FactoryServiceImpl extends BaseDomainServiceImpl<Long, Factory> implements FactoryService {
@@ -30,5 +32,10 @@ public class FactoryServiceImpl extends BaseDomainServiceImpl<Long, Factory> imp
     @Override
     public List<Factory> findByAgentId(Long agentId) {
         return jpaRepository.findByAgentId(agentId);
+    }
+
+    @Override
+    public Set<FactoryBasicData> findFactoryBasicDataByFactoryIds(Set<Long> factoryIds) {
+        return jpaRepository.findFactoryBasicDataByFactoryIds(factoryIds);
     }
 }

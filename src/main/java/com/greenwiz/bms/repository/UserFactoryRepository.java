@@ -25,4 +25,6 @@ public interface UserFactoryRepository extends JpaRepository<UserFactory, Long> 
            "FROM UserFactory uf JOIN User u ON u.id = uf.userId " +
            "WHERE uf.factoryId = :factoryId")
     List<UserData> findUserDataByFactoryId(@Param("factoryId") Long factoryId);
+
+    List<UserFactory> findByUserId(Long userId);
 }

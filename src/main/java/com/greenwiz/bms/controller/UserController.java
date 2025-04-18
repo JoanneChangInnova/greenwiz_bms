@@ -78,6 +78,7 @@ public class UserController {
         return ResponseEntity.ok(getUserData);
     }
 
+    @Transactional(Transactional.TxType.REQUIRED)
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request,
                                             HttpServletRequest httpRequest,
