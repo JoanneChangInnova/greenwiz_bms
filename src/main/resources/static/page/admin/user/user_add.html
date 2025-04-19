@@ -199,7 +199,6 @@
     </div>
 </div>
 
-<!-- 修改 jQuery 和 Select2 的引用順序和方式 -->
 <script src="../../../lib/jquery-3.4.1/jquery-3.4.1.min.js"></script>
 <script src="../../../lib/layui-v2.6.3/layui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -209,25 +208,40 @@
             var form = layui.form, 
                 layer = layui.layer;
             
-            // 初始化 Select2
-            function initializeSelect2() {
-                $('#factorySelect').select2({
+            // 調用初始化
+            $(document).ready(function() {
+                // 初始化 Select2
+                initializeSelect2($('#factorySelect'), {
                     placeholder: '請選擇工廠',
-                    allowClear: true,
-                    multiple: true,
-                    width: '100%',
-                    language: {
-                        noResults: function() {
-                            return '沒有符合的選項';
+                    multiple: true
+                });
+            
+                // 載入工廠數據
+                loadFactoryData();
+            });
+            
+            // 載入工廠數據的函數
+            function loadFactoryData() {
+                $.ajax({
+                    url: '/api/v1/factory/list',
+                    type: 'GET',
+                    success: function(res) {
+                        if (res && Array.isArray(res)) {
+                            const factoryData = res.map(item => ({
+                                id: item.id,
+                                text: item.name
+                            }));
+                            updateSelect2Options($('#factorySelect'), factoryData, true); // true 表示跳過添加空選項
                         }
+                    },
+                    error: function(xhr) {
+                        console.error('載入工廠數據失敗：', xhr);
+                        layer.msg('載入工廠數據失敗');
                     }
                 });
             }
-        
-            // 調用初始化
-            initializeSelect2();
-            
-            // 創建工廠數據映射
+
+            // 創造請求數據
             var factoryMap = new Map();
 
             // 自定義驗證

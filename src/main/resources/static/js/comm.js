@@ -131,3 +131,73 @@ const KrakenUtils = {
         ];
     }
 };
+
+
+/**
+ * 初始化 Select2
+ * @param {jQuery} $element - Select2 元素
+ * @param {Object} options - Select2 配置選項
+ * @param {string} options.placeholder - 預設提示文字
+ * @param {boolean} options.multiple - 是否允許多選
+ * @param {boolean} options.allowClear - 是否允許清除選擇
+ * @param {string} options.width - 寬度設置
+ * @param {string} options.dropdownCssClass - 下拉選單的 CSS 類名
+ */
+function initializeSelect2($element, options = {}) {
+    const defaultOptions = {
+        placeholder: '請選擇',
+        multiple: false,
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return '沒有符合的選項';
+            }
+        }
+    };
+
+    const finalOptions = { ...defaultOptions, ...options };
+    
+    $element.select2(finalOptions).on('select2:open', function() {
+        setTimeout(function() {
+            $('.select2-results__options').css('max-height', '200px');
+        }, 0);
+    });
+    
+    console.log(`${finalOptions.placeholder} Select2 初始化完成`);
+}
+
+/**
+ * 更新 Select2 選項
+ * @param {jQuery} $select - Select2 元素
+ * @param {Map|Array} data - 選項數據
+ * @param {boolean} skipEmpty - 是否跳過添加空選項
+ */
+function updateSelect2Options($select, data, skipEmpty = false) {
+    $select.empty();
+    
+    // 如果不是多選且未設置跳過空選項，則添加預設的空選項
+    if (!$select.prop('multiple') && !skipEmpty) {
+        $select.append(new Option('', '', false, false));
+    }
+
+    let options;
+    if (data instanceof Map) {
+        options = Array.from(data.values());
+    } else if (Array.isArray(data)) {
+        options = data;
+    } else {
+        console.error('不支援的數據格式');
+        return;
+    }
+
+    options.sort((a, b) => (a.text || a.name).localeCompare(b.text || b.name))
+           .forEach(option => {
+               const text = option.text || option.name;
+               const value = option.id || option.value;
+               $select.append(new Option(text, value, false, false));
+           });
+
+    $select.trigger('change');
+    console.log(`更新 ${$select.attr('id')} 選項數量：`, options.length);
+}
