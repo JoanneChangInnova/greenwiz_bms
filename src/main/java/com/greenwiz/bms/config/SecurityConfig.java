@@ -22,12 +22,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final LoginPageRedirectFilter loginPageRedirectFilter;
 
     @Autowired
     private CustomAccessDeniedHandler accessDeniedHandler;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, LoginPageRedirectFilter loginPageRedirectFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.loginPageRedirectFilter = loginPageRedirectFilter;
     }
 
     @Bean
@@ -40,6 +42,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(loginPageRedirectFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
@@ -90,4 +93,3 @@ public class SecurityConfig {
         return source;
     }
 }
-
