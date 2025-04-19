@@ -18,7 +18,8 @@ public class UserFactoryFacade {
 
     public void updateUserFactoryBindings(Long userId, Set<Long> factoryIds) {
         List<UserFactory> userFactories = userFactoryService.findByUserId(userId);
-        //蒐集factoryId, 與factoryIds比對，去除重複的
+
+        //去除已綁定過的factoryId
         List<Long> existFactoryIds = new ArrayList<>();
         for(UserFactory userFactory : userFactories){
             existFactoryIds.add(userFactory.getFactoryId());

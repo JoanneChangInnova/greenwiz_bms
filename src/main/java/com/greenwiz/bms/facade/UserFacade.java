@@ -23,6 +23,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
@@ -54,6 +55,10 @@ public class UserFacade {
 
     @Autowired
     private FactoryService factoryService;
+
+    @Autowired
+    @Lazy
+    private UserFacade selfFacade;
 
     public User addUser(AddUserReq addUserReq) {
         // 檢查用戶名是否已存在
@@ -207,7 +212,12 @@ public class UserFacade {
         BeanUtils.copyProperties(updateUserReq, user);
         Long oldAgentId = user.getAgentId();
         assignAgentIdByRole(user, user.getId());
-        updateCustomersAgentIdIfInstaller(user, oldAgentId);
+        selfFacade.updateCustomersAgentIdIfInstaller(user, oldAgentId);
+
+        if(updateUserReq.getFactoryIds() != null) {
+            userFactoryFacade.updateUserFactoryBindings(user.getId(), updateUserReq.getFactoryIds());
+        }
+
         return userService.save(user);
     }
 

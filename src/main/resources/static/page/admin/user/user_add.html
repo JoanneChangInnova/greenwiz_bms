@@ -210,17 +210,13 @@
             
             // 調用初始化
             $(document).ready(function() {
-                // 初始化 Select2
                 initializeSelect2($('#factorySelect'), {
                     placeholder: '請選擇工廠',
                     multiple: true
                 });
-            
-                // 載入工廠數據
                 loadFactoryData();
             });
-            
-            // 載入工廠數據的函數
+
             function loadFactoryData() {
                 $.ajax({
                     url: '/api/v1/factory/list',
