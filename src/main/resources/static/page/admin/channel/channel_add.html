@@ -204,7 +204,7 @@
 					});
 				},
 				error: function () {
-					layer.alert('Channel 新增失敗', { title: '錯誤' });
+					handleErrorResponse(xhr);
 				}
 			});
 

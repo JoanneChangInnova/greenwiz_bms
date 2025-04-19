@@ -50,8 +50,7 @@ public class Channel extends BaseEntity {
     /**
      * 設備類型，例如：controller 或 monitor。
      */
-    @Enumerated(EnumType.STRING)
-    private DeviceType deviceType;
+    private String deviceType;
 
     /**
      * 設備型號，例如：

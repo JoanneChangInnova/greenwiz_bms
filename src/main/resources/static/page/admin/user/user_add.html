@@ -371,7 +371,7 @@
                                 // window.location.replace('user_list.html');
                             });
                         } else {
-                            layer.alert('新增失敗', {title: '錯誤'});
+                            handleErrorResponse(xhr);
                         }
                     },
                     error: function (xhr) {

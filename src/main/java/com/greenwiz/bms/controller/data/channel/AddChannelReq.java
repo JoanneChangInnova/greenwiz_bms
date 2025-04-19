@@ -26,7 +26,7 @@ public class AddChannelReq extends RequestJson {
     private String channelName;
 
     @NotNull(message = "設備類型不能為空")
-    private DeviceType deviceType;
+    private String deviceType;
 
     @NotBlank(message = "設備型號不能為空")
     private String deviceModel;
@@ -48,8 +48,8 @@ public class AddChannelReq extends RequestJson {
         }
 
         ValidationUtils.validateChannelName(channelName);
-        ValidationUtils.validateDeviceModel(deviceType, deviceModel);
-        ValidationUtils.validateFunctionMode(deviceType.name(), functionMode); // 因為方法接收 String
+        //ValidationUtils.validateDeviceModel(deviceType, deviceModel);
+        ValidationUtils.validateFunctionMode(deviceType, functionMode); // 因為方法接收 String
     }
 
 }

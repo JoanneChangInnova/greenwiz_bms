@@ -347,7 +347,7 @@
                             // window.location.href = 'user_list.html';
                         });
                     } else {
-                        layer.alert('更新失敗', {title: '錯誤'});
+                        handleErrorResponse(xhr);
                     }
                 },
                 error: function (xhr) {

@@ -87,7 +87,7 @@
 							// parent.location.href = 'kraken_list.html';
 						});
 					} else {
-						layer.alert('Kraken 新增失敗', {title: '錯誤'});
+						handleErrorResponse(xhr);
 					}
 				},
 				error: function (xhr) {

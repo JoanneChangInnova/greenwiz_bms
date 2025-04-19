@@ -26,7 +26,7 @@ public class UpdateChannelReq extends RequestJson {
     private String channelName;
 
     @NotNull(message = "設備類型不能為空")
-    private DeviceType deviceType;
+    private String deviceType;
 
     @NotBlank(message = "設備型號不能為空")
     private String deviceModel;
@@ -47,7 +47,7 @@ public class UpdateChannelReq extends RequestJson {
     @Override
     protected void validate() throws RuntimeException {
         ValidationUtils.validateChannelName(channelName);
-        ValidationUtils.validateDeviceModel(deviceType, deviceModel);
+        //ValidationUtils.validateDeviceModel(deviceType, deviceModel);
         ValidationUtils.validateFunctionMode(deviceModel, functionMode);
     }
 }

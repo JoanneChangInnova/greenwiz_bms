@@ -100,7 +100,7 @@
         </div>
     </div>
 </div>
-
+<script src="/js/comm.js" charset="utf-8"></script>
 <script src="../../../lib/layui-v2.6.3/layui.js"></script>
 <script>
     const monitorFunctionModes = ["1P+N", "2P", "2P+N", "3P", "3P+N"];
@@ -174,17 +174,24 @@
         });
 
         form.on('submit(saveBtn)', function (data) {
+
             if (!validateChannelName(data.field.channelName)) {
                 layer.alert('通道代號格式錯誤，請參考範例 A-01-99-99', { title: '錯誤' });
                 return false;
             }
 
-            // 非 MONITOR 自動帶空字串
+            // 獲取選中的設備類型名稱
             const selectedChannelTypeText = $('#channelType option:selected').data("name");
+            
+            // 設置設備類型和設備型號
+            data.field.deviceType = selectedChannelTypeText;
+            data.field.deviceModel = $('#deviceModel').val();
+
+            // 非 MONITOR 自動帶空字串
             if (selectedChannelTypeText !== 'MONITOR') {
                 data.field.functionMode = "";
             }
-
+            console.log("提交數據:", data.field);
             $.ajax({
                 url: '/api/v1/channel/update/' + id,
                 type: 'PUT',
@@ -199,7 +206,7 @@
                     });
                 },
                 error: function (xhr) {
-                    layer.alert('Channel 修改失敗', { title: '錯誤' });
+                    handleErrorResponse(xhr);
                 }
             });
 
