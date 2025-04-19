@@ -142,13 +142,15 @@
             <select name="iotDeviceIds[]" id="krakenSelect" multiple="multiple" lay-ignore class="layui-hide"></select>
         </div>
     </div>
-    <!-- 唯獨的綁定客戶欄位 -->
-    <div class="layui-form-item">
-        <label class="layui-form-label">客戶</label>
-        <div class="layui-input-block">
-            <input type="text" name="factoryCustomers" id="factoryCustomers" class="layui-input readonly-field" readonly>
-        </div>
-    </div>
+
+    <!-- 綁定客戶欄位：移至user_edit.html綁定工廠 -->
+<!--    <div class="layui-form-item">-->
+<!--        <label class="layui-form-label">客戶</label>-->
+<!--        <div class="layui-input-block">-->
+<!--            <input type="text" name="factoryCustomers" id="factoryCustomers" class="layui-input readonly-field" readonly>-->
+<!--        </div>-->
+<!--    </div>-->
+
     <!-- 修改 textarea，添加 id 屬性 -->
     <div class="layui-form-item layui-form-text">
         <label class="layui-form-label">備註</label>
@@ -254,11 +256,11 @@
                 $("#latitude").val(data.latitude);
                 $("#comment").val(data.comment);
                 $("#agentDisplayText").val(data.agentDisplayText);
-                // 修改客戶的顯示方式
-                var customerDisplayText = data.factoryCustomers ? data.factoryCustomers.map(function(customer) {
-                    return customer.displayText;
-                }).join(', ') : '';
-                $("#factoryCustomers").val(customerDisplayText);
+                // 修改客戶的顯示方式：
+                // var customerDisplayText = data.factoryCustomers ? data.factoryCustomers.map(function(customer) {
+                //     return customer.displayText;
+                // }).join(', ') : '';
+                // $("#factoryCustomers").val(customerDisplayText);
 
                 // 重新渲染 select 元素
                 form.render('select');

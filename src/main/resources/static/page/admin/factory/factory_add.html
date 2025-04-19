@@ -131,13 +131,15 @@
             <select name="iotDeviceIds[]" id="krakenSelect" multiple="multiple" lay-ignore class="layui-hide"></select>
         </div>
     </div>
-    <!-- 使用 Select2 的綁定客戶欄位 -->
-    <div class="layui-form-item">
-        <label class="layui-form-label">綁定客戶</label>
-        <div class="layui-input-block">
-            <select name="userIds[]" id="customerSelect" multiple="multiple" lay-ignore class="layui-hide"></select>
-        </div>
-    </div>
+
+    <!-- 綁定客戶：改移至user_add.html綁定工廠 -->
+<!--    <div class="layui-form-item">-->
+<!--        <label class="layui-form-label">綁定客戶</label>-->
+<!--        <div class="layui-input-block">-->
+<!--            <select name="userIds[]" id="customerSelect" multiple="multiple" lay-ignore class="layui-hide"></select>-->
+<!--        </div>-->
+<!--    </div>-->
+
     <div class="layui-form-item layui-form-text">
         <label class="layui-form-label">備註</label>
         <div class="layui-input-block">
@@ -331,8 +333,7 @@
 
 			// 載入數據
 			loadAgentData();
-			loadCustomerData();
-			// 不要在這裡直接載入 Kraken 數據，等待代理商選擇後再載入
+			//綁定客戶功能：loadCustomerData();
 		});
 	});
 </script>
