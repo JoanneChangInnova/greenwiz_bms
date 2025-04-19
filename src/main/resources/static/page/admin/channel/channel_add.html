@@ -144,7 +144,8 @@
 		const found = channelTypeDeviceModelMap.find(item => item.channelTypeId == selectedChannelTypeId);
 		if (found) {
 			$('#channelTypeId').val(found.channelTypeId);
-			const deviceType = found.name.trim().toUpperCase().replace(/\s+/g, '_');
+			// 直接使用原始名稱，不做轉換
+			const deviceType = found.name.trim().toUpperCase();
 			$('#deviceType').val(deviceType);
 			found.deviceModels.forEach(model => {
 				$select.append(`<option value="${model}">${model}</option>`);
