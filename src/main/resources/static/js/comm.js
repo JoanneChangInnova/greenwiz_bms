@@ -201,3 +201,17 @@ function updateSelect2Options($select, data, skipEmpty = false) {
     $select.trigger('change');
     console.log(`更新 ${$select.attr('id')} 選項數量：`, options.length);
 }
+
+
+// 共通方法：打開新標籤頁
+function openTab(title, href, icon) {
+	if (parent.layui && parent.layui.miniTab) {
+		parent.layui.miniTab.openNewTabByIframe({
+			title: title,
+			href: href,
+			icon: icon
+		});
+	} else {
+		console.error('miniTab 未在父頁面中初始化');
+	}
+}

@@ -188,40 +188,18 @@
             form.render();
         });
 
+        // 監聽新增按鈕
         table.on('toolbar(factoryTableFilter)', function (obj) {
             if (obj.event === 'add') {
-                var index = layer.open({
-                    title: '新增工廠',
-                    type: 2,
-                    shade: 0.2,
-                    maxmin: true,
-                    shadeClose: true,
-                    area: ['80%', '80%'],
-                    content: '/page/admin/factory/factory_add.html'
-                });
-                $(window).on("resize", function () {
-                    layer.full(index);
-                });
+                openTab('新增工廠', '/page/admin/factory/factory_add.html', 'fa fa-plus');
             }
         });
 
         // 監聽整行點擊事件
         table.on('row(factoryTableFilter)', function (obj) {
             var data = obj.data;
-            var index = layer.open({
-                title: '編輯工廠',
-                type: 2,
-                shade: 0.2,
-                maxmin: true,
-                shadeClose: true,
-                area: ['100%', '100%'],
-                content: '/page/admin/factory/factory_edit.html?id=' + data.id,
-                end: function() {
-                    // 當編輯頁面關閉時，重新載入數據
-                    loadTableData(1, 10, {});
-                }
-            });
-            layer.full(index);
+            var editUrl = '/page/admin/factory/factory_edit.html?id=' + data.id;
+            openTab('編輯工廠', editUrl, 'fa fa-edit');
         });
     });
 </script>

@@ -81,12 +81,10 @@
 					console.log("返回數據:", response);
 					if (xhr.status === 200) {
 						layer.alert('Kraken 新增成功', {title: '提示'}, function () {
-							// 關閉當前彈出層
-							var index = parent.layer.getFrameIndex(window.name); // 獲取當前彈窗的索引
-							parent.layer.close(index); // 關閉彈窗
-
-							// 重新加載 Kraken 列表頁面
-							parent.location.href = 'kraken_list.html';
+							parent.layui.miniTab.deleteCurrentByIframe();
+							// var index = parent.layer.getFrameIndex(window.name);
+							// parent.layer.close(index);
+							// parent.location.href = 'kraken_list.html';
 						});
 					} else {
 						layer.alert('Kraken 新增失敗', {title: '錯誤'});

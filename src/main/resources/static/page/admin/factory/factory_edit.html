@@ -302,9 +302,10 @@
                 data: JSON.stringify(data.field),
                 success: function(res) {
                     layer.msg('修改成功', function() {
-                        var iframeIndex = parent.layer.getFrameIndex(window.name);
-                        parent.layer.close(iframeIndex);
-                        parent.location.reload();
+                        parent.layui.miniTab.deleteCurrentByIframe();
+                        // var iframeIndex = parent.layer.getFrameIndex(window.name);
+                        // parent.layer.close(iframeIndex);
+                        // parent.location.reload();
                     });
                 },
                 error: function(xhr) {

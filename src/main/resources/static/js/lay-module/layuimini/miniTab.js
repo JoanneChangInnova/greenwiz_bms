@@ -371,7 +371,17 @@ layui.define(["element", "layer", "jquery"], function (exports) {
             };
             element.on('tab(' + options.filter + ')', function (data) {
                 var tabId = $(this).attr('lay-id');
-                $(".layui-tab-item.layui-show").find('iframe')[0].contentWindow.location.reload();
+                //每次點擊Tab都刷新：
+               //$(".layui-tab-item.layui-show").find('iframe')[0].contentWindow.location.reload();
+                var iframe = $(".layui-tab-item.layui-show").find('iframe')[0];
+                if (iframe) {
+                    var iframeSrc = iframe.src;
+                    // 檢查 iframe 的 src 是否以 _list.html 結尾
+                    if (iframeSrc && iframeSrc.endsWith('_list.html')) {
+                        iframe.contentWindow.location.reload();
+                    }
+                }
+
                 if (options.urlHashLocation) {
                     location.hash = '/' + tabId;
                 }

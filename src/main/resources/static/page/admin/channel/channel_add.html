@@ -197,9 +197,10 @@
 				data: JSON.stringify(data.field),
 				success: function () {
 					layer.alert('Channel 新增成功', { title: '提示' }, function () {
-						const index = parent.layer.getFrameIndex(window.name);
-						parent.layer.close(index);
-						parent.location.href = 'channel_list.html';
+						parent.layui.miniTab.deleteCurrentByIframe();
+						// const index = parent.layer.getFrameIndex(window.name);
+						// parent.layer.close(index);
+						// parent.location.href = 'channel_list.html';
 					});
 				},
 				error: function () {

@@ -70,7 +70,7 @@
     </div>
 </div>
 <script src="/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
-
+<script src="/js/comm.js" charset="utf-8"></script>
 <script>
     layui.use(['form', 'table', 'laypage', 'laydate'], function () {
         var $ = layui.jquery,
@@ -92,7 +92,7 @@
                 {field: 'channelName', width: 150, title: '通道代號'},
                 {field: 'deviceType', width: 120, title: '設備類型'},
                 {field: 'deviceModel', width: 150, title: '設備型號'},
-                {field: 'functionMode', width: 150, title: '功能模式'},
+                //{field: 'functionMode', width: 150, title: '功能模式'},
                 {field: 'state', title: '狀態', width: 85, templet: function(d){
                     if(d.state === 0) {
                         return '離線';
@@ -188,18 +188,7 @@
         // 監聽新增按鈕
         table.on('toolbar(channelTableFilter)', function (obj) {
             if (obj.event === 'add') {
-                var index = layer.open({
-                    title: '新增通道',
-                    type: 2,
-                    shade: 0.2,
-                    maxmin: true,
-                    shadeClose: true,
-                    area: ['80%', '80%'],
-                    content: '/page/admin/channel/channel_add.html'
-                });
-                $(window).on("resize", function () {
-                    layer.full(index);
-                });
+                openTab('新增Channel', '/page/admin/channel/channel_add.html', 'fa fa-plus');
             }
         });
 
@@ -208,8 +197,10 @@
             var data = obj.data;
             var channelId = data.id;
             var editUrl = '/page/admin/channel/channel_edit.html?id=' + channelId;
-            window.open(editUrl, '_self');
+            openTab('編輯Channel', editUrl, 'fa fa-edit');
         });
+
+
     });
 </script>
 </body>

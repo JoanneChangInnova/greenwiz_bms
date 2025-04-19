@@ -223,10 +223,8 @@
 
         // 清空按鈕點擊事件
         $('#data-clear-btn').on('click', function() {
-            // 清空表單
             $('#searchForm')[0].reset();
             form.render(); // 重新渲染表單
-            // 重新加載數據
             loadTableData(1, 10);
         });
 
@@ -239,24 +237,15 @@
             var data = obj.data;
             var userId = data.id;
             var editUrl = '/page/admin/user/user_edit.html?id=' + userId;
-            window.location.href = editUrl;
+
+            openTab('編輯用戶', editUrl, 'layui-icon-edit');
         });
 
         // 監聽新增按鈕
         table.on('toolbar(currentTableFilter)', function (obj) {
             if (obj.event === 'add') {
-                var index = layer.open({
-                    title: '添加用户',
-                    type: 2,
-                    shade: 0.2,
-                    maxmin: true,
-                    shadeClose: true,
-                    area: ['100%', '100%'],
-                    content: '/page/admin/user/user_add.html'
-                });
-                $(window).on("resize", function () {
-                    layer.full(index);
-                });
+                var addUrl = '/page/admin/user/user_add.html';
+                openTab('新增用戶', addUrl, 'layui-icon-add-circle');
             }
         });
     });

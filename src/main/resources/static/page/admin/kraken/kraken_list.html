@@ -79,12 +79,12 @@
                             <input type="text" name="fwVer" autocomplete="off" class="layui-input" placeholder="請輸入韌體版本">
                         </div>
                     </div>
-                        <div class="layui-inline">
-                            <label class="layui-form-label">安裝時間</label>
-                            <div class="layui-input-inline">
-                                <input type="text" name="dtInstall" class="layui-input" placeholder="yyyy-MM-dd" id="dtInstall">
-                            </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">安裝時間</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="dtInstall" class="layui-input" placeholder="yyyy-MM-dd" id="dtInstall">
                         </div>
+                    </div>
                     <div class="layui-inline">
                         <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
                             <i class="layui-icon"></i> 搜 尋
@@ -136,8 +136,8 @@
                 {field: 'krakenModel', width: 120, title: '型號別'},
                 {field: 'factoryIotSerial', width: 150, title: '產品序號'},
                 {field: 'state', width: 100, title: '狀態', templet: function (d) {
-                    return KrakenUtils.getStateText(d.state);
-                }},
+                        return KrakenUtils.getStateText(d.state);
+                    }},
                 {field: 'fwVer', width: 120, title: '韌體版本'},
                 {field: 'dtInstall', width: 180, title: '安裝時間'},
                 {field: 'dtModify', width: 180, title: '修改時間'},
@@ -146,13 +146,13 @@
                     }},
                 {title: '建立者', width: 180, templet: function(d) {
                         return d.createModifyUser.createUserInfo;
-                }},
+                    }},
                 {title: '修改者', width: 180, templet: function(d) {
                         return d.createModifyUser.modifyUserInfo;
-                }},
+                    }},
                 {title: '擁有者', width: 180, templet: function(d) {
                         return d.ownerUserInfo;
-                }},
+                    }}
             ]],
             toolbar: '#toolbarDemo',
             defaultToolbar: ['filter', 'exports', 'print'],
@@ -216,11 +216,11 @@
         }
 
         // 首次加載數據
-        loadTableData(1, 10, {}); // 默認載入第一頁，10 條數據
+        loadTableData(1, 10, {});
 
-        // 搜索功能
+        // 搜尋功能
         form.on('submit(data-search-btn)', function (data) {
-               console.log('提交的原始數據:', data.field);
+            console.log('提交的原始數據:', data.field);
             // 使用表單字段作為過濾條件
             loadTableData(1, 10, data.field);
             return false;
@@ -231,33 +231,20 @@
             // 清空表單內的所有輸入欄位
             $('#searchForm')[0].reset(); // 重置表單
             form.render(); // 重新渲染表單，以更新 select 下拉框等元素
-
-            // 如果有其他初始化行為，可以在這裡處理
             console.log('表單已清空');
         });
 
         // 監聽新增按鈕
         table.on('toolbar(krakenTableFilter)', function (obj) {
             if (obj.event === 'add') {
-                var index = layer.open({
-                    title: '新增設備',
-                    type: 2,
-                    shade: 0.2,
-                    maxmin: true,
-                    shadeClose: true,
-                    area: ['80%', '80%'],
-                    content: '/page/admin/kraken/kraken_add.html'
-                });
-                $(window).on("resize", function () {
-                    layer.full(index);
-                });
+                openTab('新增設備', '/page/admin/kraken/kraken_add.html', 'fa fa-plus');
             } else if (obj.event === 'assign') {
                 var checkStatus = table.checkStatus('krakenTableId');
                 if (checkStatus.data.length === 0) {
                     layer.msg('請選擇要派發的設備');
                     return;
                 }
-            
+
                 // 檢查選中設備的狀態
                 var invalidKrakens = checkStatus.data.filter(item => item.state !== 0);
                 if (invalidKrakens.length > 0) {
@@ -265,10 +252,10 @@
                     layer.msg('Kraken ID: ' + invalidIds + ' 非庫存狀態，不可派發');
                     return;
                 }
-            
+
                 // 保存選中的設備 ID
                 window.selectedKrakenIds = checkStatus.data.map(item => item.id);
-                
+
                 // 打開派發視窗
                 layer.open({
                     title: '派發設備',
@@ -279,14 +266,12 @@
             }
         });
 
-
-        // 在 loadTableData 函數中的 queryParams 已經包含了 userId 和 userRole，不需要修改
         // 監聽角色選擇
         form.on('select(roleSelect)', function(data) {
             if (!data.value) return;
-            
+
             var roleValue = Number(data.value);
-            
+
             // 根據選擇的角色獲取用戶列表
             $.ajax({
                 url: '/api/v1/user/list/by-role/' + roleValue,
@@ -295,11 +280,11 @@
                     var userSelect = $('#userSelect');
                     userSelect.empty();
                     userSelect.append('<option value="">請先選擇角色</option>');
-                    
+
                     response.forEach(function(user) {
                         userSelect.append(new Option(user.displayText, user.id));
                     });
-                    
+
                     form.render('select');
                 },
                 error: function(xhr) {
@@ -317,10 +302,8 @@
             var data = obj.data;
             var krakenId = data.id;
             var editUrl = '/page/admin/kraken/kraken_edit.html?id=' + krakenId;
-            window.open(editUrl, '_self');
+            openTab('編輯設備', editUrl, 'fa fa-edit');
         });
-
-
     });
 </script>
 </body>

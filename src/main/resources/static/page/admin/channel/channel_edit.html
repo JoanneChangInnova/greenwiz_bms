@@ -192,9 +192,10 @@
                 data: JSON.stringify(data.field),
                 success: function () {
                     layer.alert('Channel 修改成功', { title: '提示' }, function () {
-                        const index = parent.layer.getFrameIndex(window.name);
-                        parent.layer.close(index);
-                        window.open('channel_list.html', '_self');
+                        parent.layui.miniTab.deleteCurrentByIframe();
+                        // const index = parent.layer.getFrameIndex(window.name);
+                        // parent.layer.close(index);
+                        // window.open('channel_list.html', '_self');
                     });
                 },
                 error: function (xhr) {

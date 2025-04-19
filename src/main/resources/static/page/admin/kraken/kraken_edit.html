@@ -47,11 +47,11 @@
 	<div class="layui-form-item">
 		<label class="layui-form-label">狀態</label>
 		<div class="layui-input-block">
-			<select name="state" lay-verify="required">
+			<select name="state" lay-verify="required" id="state" >
 				<option value="">請選擇狀態</option>
-				<option value="0">庫存</option>
-				<option value="1">運行中</option>
-				<option value="2">斷線</option>
+				<option value=0>庫存</option>
+				<option value=1>運行中</option>
+				<option value=2>斷線</option>
 			</select>
 		</div>
 	</div>
@@ -102,6 +102,7 @@
 			$("#name").val(data.name);
 			$("#krakenModel").val(data.krakenModel);
 			$("#factoryIotSerial").val(data.factoryIotSerial);
+			console.log("狀態:", data.state);
 			$("#state").val(data.state);
 			$("#fwVer").val(data.fwVer);
 			$("#dtInstall").val(data.dtInstall);
@@ -122,13 +123,10 @@
 				success: function (response, textStatus, xhr) {
 					if (xhr.status === 200) {
 						layer.alert('Kraken 編輯成功', {title: '提示'}, function () {
-							// 關閉當前彈出層
-							var index = parent.layer.getFrameIndex(window.name); // 獲取當前彈窗的索引
-							parent.layer.close(index); // 關閉彈窗
-
-							// 返回並重新加載 Kraken 列表頁面
-							window.open('kraken_list.html', '_self');
-
+							parent.layui.miniTab.deleteCurrentByIframe();
+							// var index = parent.layer.getFrameIndex(window.name);
+							// parent.layer.close(index);
+							// window.open('kraken_list.html', '_self');
 						});
 					} else {
 						layer.alert('Kraken 編輯失敗', {title: '錯誤'});
