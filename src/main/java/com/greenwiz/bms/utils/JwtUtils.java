@@ -57,21 +57,6 @@ public class JwtUtils {
     }
 
     /**
-     * 從 JWT Token 中解析email
-     *
-     * @param token JWT Token
-     * @return email
-     */
-    public String getEmailFromJwtToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    /**
      * 從 JWT Token 中解析 userId
      *
      * @param token JWT Token

@@ -320,7 +320,7 @@ public class UserFacade {
         return getUserData;
     }
 
-    public void changePassword(String oldPassword, String newPassword, HttpServletRequest httpRequest,
+    public void changePassword(String newPassword, HttpServletRequest httpRequest,
                                HttpServletResponse response) {
         // 取得當前用戶資訊
         String token = jwtUtils.extractJwtFromCookie(httpRequest);
@@ -328,16 +328,10 @@ public class UserFacade {
             throw new BmsException("未登入或 Token 無效");
         }
 
-        String email = jwtUtils.getEmailFromJwtToken(token);
-        User user = userService.findByEmail(email);
-
+        Long userId = jwtUtils.getUserIdFromJwtToken(token);
+        User user = userService.findByPk(userId);
         if (user == null) {
             throw new BmsException("用戶不存在");
-        }
-
-        // **驗證舊密碼**
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new BmsException("舊密碼不正確");
         }
 
         // **加密新密碼並更新**

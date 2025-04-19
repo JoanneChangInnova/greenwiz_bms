@@ -86,7 +86,7 @@ public class UserController {
                                             HttpServletRequest httpRequest,
                                             HttpServletResponse response) {
         // 透過 UserFacade 處理所有密碼變更邏輯
-        userFacade.changePassword(request.getOldPassword(), request.getNewPassword(), httpRequest, response);
+        userFacade.changePassword(request.getNewPassword(), httpRequest, response);
 
         return ResponseEntity.ok("密碼修改成功，請重新登入");
     }

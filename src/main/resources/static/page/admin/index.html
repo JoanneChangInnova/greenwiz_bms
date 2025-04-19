@@ -148,6 +148,7 @@
         };
         miniAdmin.render(options);
 
+
         // 百度统计代码，只统计指定域名
         miniTongji.render({
             specific: true,
@@ -214,12 +215,6 @@
             <div style="padding: 20px;">
                 <form id="changePasswordForm" class="layui-form">
                     <div class="layui-form-item">
-                        <label class="layui-form-label">舊密碼</label>
-                        <div class="layui-input-block">
-                            <input type="password" id="oldPassword" class="layui-input" required placeholder="請輸入舊密碼">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
                         <label class="layui-form-label">新密碼</label>
                         <div class="layui-input-block">
                             <input type="password" id="newPassword" class="layui-input" required placeholder="請輸入新密碼">
@@ -245,11 +240,10 @@
 
     //提交修改密碼
     $(document).on('click', '#submitChangePassword', function () {
-        var oldPassword = $('#oldPassword').val().trim();
         var newPassword = $('#newPassword').val().trim();
         var confirmPassword = $('#confirmPassword').val().trim();
 
-        if (!oldPassword || !newPassword || !confirmPassword) {
+        if (!newPassword || !confirmPassword) {
             layer.msg('請填寫所有欄位', { icon: 2 });
             return;
         }
@@ -269,7 +263,6 @@
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
-                oldPassword: oldPassword,
                 newPassword: newPassword
             }),
             xhrFields: { withCredentials: true }, // 確保攜帶 JWT Token
