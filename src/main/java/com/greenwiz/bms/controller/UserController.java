@@ -64,7 +64,9 @@ public class UserController {
         return LayuiTableResp.success(users.getTotalElements(), users.getContent());
     }
 
-
+    /**
+     * 更新用戶，不開放修改角色與用戶管理者
+     */
     @Transactional(Transactional.TxType.REQUIRED)
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody @Valid UpdateUserReq updateUserReq) {

@@ -194,31 +194,43 @@ public class UserFacade {
             }
         }
 
-        //用戶角色若修改，檢查用戶是否有綁定kraken，若有，kraken的userRole也要更改，不可更改成CUSTOMER
-        if (!updateUserReq.getRole().equals(user.getRole())) {
-            List<Kraken> krakens = krakenService.findByUserId(user.getId());
-            if (!krakens.isEmpty()) {
-                if (updateUserReq.getRole() == UserRole.CUSTOMER) {
-                    throw new BmsException("請先解除綁定kraken，才可將角色更改成CUSTOMER");
-                }
-                for (Kraken kraken : krakens) {
-                    kraken.setUserId(updateUserReq.getId());
-                    kraken.setUserRole(updateUserReq.getRole());
-                }
-            }
-            krakenService.saveAll(krakens);
-        }
+
+        //updateUserRole(updateUserReq, user);
 
         BeanUtils.copyProperties(updateUserReq, user);
         Long oldAgentId = user.getAgentId();
         assignAgentIdByRole(user, user.getId());
         selfFacade.updateCustomersAgentIdIfInstaller(user, oldAgentId);
 
+        //修改用戶綁定的工廠
         if(updateUserReq.getFactoryIds() != null) {
             userFactoryFacade.updateUserFactoryBindings(user.getId(), updateUserReq.getFactoryIds());
         }
 
         return userService.save(user);
+    }
+
+    /**
+     * 暫不開放修改UserRole
+     *
+     * 用戶角色若修改，檢查用戶是否有綁定kraken，若有，kraken的userRole也要更改，不可更改成CUSTOMER
+     * @param updateUserReq
+     * @param user
+     */
+    private void updateUserRole(UpdateUserReq updateUserReq, User user) {
+//        if (!updateUserReq.getRole().equals(user.getRole())) {
+//            List<Kraken> krakens = krakenService.findByUserId(user.getId());
+//            if (!krakens.isEmpty()) {
+//                if (updateUserReq.getRole() == UserRole.CUSTOMER) {
+//                    throw new BmsException("請先解除綁定kraken，才可將角色更改成CUSTOMER");
+//                }
+//                for (Kraken kraken : krakens) {
+//                    kraken.setUserId(updateUserReq.getId());
+//                    kraken.setUserRole(updateUserReq.getRole());
+//                }
+//            }
+//            krakenService.saveAll(krakens);
+//        }
     }
 
     /**

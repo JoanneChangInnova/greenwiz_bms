@@ -19,22 +19,36 @@ public class UserFactoryFacade {
     public void updateUserFactoryBindings(Long userId, Set<Long> factoryIds) {
         List<UserFactory> userFactories = userFactoryService.findByUserId(userId);
 
-        //去除已綁定過的factoryId
-        List<Long> existFactoryIds = new ArrayList<>();
-        for(UserFactory userFactory : userFactories){
-            existFactoryIds.add(userFactory.getFactoryId());
-        }
-        existFactoryIds.forEach(factoryIds::remove);
+        // Create a set of current factory IDs for easier comparison
+        Set<Long> currentFactoryIds = userFactories.stream()
+                .map(UserFactory::getFactoryId)
+                .collect(Collectors.toSet());
 
-        //新增未綁定的user與工廠
-        List<UserFactory> userFactoryList = new ArrayList<>();
-        for(Long factoryId : factoryIds){
-            UserFactory userFactory = new UserFactory();
-            userFactory.setFactoryId(factoryId);
-            userFactory.setUserId(userId);
-            userFactoryList.add(userFactory);
+        // Find factories to add (in factoryIds but not in currentFactoryIds)
+        List<UserFactory> toAdd = factoryIds.stream()
+                .filter(factoryId -> !currentFactoryIds.contains(factoryId))
+                .map(factoryId -> {
+                    UserFactory uf = new UserFactory();
+                    uf.setUserId(userId);
+                    uf.setFactoryId(factoryId);
+                    return uf;
+                })
+                .collect(Collectors.toList());
+
+        // Find factories to remove (in currentFactoryIds but not in factoryIds)
+        List<UserFactory> toRemove = userFactories.stream()
+                .filter(uf -> !factoryIds.contains(uf.getFactoryId()))
+                .collect(Collectors.toList());
+
+        // Remove obsolete bindings
+        if (!toRemove.isEmpty()) {
+            userFactoryService.deleteAll(toRemove);
         }
-        userFactoryService.saveAllAndFlush(userFactoryList);
+
+        // Add new bindings
+        if (!toAdd.isEmpty()) {
+            userFactoryService.saveAllAndFlush(toAdd);
+        }
     }
 
     public Set<Long> getFactoryIdsByUserId(Long userId) {
