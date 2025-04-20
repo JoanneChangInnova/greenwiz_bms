@@ -148,5 +148,16 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	<profiles>
+		<profile>
+			<id>prod</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profiles.active>prod</spring.profiles.active>
+				<logging.config>classpath:logback-prod.xml</logging.config>
+			</properties>
+		</profile>
+	</profiles>
 </project>
