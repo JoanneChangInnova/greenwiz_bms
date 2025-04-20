@@ -119,4 +119,9 @@ public class UserServiceImpl extends BaseDomainServiceImpl<Long, User> implement
     public Page<User> findAll(Specification<User> spec, PageRequest pageable) {
         return jpaRepository.findAll(spec, pageable);
     }
+
+    @Override
+    public Long count() {
+        return jpaRepository.count();
+    }
 }

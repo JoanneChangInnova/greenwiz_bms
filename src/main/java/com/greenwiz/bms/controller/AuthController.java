@@ -66,7 +66,7 @@ public class AuthController {
         Cookie cookie = new Cookie(jwtCookieName, token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(7 * 24 * 60 * 60); // 7 天有效
+        cookie.setMaxAge(-1);
         cookie.setSecure(isSecure);
         cookie.setAttribute("SameSite", isSecure ? "None" : "Lax");
 

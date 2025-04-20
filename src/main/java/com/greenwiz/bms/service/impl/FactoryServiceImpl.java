@@ -38,4 +38,9 @@ public class FactoryServiceImpl extends BaseDomainServiceImpl<Long, Factory> imp
     public Set<FactoryBasicData> findFactoryBasicDataByFactoryIds(Set<Long> factoryIds) {
         return jpaRepository.findFactoryBasicDataByFactoryIds(factoryIds);
     }
+
+    @Override
+    public Long count() {
+        return jpaRepository.count();
+    }
 }

@@ -39,4 +39,9 @@ public class ChannelServiceImpl extends BaseDomainServiceImpl<Long, Channel> imp
     public List<Channel> findByIotDeviceIdIn(List<Long> krakenIds) {
         return jpaRepository.findByIotDeviceIdIn(krakenIds);
     }
+
+    @Override
+    public Long count() {
+        return jpaRepository.count();
+    }
 }

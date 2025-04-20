@@ -77,4 +77,6 @@ public interface UserService extends BaseDomainService<Long, User> {
     List<UserData> findUserDataListByIds(List<Long> userIds);
 
     Page<User> findAll(Specification<User> spec, PageRequest pageable);
+
+    Long count();
 }

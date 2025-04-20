@@ -20,4 +20,6 @@ public interface FactoryService extends BaseDomainService<Long, Factory> {
     List<Factory> findByAgentId(Long agentId);
 
     Set<FactoryBasicData> findFactoryBasicDataByFactoryIds(Set<Long> factoryIds);
+
+    Long count();
 }

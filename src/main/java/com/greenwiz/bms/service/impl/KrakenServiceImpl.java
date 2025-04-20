@@ -83,4 +83,9 @@ public class KrakenServiceImpl extends BaseDomainServiceImpl<Long, Kraken> imple
     public List<KrakenData> findKrakenDataByFactoryId(Long id) {
         return jpaRepository.findKrakenDataByFactoryId(id);
     }
+
+    @Override
+    public Long count() {
+        return jpaRepository.count();
+    }
 }
