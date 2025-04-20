@@ -1,6 +1,7 @@
 package com.greenwiz.bms.controller;
 
 import com.greenwiz.bms.exception.BmsException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ import java.util.Random;
 /**
  * @author Johnny 2025/1/10
  */
+@Slf4j
 @RestController
 public class CaptchaController {
 
@@ -43,13 +45,13 @@ public class CaptchaController {
         String captchaCode = generateRandomCode(4);
         session.setAttribute("CAPTCHA_CODE", captchaCode); // 存儲到 Session 中
 
-
-//        System.out.println("Generated CAPTCHA: " + captchaCode);
-//        System.out.println("Session ID (during generation): " + session.getId());
-
         // 生成驗證碼圖片
-        BufferedImage captchaImage = generateCaptchaImage(captchaCode);
-        ImageIO.write(captchaImage, "png", response.getOutputStream());
+        try {
+            BufferedImage captchaImage = generateCaptchaImage(captchaCode);
+            ImageIO.write(captchaImage, "png", response.getOutputStream());
+        } catch (IOException e) {
+           //ignore
+        }
     }
 
     /**

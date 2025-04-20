@@ -67,3 +67,8 @@ Icon?
 .mvn/wrapper/
 mvnw
 mvnw.cmd
+
+# 忽略 log 檔案與資料夾
+bms_logs/
+*.log
+*.log.*
