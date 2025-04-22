@@ -100,19 +100,8 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>application-prod.properties</exclude>
-                    <exclude>logback-prod.xml</exclude>
-                </excludes>
-            </resource>
-        </resources>
-
         <plugins>
-            <!-- 編譯與 lombok -->
+            <!-- 編譯與 Lombok -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -140,37 +129,7 @@
                     </excludes>
                 </configuration>
             </plugin>
-
-            <!-- 打包時改名設定檔 -->
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>rename-prod-config</id>
-                        <phase>process-resources</phase>
-                        <configuration>
-                            <target>
-                                <copy file="src/main/resources/application-prod.properties"
-                                      tofile="${project.build.outputDirectory}/application.properties"/>
-                                <copy file="src/main/resources/logback-prod.xml"
-                                      tofile="${project.build.outputDirectory}/logback.xml"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>prod</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-        </profile>
-    </profiles>
 </project>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- 定義日誌檔案儲存路徑 -->
+    <property name="LOG_PATH" value="./logs" />
+    <property name="APP_NAME" value="bms" />
+
+    <!-- 控制台輸出 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 按天滾動的日誌檔案 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 日誌檔案路徑與名稱 -->
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+        <!-- 滾動策略：基於時間和大小 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 每天一個檔案，檔案命名格式：bms-2025-04-20.0.log，包含 %i 支援大小滾動 -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 自動壓縮前一天的日誌 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 單個檔案大小限制，若超過則觸發滾動 -->
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- 保留 30 天的日誌 -->
+            <maxHistory>30</maxHistory>
+            <!-- 總日誌大小限制，例如 10GB -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <!-- 壓縮舊日誌 -->
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 異步日誌輸出，提升性能 -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE" />
+        <!-- 設置佇列大小 -->
+        <queueSize>512</queueSize>
+        <!-- 如果佇列滿了，是否丟棄日誌 -->
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!-- 根日誌級別設置為 TRACE，確保所有級別的日誌都記錄 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_FILE" />
+    </root>
+
+</configuration>
