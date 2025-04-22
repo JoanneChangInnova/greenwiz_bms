@@ -129,7 +129,7 @@
 							// window.open('kraken_list.html', '_self');
 						});
 					} else {
-						layer.alert('Kraken 編輯失敗', {title: '錯誤'});
+						handleErrorResponse(xhr);
 					}
 				},
 				error: function (xhr) {

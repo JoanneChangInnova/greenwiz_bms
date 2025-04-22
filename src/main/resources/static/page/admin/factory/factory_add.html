@@ -227,7 +227,6 @@
 				},
 				error: function(xhr) {
 					console.error('載入Kraken數據失敗:', xhr);
-					layer.msg('載入Kraken數據失敗', {icon: 2});
 				}
 			});
 		}
@@ -253,7 +252,6 @@
 				},
 				error: function(xhr) {
 					console.error('Customer API 錯誤：', xhr);
-					layer.msg('載入客戶數據失敗');
 				}
 			});
 		}
@@ -273,7 +271,6 @@
                 },
                 error: function(xhr) {
                     console.error('代理商 API 錯誤：', xhr);
-                    layer.msg('載入代理商數據失敗');
                 }
             });
         }

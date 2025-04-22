@@ -200,7 +200,7 @@
             // 載入用戶資料
             loadUserData();
         }).fail(function () {
-            layer.msg('無法載入管理者資料，請重試');
+            console.log('無法載入管理者資料，請重試');
         });
 
         // 在 loadUserData 函數中添加工廠相關處理
@@ -296,7 +296,7 @@
                 // 為禁用的 select 添加唯讀樣式
                 $('.layui-select-disabled').addClass('readonly-field');
             }).fail(function () {
-                layer.msg('無法載入用戶資料，請重試');
+                console.log('無法載入用戶資料，請重試');
             });
         }
 
@@ -382,7 +382,6 @@
             },
             error: function(xhr) {
                 console.error('載入工廠數據失敗:', xhr);
-                handleErrorResponse(xhr);
             }
         });
     }
