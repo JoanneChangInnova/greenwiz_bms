@@ -13,6 +13,8 @@
         </encoder>
     </appender>
 
+    <!-- 本地開發不需打印到文件，可註解掉下方 -->
+
     <!-- 按天滾動的日誌檔案 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 日誌檔案路徑與名稱 -->
