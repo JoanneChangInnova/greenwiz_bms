@@ -309,7 +309,7 @@
 				contentType: 'application/json',
 				data: JSON.stringify(submitData),
 				success: function(res) {
-					layer.msg('新增成功', function() {
+					layer.alert('新增成功', function() {
                         parent.layui.miniTab.deleteCurrentByIframe();
 						// var index = parent.layer.getFrameIndex(window.name);
 						// parent.layer.close(index);

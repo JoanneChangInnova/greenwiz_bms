@@ -27,7 +27,7 @@ public class JwtUtils {
     @Value("${jwt.secret}")
     private String secret;
 
-    private static final int JWT_EXPIRATION_MS = 30 * 60 * 1000; // 30 分鐘
+    private static final int JWT_EXPIRATION_MS = 86400000; // 24 hours
 
     /**
      * 生成簽名密鑰

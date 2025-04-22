@@ -334,12 +334,13 @@
         // 表單提交事件
         form.on('submit(saveBtn)', function (data) {
             console.log("提交數據:", data.field);
-
+            var formData = data.field;
+            formData.factoryIds = $('#factorySelect').val() || [];
             $.ajax({
                 url: '/api/v1/user/update',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify(data.field),
+                data: JSON.stringify(formData),
                 success: function (response, textStatus, xhr) {
                     if (xhr.status === 200) {
                         layer.alert('用戶資料更新成功', {title: '提示'}, function () {
@@ -385,32 +386,6 @@
             }
         });
     }
-
-    // Update the existing submit event handler to include factoryIds
-    form.on('submit(saveBtn)', function (data) {
-        var formData = data.field;
-        formData.factoryIds = $('#factorySelect').val() || [];
-    
-        $.ajax({
-            url: '/api/v1/user/update',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
-            success: function (response, textStatus, xhr) {
-                if (xhr.status === 200) {
-                    layer.alert('用戶資料更新成功', {title: '提示'}, function () {
-                        window.location.href = 'user_list.html';
-                    });
-                } else {
-                    layer.alert('更新失敗', {title: '錯誤'});
-                }
-            },
-            error: function (xhr) {
-                handleErrorResponse(xhr);
-            }
-        });
-        return false;
-    });
     });
 </script>
 </body>
