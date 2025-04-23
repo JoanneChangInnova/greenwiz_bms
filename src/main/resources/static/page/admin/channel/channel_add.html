@@ -96,6 +96,7 @@
 </div>
 
 <script src="../../../lib/layui-v2.6.3/layui.js"></script>
+<script src="../../../js/comm.js"></script>
 <script>
 	let channelTypeDeviceModelMap = [];
 	const monitorFunctionModes = ["1P+N", "2P", "2P+N", "3P", "3P+N"];
@@ -197,6 +198,10 @@
 				contentType: 'application/json',
 				data: JSON.stringify(data.field),
 				success: function () {
+					if (res.code && res.code !== 'SUCCESS'){
+						layer.alert(res.message || '發生錯誤', { title: '錯誤', icon: 2 });
+						return;
+					}
 					layer.alert('Channel 新增成功', { title: '提示' }, function () {
 						parent.layui.miniTab.deleteCurrentByIframe();
 						// const index = parent.layer.getFrameIndex(window.name);
@@ -204,7 +209,7 @@
 						// parent.location.href = 'channel_list.html';
 					});
 				},
-				error: function () {
+				error: function (xhr) {
 					handleErrorResponse(xhr);
 				}
 			});

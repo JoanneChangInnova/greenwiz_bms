@@ -1,6 +1,7 @@
 package com.greenwiz.bms.service;
 
 import com.greenwiz.bms.dto.ChannelTypeDeviceModelDTO;
+import com.greenwiz.bms.dto.DeviceModelSimpleDTO;
 import com.greenwiz.bms.repository.ChannelTypeRepository;
 import com.greenwiz.bms.repository.DeviceModelRepository;
 import com.greenwiz.bms.entity.ChannelType;
@@ -28,15 +29,18 @@ public class ChannelConfigService {
      * 依照 channelType 的 name 分組，回傳對應的 deviceModel 名稱清單
      */
     public List<ChannelTypeDeviceModelDTO> getChannelTypeWithDeviceModels() {
-        Map<Long, List<String>> deviceMap = deviceModelRepository.findAll().stream()
+        // 1. 先用投影把 device_model 的 channelTypeId & name 拉出來
+        List<DeviceModelSimpleDTO> deviceList = deviceModelRepository.findAllSimple();
+        Map<Long, List<String>> deviceMap = deviceList.stream()
                 .collect(Collectors.groupingBy(
-                        DeviceModel::getChannelTypeId,
-                        Collectors.mapping(DeviceModel::getName, Collectors.toList())
+                        DeviceModelSimpleDTO::getChannelTypeId,
+                        Collectors.mapping(DeviceModelSimpleDTO::getName, Collectors.toList())
                 ));
 
-        return channelTypeRepository.findAll().stream()
+        // 2. 再用投影把 channel_type 的 id & name 拉出來
+        return channelTypeRepository.findAllSimple().stream()
                 .map(ct -> new ChannelTypeDeviceModelDTO(
-                        ct.getId(),         // 現在對應的是 channelTypeId
+                        ct.getId(),
                         ct.getName(),
                         deviceMap.getOrDefault(ct.getId(), Collections.emptyList())
                 ))
@@ -44,12 +48,12 @@ public class ChannelConfigService {
     }
 
     public List<Map<String, Object>> getAllChannelTypesSimple() {
-        return channelTypeRepository.findAll().stream()
+        return channelTypeRepository.findAllSimple().stream()
                 .map(ct -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("channelTypeId", ct.getId());
-                    map.put("name", ct.getName());
-                    return map;
+                    Map<String,Object> m = new HashMap<>();
+                    m.put("channelTypeId", ct.getId());
+                    m.put("name", ct.getName());
+                    return m;
                 })
                 .collect(Collectors.toList());
     }
