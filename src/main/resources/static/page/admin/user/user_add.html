@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="../../../lib/layui-v2.6.3/css/layui.css" media="all">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <style>
         body {
             background-color: #ffffff;
@@ -57,7 +58,18 @@
         .select2-dropdown {
             border: 1px solid #e6e6e6;
             border-radius: 2px;
-        }
+        }.toggle-pwd {
+             position: absolute;
+             right: 10px;
+             top: 50%;
+             transform: translateY(-50%);
+             cursor: pointer;
+             font-size: 18px;
+             color: #ccc;
+             user-select: none;
+         }.toggle-pwd:hover {
+              color: #999; /* 滑鼠懸停時稍微深一點 */
+          }
     </style>
 </head>
 <body>
@@ -109,15 +121,17 @@
 
     <div class="layui-form-item">
         <label class="layui-form-label required">密碼</label>
-        <div class="layui-input-block">
-            <input type="password" name="password" lay-verify="required" placeholder="請輸入密碼" class="layui-input">
+        <div class="layui-input-block" style="position: relative;">
+            <input type="password" name="password" lay-verify="required" placeholder="請輸入密碼" class="layui-input pwd-field">
+            <i class="toggle-pwd fa fa-eye"></i>
         </div>
     </div>
 
     <div class="layui-form-item">
         <label class="layui-form-label required">確認密碼</label>
-        <div class="layui-input-block">
-            <input type="password" name="confirmPassword" lay-verify="required|confirmPass" placeholder="請再次輸入密碼" class="layui-input">
+        <div class="layui-input-block" style="position: relative;">
+            <input type="password" name="confirmPassword" lay-verify="required|confirmPass" placeholder="請再次輸入密碼" class="layui-input pwd-field">
+            <i class="toggle-pwd fa fa-eye"></i>
         </div>
     </div>
 
@@ -129,6 +143,13 @@
     </div>
 
     <div class="layui-form-item">
+        <label class="layui-form-label">公司地址</label>
+        <div class="layui-input-block">
+            <input type="text" name="address" placeholder="請輸入地址" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
         <label class="layui-form-label">公司聯絡人</label>
         <div class="layui-input-block">
             <input type="text" name="contact" placeholder="請輸入聯絡人名稱" value="" class="layui-input">
@@ -136,16 +157,12 @@
     </div>
 
     <div class="layui-form-item">
-        <label class="layui-form-label">電話國碼</label>
-        <div class="layui-input-block">
-            <input type="text" name="phoneCountryCode" placeholder="請輸入電話國碼" value="" class="layui-input">
+        <label class="layui-form-label">電話</label>
+        <div class="layui-input-inline" style="width: 100px;">
+            <input type="text" name="phoneCountryCode" placeholder="國碼" class="layui-input">
         </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label">電話號碼</label>
-        <div class="layui-input-block">
-            <input type="text" name="phoneNumber" placeholder="請輸入電話號碼" value="" class="layui-input">
+        <div class="layui-input-inline" style="width: 200px;">
+            <input type="text" name="phoneNumber" placeholder="電話號碼" class="layui-input">
         </div>
     </div>
 
@@ -160,12 +177,6 @@
         </div>
     </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">地址</label>
-        <div class="layui-input-block">
-            <input type="text" name="address" placeholder="請輸入地址" value="" class="layui-input">
-        </div>
-    </div>
 
     <div class="layui-form-item">
         <label class="layui-form-label">最大設備數量</label>
@@ -204,185 +215,198 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="/js/comm.js" charset="utf-8"></script>
 <script>
-        layui.use(['form', 'layer'], function () {
-            var form = layui.form, 
-                layer = layui.layer;
-            
-            // 調用初始化
-            $(document).ready(function() {
-                initializeSelect2($('#factorySelect'), {
-                    placeholder: '請選擇工廠',
-                    multiple: true
-                });
-                loadFactoryData();
-            });
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form,
+            layer = layui.layer;
 
-            function loadFactoryData() {
-                $.ajax({
-                    url: '/api/v1/factory/list',
-                    type: 'GET',
-                    success: function(res) {
-                        if (res && Array.isArray(res)) {
-                            const factoryData = res.map(item => ({
-                                id: item.id,
-                                text: item.name
-                            }));
-                            updateSelect2Options($('#factorySelect'), factoryData, true); // true 表示跳過添加空選項
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('載入工廠數據失敗：', xhr);
+        // 調用初始化
+        $(document).ready(function() {
+            initializeSelect2($('#factorySelect'), {
+                placeholder: '請選擇工廠',
+                multiple: true
+            });
+            loadFactoryData();
+        });
+
+        function loadFactoryData() {
+            $.ajax({
+                url: '/api/v1/factory/list',
+                type: 'GET',
+                success: function(res) {
+                    if (res && Array.isArray(res)) {
+                        const factoryData = res.map(item => ({
+                            id: item.id,
+                            text: item.name
+                        }));
+                        updateSelect2Options($('#factorySelect'), factoryData, true); // true 表示跳過添加空選項
                     }
-                });
+                },
+                error: function(xhr) {
+                    console.error('載入工廠數據失敗：', xhr);
+                }
+            });
+        }
+
+        // 創造請求數據
+        var factoryMap = new Map();
+
+        // 自定義驗證
+        form.verify({
+            confirmPass: function (value) {
+                var password = $("input[name='password']").val();
+                if (value !== password) {
+                    return '兩次輸入的密碼不一致';
+                }
             }
+        });
 
-            // 創造請求數據
-            var factoryMap = new Map();
+        // 當角色選擇改變時，動態載入管理者選單
+        form.on('select(role)', function(data) {
+            console.log("角色選擇改變:", data.value);
+            var userRole = data.value; // 取得選中的角色值
 
-            // 自定義驗證
-            form.verify({
-                confirmPass: function (value) {
-                    var password = $("input[name='password']").val();
-                    if (value !== password) {
-                        return '兩次輸入的密碼不一致';
-                    }
-                }
-            });
+            // 清空 parentId 選項
+            var select = $("select[name='parentId']");
+            select.empty();
+            select.append(new Option("請選擇管理者", ""));
 
-            // 當角色選擇改變時，動態載入管理者選單
-            form.on('select(role)', function(data) {
-                console.log("角色選擇改變:", data.value);
-                var userRole = data.value; // 取得選中的角色值
+            // 隱藏工廠選擇區域
+            $("#factorySelectContainer").hide();
 
-                // 清空 parentId 選項
-                var select = $("select[name='parentId']");
-                select.empty();
-                select.append(new Option("請選擇管理者", ""));
+            if (userRole) {
+                // 構造請求數據
+                var requestData = JSON.stringify({ userRole: userRole });
 
-                // 隱藏工廠選擇區域
-                $("#factorySelectContainer").hide();
-                
-                if (userRole) {
-                    // 構造請求數據
-                    var requestData = JSON.stringify({ userRole: userRole });
-
-                    // 發送 POST 請求到後端，傳遞 userRole 參數
-                    $.ajax({
-                        url: '/api/v1/user/listParentInfo',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: requestData,
-                        success: function(data) {
-                            console.log("成功調用 API:", data);
-
-                            // 使用後端返回的 displayText
-                            data.forEach(function(item) {
-                                select.append(new Option(item.displayText, item.id));
-                            });
-
-                            form.render('select');
-                        },
-                        error: function() {
-                            // 如果請求失敗，顯示錯誤信息
-                            handleErrorResponse(xhr);
-                        }
-                    });
-                }
-            });
-
-            // 使用 layui 的 form.on 方法來監聽 parentId 的變化，而不是 jQuery 的 on 方法
-            form.on('select(parentId)', function(data) {
-                console.log("用戶管理者選擇改變:", data.value);
-                var userRole = $("select[name='role']").val();
-                var parentId = data.value;
-                
-                // 清空工廠選擇
-                $('#factorySelect').empty().trigger('change');
-                
-                // 只有當角色是一般用戶(3)且選擇了用戶管理者時才顯示工廠選擇
-                if (userRole === "3" && parentId) {
-                    $("#factorySelectContainer").show();
-                    loadFactoryDataByInstallerId(parentId);
-                } else {
-                    $("#factorySelectContainer").hide();
-                }
-            });
-
-            // 更新 Select2 選項通用函數
-            function updateSelectOptions($select, dataMap) {
-                $select.empty();
-                var options = Array.from(dataMap.values()).sort((a, b) => a.text.localeCompare(b.text));
-                options.forEach(function(option) {
-                    $select.append(new Option(option.text, option.id, false, false));
-                });
-                $select.trigger('change');
-                console.log(`更新 ${$select.attr('id')} 選項數量：`, options.length);
-            }
-
-            // 根據安裝商ID載入工廠數據
-            function loadFactoryDataByInstallerId(installerId) {
-                if (!installerId) {
-                    $('#factorySelect').empty().trigger('change');
-                    return;
-                }
-
+                // 發送 POST 請求到後端，傳遞 userRole 參數
                 $.ajax({
-                    url: '/api/v1/factory/findByInstallerId/' + installerId,
-                    type: 'GET',
-                    success: function(data) {
-                        factoryMap.clear();
-                        if (data && data.length > 0) {
-                            data.forEach(function(item) {
-                                factoryMap.set(item.factoryId, {
-                                    id: item.factoryId,
-                                    text: item.displayText
-                                });
-                            });
-                            updateSelectOptions($('#factorySelect'), factoryMap);
-                        } else {
-                            layer.msg('該安裝商尚無綁定工廠', {icon: 0});
-                            $('#factorySelect').empty().trigger('change');
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('載入工廠數據失敗:', xhr);
-                        handleErrorResponse(xhr);
-                    }
-                });
-            }
-
-            // 表單提交
-            form.on('submit(saveBtn)', function(data) {
-                var formData = data.field;
-                // 轉換工廠 ID 為陣列
-                formData.factoryIds = $('#factorySelect').val() || [];
-
-                $.ajax({
-                    url: '/api/v1/user/add',
+                    url: '/api/v1/user/listParentInfo',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify(formData),
-                    success: function (response, textStatus, xhr) {
-                        if (xhr.status === 201) {
-                            layer.alert('新增用戶成功', {title: '提示'}, function (index) {
-                                parent.layui.miniTab.deleteCurrentByIframe();
-                                // layer.close(index);
-                                // window.location.replace('user_list.html');
-                            });
-                        } else {
-                            handleErrorResponse(xhr);
-                        }
+                    data: requestData,
+                    success: function(data) {
+                        console.log("成功調用 API:", data);
+
+                        // 使用後端返回的 displayText
+                        data.forEach(function(item) {
+                            select.append(new Option(item.displayText, item.id));
+                        });
+
+                        form.render('select');
                     },
-                    error: function (xhr) {
+                    error: function() {
+                        // 如果請求失敗，顯示錯誤信息
                         handleErrorResponse(xhr);
                     }
                 });
-                return false;
-            });
-
-            // 初始隱藏工廠選擇區域
-            $("#factorySelectContainer").hide();
+            }
         });
-    </script>
+
+        // 使用 layui 的 form.on 方法來監聽 parentId 的變化，而不是 jQuery 的 on 方法
+        form.on('select(parentId)', function(data) {
+            console.log("用戶管理者選擇改變:", data.value);
+            var userRole = $("select[name='role']").val();
+            var parentId = data.value;
+
+            // 清空工廠選擇
+            $('#factorySelect').empty().trigger('change');
+
+            // 只有當角色是一般用戶(3)且選擇了用戶管理者時才顯示工廠選擇
+            if (userRole === "3" && parentId) {
+                $("#factorySelectContainer").show();
+                loadFactoryDataByInstallerId(parentId);
+            } else {
+                $("#factorySelectContainer").hide();
+            }
+        });
+
+        // 更新 Select2 選項通用函數
+        function updateSelectOptions($select, dataMap) {
+            $select.empty();
+            var options = Array.from(dataMap.values()).sort((a, b) => a.text.localeCompare(b.text));
+            options.forEach(function(option) {
+                $select.append(new Option(option.text, option.id, false, false));
+            });
+            $select.trigger('change');
+            console.log(`更新 ${$select.attr('id')} 選項數量：`, options.length);
+        }
+
+        // 根據安裝商ID載入工廠數據
+        function loadFactoryDataByInstallerId(installerId) {
+            if (!installerId) {
+                $('#factorySelect').empty().trigger('change');
+                return;
+            }
+
+            $.ajax({
+                url: '/api/v1/factory/findByInstallerId/' + installerId,
+                type: 'GET',
+                success: function(data) {
+                    factoryMap.clear();
+                    if (data && data.length > 0) {
+                        data.forEach(function(item) {
+                            factoryMap.set(item.factoryId, {
+                                id: item.factoryId,
+                                text: item.displayText
+                            });
+                        });
+                        updateSelectOptions($('#factorySelect'), factoryMap);
+                    } else {
+                        layer.msg('該安裝商尚無綁定工廠', {icon: 0});
+                        $('#factorySelect').empty().trigger('change');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('載入工廠數據失敗:', xhr);
+                    handleErrorResponse(xhr);
+                }
+            });
+        }
+
+        // 表單提交
+        form.on('submit(saveBtn)', function(data) {
+            var formData = data.field;
+            // 轉換工廠 ID 為陣列
+            formData.factoryIds = $('#factorySelect').val() || [];
+
+            $.ajax({
+                url: '/api/v1/user/add',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (response, textStatus, xhr) {
+                    if (xhr.status === 201) {
+                        layer.alert('新增用戶成功', {title: '提示'}, function (index) {
+                            parent.layui.miniTab.deleteCurrentByIframe();
+                            // layer.close(index);
+                            // window.location.replace('user_list.html');
+                        });
+                    } else {
+                        handleErrorResponse(xhr);
+                    }
+                },
+                error: function (xhr) {
+                    handleErrorResponse(xhr);
+                }
+            });
+            return false;
+        });
+        // 顯示/隱藏密碼切換
+        $('.toggle-pwd').on('click', function() {
+            var $icon = $(this);
+            var $inp = $icon.siblings('input.pwd-field');
+            if ($inp.attr('type') === 'password') {
+                $inp.attr('type', 'text');
+                $icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                $inp.attr('type', 'password');
+                $icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+
+
+        // 初始隱藏工廠選擇區域
+        $("#factorySelectContainer").hide();
+    });
+</script>
 </body>
 </html>

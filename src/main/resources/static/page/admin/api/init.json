@@ -16,6 +16,20 @@
       "target": "_self",
       "child": [
         {
+          "title": "用戶管理",
+          "href": "",
+          "icon": "fa fa-user-circle-o",
+          "target": "_self",
+          "child": [
+            {
+              "title": "用戶列表",
+              "href": "/page/admin/user/user_list.html",
+              "icon": "fa fa-file-text",
+              "target": "_self"
+            }
+          ]
+        },
+        {
           "title": "工廠管理",
           "href": "",
           "icon": "fa fa-home",
@@ -46,20 +60,6 @@
               "href": "/page/admin/channel/channel_list.html",
               "icon": "fa fa-file-text",
               "target": "_parent"
-            }
-          ]
-        },
-        {
-          "title": "用戶管理",
-          "href": "",
-          "icon": "fa fa-user-circle-o",
-          "target": "_self",
-          "child": [
-            {
-              "title": "用戶列表",
-              "href": "/page/admin/user/user_list.html",
-              "icon": "fa fa-file-text",
-              "target": "_self"
             }
           ]
         }
