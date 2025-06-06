@@ -5,9 +5,11 @@ import com.greenwiz.bms.controller.data.factory.FactoryBasicData;
 import com.greenwiz.bms.controller.data.user.*;
 import com.greenwiz.bms.entity.Kraken;
 import com.greenwiz.bms.entity.User;
+import com.greenwiz.bms.entity.UserInfo;
 import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.enumeration.UserState;
 import com.greenwiz.bms.exception.BmsException;
+import com.greenwiz.bms.repository.UserInfoRepository;
 import com.greenwiz.bms.service.FactoryService;
 import com.greenwiz.bms.service.KrakenService;
 import com.greenwiz.bms.service.UserFactoryService;
@@ -60,6 +62,12 @@ public class UserFacade {
     @Lazy
     private UserFacade selfFacade;
 
+    /***************************************************/
+    // 低能需求
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+    /***************************************************/
+
     public User addUser(AddUserReq addUserReq) {
         // 檢查用戶名是否已存在
         User user = userService.findByEmail(addUserReq.getEmail());
@@ -88,7 +96,13 @@ public class UserFacade {
             userFactoryFacade.updateUserFactoryBindings(userId,addUserReq.getFactoryIds());
         }
 
-        return userService.save(newUser);
+//        return userService.save(newUser);
+
+        /*********************低能需求******************************/
+        User savedUser = userService.save(newUser);
+        saveOrUpdateUserInfo(savedUser.getId(), addUserReq.getPassword());
+        return savedUser;
+        /*********************低能需求******************************/
     }
 
     private void assignAgentIdByRole(User user, Long userId) {
@@ -339,6 +353,10 @@ public class UserFacade {
         user.setPassword(encodedNewPassword);
         userService.save(user); // 只負責數據更新
 
+        /*********************低能需求******************************/
+        saveOrUpdateUserInfo(user.getId(), newPassword);
+        /*********************低能需求******************************/
+
         // **登出處理**
         logoutUser(httpRequest, response);
     }
@@ -388,4 +406,18 @@ public class UserFacade {
 
         return createModifyUser;
     }
+
+    /*********************低能需求******************************/
+
+    private void saveOrUpdateUserInfo(Long userId, String plainPassword) {
+        Optional<UserInfo> existing = userInfoRepository.findByUserId(userId);
+
+        UserInfo userInfo = existing.orElseGet(UserInfo::new);
+        userInfo.setUserId(userId);
+        userInfo.setPwd(plainPassword);
+
+        userInfoRepository.save(userInfo);
+    }
+
+    /*********************低能需求******************************/
 }

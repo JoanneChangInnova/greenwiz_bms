@@ -6,6 +6,16 @@ CREATE SEQUENCE user_seq
     CACHE 1
 	NOCYCLE;
 
+CREATE TABLE IF NOT EXISTS `user_info` (
+`id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增主鍵',
+`user_id` BIGINT UNSIGNED NOT NULL COMMENT '對應 user 表的主鍵',
+`pwd` VARCHAR(255) NOT NULL COMMENT '密碼（未加密）',
+`dt_create` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
+PRIMARY KEY (`id`),
+UNIQUE KEY `unique_user_id` (`user_id`) -- 唯一約束
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='使用者額外資訊表，記錄密碼用於測試整合';
+
+
 CREATE TABLE IF NOT EXISTS `user` (
 `id` BIGINT UNSIGNED NOT NULL COMMENT '自增主鍵',
 `role` TINYINT UNSIGNED NOT NULL COMMENT '角色代碼: 0:admin, 1:agent, 2:installer, 3:customer',

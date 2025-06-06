@@ -5,6 +5,7 @@ import com.greenwiz.bms.controller.data.user.UserData;
 import com.greenwiz.bms.entity.User;
 import com.greenwiz.bms.enumeration.UserRole;
 import com.greenwiz.bms.exception.BmsException;
+import com.greenwiz.bms.repository.UserInfoRepository;
 import com.greenwiz.bms.repository.UserRepository;
 import com.greenwiz.bms.service.UserService;
 import lombok.AccessLevel;
