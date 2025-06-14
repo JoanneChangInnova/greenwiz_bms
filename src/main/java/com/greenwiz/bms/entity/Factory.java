@@ -50,4 +50,11 @@ public class Factory extends BaseEntity {
 
     @Column(name = "agent_id", nullable = false)
     private Long agentId;
+
+    /*
+    * TODO: 低能需求要移除
+    * */
+    @Column(name = "user_id_owner")
+    private Long userIdOwner;
+
 }

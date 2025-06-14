@@ -68,6 +68,12 @@ public class UserFacade {
     private UserInfoRepository userInfoRepository;
     /***************************************************/
 
+
+    /**
+     本功能違反《中華民國個人資料保護法》之最小可知原則及安全儲存原則，正式環境不應使用。
+     密碼應使用不可逆雜湊（如 BCrypt）保存，明文密碼應避免儲存。
+     本功能僅供測試目的使用，任何因資料洩漏、資安風險或違法問題，開發人員及維運方概不負任何法律責任。
+     */
     public User addUser(AddUserReq addUserReq) {
         // 檢查用戶名是否已存在
         User user = userService.findByEmail(addUserReq.getEmail());
@@ -98,6 +104,7 @@ public class UserFacade {
 
 //        return userService.save(newUser);
 
+        // TODO: 低能需求要移除
         /*********************低能需求******************************/
         User savedUser = userService.save(newUser);
         saveOrUpdateUserInfo(savedUser.getId(), addUserReq.getPassword());
@@ -334,6 +341,11 @@ public class UserFacade {
         return getUserData;
     }
 
+    /**
+     本功能違反《中華民國個人資料保護法》之最小可知原則及安全儲存原則，正式環境不應使用。
+     密碼應使用不可逆雜湊（如 BCrypt）保存，明文密碼應避免儲存。
+     本功能僅供測試目的使用，任何因資料洩漏、資安風險或違法問題，開發人員及維運方概不負任何法律責任。
+     */
     public void changePassword(String newPassword, HttpServletRequest httpRequest,
                                HttpServletResponse response) {
         // 取得當前用戶資訊
@@ -353,6 +365,7 @@ public class UserFacade {
         user.setPassword(encodedNewPassword);
         userService.save(user); // 只負責數據更新
 
+        // TODO: 低能需求要移除
         /*********************低能需求******************************/
         saveOrUpdateUserInfo(user.getId(), newPassword);
         /*********************低能需求******************************/
@@ -407,8 +420,8 @@ public class UserFacade {
         return createModifyUser;
     }
 
+    // TODO: 低能需求要移除
     /*********************低能需求******************************/
-
     private void saveOrUpdateUserInfo(Long userId, String plainPassword) {
         Optional<UserInfo> existing = userInfoRepository.findByUserId(userId);
 
@@ -418,6 +431,5 @@ public class UserFacade {
 
         userInfoRepository.save(userInfo);
     }
-
     /*********************低能需求******************************/
 }

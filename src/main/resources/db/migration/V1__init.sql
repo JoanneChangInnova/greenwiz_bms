@@ -81,6 +81,8 @@ CREATE TABLE IF NOT EXISTS `factory` (
  `dt_create` DATETIME NULL COMMENT '創建時間',
  `create_user` BIGINT NULL COMMENT '建立資料的使用者 id',
  `modify_user` BIGINT NULL COMMENT '修改資料的使用者 id',
+
+ `user_id_owner` BIGINT UNSIGNED NULL COMMENT '主綁定使用者 ID，外部系統一對一使用',
  PRIMARY KEY (`id`),
  UNIQUE KEY (`factory_uuid`) COMMENT '唯一約束，防止重複的工廠 UUID'
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='工廠基本信息表';
